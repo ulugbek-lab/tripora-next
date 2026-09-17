@@ -38,7 +38,7 @@ class LoggingWebSocket {
 		socketVar(this.socket);
 
 		this.socket.onopen = () => {
-			console.log('WebSocket connection ')
+			console.log('WebSocket connection ');
 		};
 		this.socket.onmessage = (msg) => {
 			console.log('WebSocket message received: ', msg.data);
@@ -49,16 +49,14 @@ class LoggingWebSocket {
 		};
 	}
 
-	send(data: string | ArrayBuffer | SharedArrayBuffer | Blob | ArrayBufferView){
+	send(data: string | ArrayBuffer | SharedArrayBuffer | Blob | ArrayBufferView) {
 		this.socket.send(data);
-
 	}
 
 	close() {
 		this.socket.close();
 	}
-};
-
+}
 
 function createIsomorphicLink() {
 	if (typeof window !== 'undefined') {
@@ -94,7 +92,7 @@ function createIsomorphicLink() {
 		const errorLink = onError(({ graphQLErrors, networkError, response }) => {
 			if (graphQLErrors) {
 				graphQLErrors.map(({ message, locations, path, extensions }) => {
-					if (!message.includes("input")) {
+					if (!message.includes('input')) {
 						sweetErrorAlert(message);
 					}
 				});

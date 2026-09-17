@@ -18,7 +18,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const Home: NextPage = () => {
-	const device = useDeviceDetect();
+	const device: string = useDeviceDetect();
 
 	if (device === 'mobile') {
 		return (
