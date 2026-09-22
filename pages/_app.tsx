@@ -26,3 +26,13 @@ const App = ({ Component, pageProps }: AppProps) => {
 };
 
 export default appWithTranslation(App);
+
+// FRONEND => GraphQl  =>  BACKEND
+
+//1. HOOKS: useQuery & useMutation 98%   (tsx REACT file components)
+//2. CLIENT: 1%     (ts TYPESCRIPT)
+//3. AXIOS:  1%.     (file and img uploads)
+
+// REACT CACHE:
+// - useState vs useMemo*(saves info to cache)
+// Handler vs useCallback*(save function to cache)

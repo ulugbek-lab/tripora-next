@@ -25,20 +25,23 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 	const [trendProperties, setTrendProperties] = useState<Property[]>([]);
 
 	/** APOLLO REQUESTS **/
+
+	const {
+		loading: getPropertiesLoading,
+		data: getPropertiesData,
+		error: getPropertiesError,
+		refetch: getPropertiesRefetch,
+	} = useQuery(GET_PROPERTIES, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: initialInput },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setTrendProperties(data?.getProperties?.list);
+		},
+	});
+	//HANDLERS
+
 	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
-
-	const {loading: getPropertiesLoading, 
-		data: getPropertiesData, error: 
-		getPropertiesError, 
-		refetch: getPropertiesRefetch } = useQuery(GET_PROPERTIES, {
-			fetchPolicy: "cache-and-network",
-			variables:{input: initialInput},
-			notifyOnNetworkStatusChange: true,
-			onCompleted: (data:T) => {
-				setTrendProperties(data?.getProperties?.list)
-			}
-
-	})
 	/** HANDLERS **/
 	const likePropertyHandler = async (user: T, id: string) => {
 		try {
