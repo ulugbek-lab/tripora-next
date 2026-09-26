@@ -162,7 +162,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 					setProperty(data.getProperty);
 				}
 			}
-			
+
 			await getPropertiesRefetch({
 				input: {
 					page: 1,
@@ -194,7 +194,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 			await createComment({ variables: { input: insertCommentData } });
 			setInsertCommentData({ ...insertCommentData, commentContent: '' });
 
-			getCommentsRefetch();
+			getCommentsRefetch({ input: commentInquiry });
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
