@@ -16,6 +16,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 	const client = useApollo(pageProps.initialApolloState);
 
 	return (
+		//useQuery, useMutation
 		<ApolloProvider client={client}>
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
