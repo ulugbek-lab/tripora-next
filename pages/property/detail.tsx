@@ -154,7 +154,15 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 			// Execute like
 			await likeTargetProperty({ variables: { input: id } });
-			await getPropertiesRefetch({ input: propertyId });
+			// 2. Refresh main property
+			if (id === property?._id) {
+				const { data } = await getPropertyRefetch();
+
+				if (data?.getProperty) {
+					setProperty(data.getProperty);
+				}
+			}
+			
 			await getPropertiesRefetch({
 				input: {
 					page: 1,
