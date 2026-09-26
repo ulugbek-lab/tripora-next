@@ -14,6 +14,7 @@ import { T } from '../../types/common';
 import { LIKE_TARGET_PROPERTY } from '../../../apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { Message } from '@mui/icons-material';
+import router from 'next/router';
 
 interface TrendPropertiesProps {
 	initialInput: PropertiesInquiry;
@@ -61,6 +62,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 
 	if (trendProperties) console.log('trendProperties:', trendProperties);
 	if (!trendProperties) return null;
+	
 
 	if (device === 'mobile') {
 		return (

@@ -20,6 +20,10 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 	const user = useReactiveVar(userVar);
 
 	/** HANDLERS **/
+	const pushDetailHandler = async (propertyId: string) => {
+		console.log('ID', propertyId);
+		await router.push({ pathname: '/property/detail', query: { id: propertyId } });
+	};
 
 	if (device === 'mobile') {
 		return (
@@ -77,6 +81,9 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 					component={'div'}
 					className={'card-img'}
 					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[0]})` }}
+					onClick={() => {
+						pushDetailHandler(property._id);
+					}}
 				>
 					{property && property?.propertyRank >= topPropertyRank ? (
 						<div className={'status'}>
