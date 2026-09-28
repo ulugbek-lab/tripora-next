@@ -25,13 +25,13 @@ import { Pagination as MuiPagination } from '@mui/material';
 import Link from 'next/link';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import 'swiper/css';
-import 'swiper/css/pagination';
 import { GET_COMMENTS, GET_PROPERTIES, GET_PROPERTY } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 SwiperCore.use([Autoplay, Navigation, Pagination]);
 
@@ -79,6 +79,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 		},
 	});
 
+	//DEPENDANT QUERIES
 	const {
 		loading: getPropertiesLoading,
 		data: getPropertiesData,
@@ -115,7 +116,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 		skip: !commentInquiry.search.commentRefId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted(data: T) {
-			if (data?.getComments.list) setPropertyComments(data?.getComments?.list);
+			if (data?.getComments?.list) setPropertyComments(data?.getComments?.list);
 			setCommentTotal(data?.getComments?.metaCounter[0]?.total ?? 0);
 		},
 	});
@@ -155,13 +156,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 			// Execute like
 			await likeTargetProperty({ variables: { input: id } });
 			// 2. Refresh main property
-			if (id === property?._id) {
-				const { data } = await getPropertyRefetch();
-
-				if (data?.getProperty) {
-					setProperty(data.getProperty);
-				}
-			}
+			await getPropertyRefetch({ input: id });
 
 			await getPropertiesRefetch({
 				input: {
