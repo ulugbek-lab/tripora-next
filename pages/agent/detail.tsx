@@ -33,7 +33,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
-	const [mbId, setMbId] = useState<string | null>(null);
+	const [agentId, setMbId] = useState<string | null>(null);
 	const [agent, setAgent] = useState<Member | null>(null);
 	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(initialInput);
 	const [agentProperties, setAgentProperties] = useState<Property[]>([]);
@@ -55,9 +55,9 @@ const {
    } = useQuery(GET_MEMBER, {
 	fetchPolicy: 'network-only',
 	variables: {
-	 input: mbId,
+	 input: agentId,
 	},
-	skip: !mbId,
+	skip: !agentId,
 	notifyOnNetworkStatusChange: true,
 	onCompleted: (data: T) => {
 	 setAgent(data?.getMember);
