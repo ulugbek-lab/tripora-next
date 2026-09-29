@@ -135,7 +135,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 						) : (
 							agentProperties.map((property: Property) => {
 								return (
-									<PropertyCard
+									<PropertyCard 
 										property={property}
 										deletePropertyHandler={deletePropertyHandler}
 										updatePropertyHandler={updatePropertyHandler}

@@ -65,6 +65,7 @@ function createIsomorphicLink() {
 				headers: {
 					...headers,
 					...getHeaders(),
+					'Apollo-Require-Preflight': 'true',
 				},
 			}));
 			console.warn('requesting.. ', operation);
