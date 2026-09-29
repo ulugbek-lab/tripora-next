@@ -10,7 +10,7 @@ import { getJwtToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import { CREATE_PROPERTY } from '../../../apollo/user/mutation';
+import { CREATE_PROPERTY, UPDATE_PROPERTY } from '../../../apollo/user/mutation';
 import { GET_PROPERTY } from '../../../apollo/user/query';
 
 const AddProperty = ({ initialValues, ...props }: any) => {
@@ -24,38 +24,39 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-		const [createProperty] = useMutation(CREATE_PROPERTY);
-		const [updateProperty] = useMutation(CREATE_PROPERTY);
-	
-		const {
-			loading: getAgentPropertiesLoading,
-			data: getAgentPropertiesData,
-			error: getAgentPropertiesError,
-			refetch: getAgentPropertiesRefetch,
-		} = useQuery(GET_PROPERTY, {
-			fetchPolicy: 'network-only',
-			variables: { 
-				input: router.query.propertyId},
+	const [createProperty] = useMutation(CREATE_PROPERTY);
+	const [updateProperty] = useMutation(UPDATE_PROPERTY);
+
+	const {
+		loading: getPropertyLoading,
+		data: getPropertyData,
+		error: getPropertyError,
+		refetch: getPropertyRefetch,
+	} = useQuery(GET_PROPERTY, {
+		fetchPolicy: 'network-only',
+		variables: {
+			input: router.query.propertyId,
+		},
 	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		setInsertPropertyData({
 			...insertPropertyData,
-			propertyTitle: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyTitle : '',
-			propertyPrice: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyPrice : 0,
-			propertyType: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyType : '',
-			propertyLocation: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyLocation : '',
-			propertyAddress: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyAddress : '',
-			propertyBarter: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyBarter : false,
-			propertyRent: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyRent : false,
-			propertyRooms: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyRooms : 0,
-			propertyBeds: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyBeds : 0,
-			propertySquare: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertySquare : 0,
-			propertyDesc: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyDesc : '',
-			propertyImages: getAgentPropertiesData?.getProperty ? getAgentPropertiesData?.getProperty?.propertyImages : [],
+			propertyTitle: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyTitle : '',
+			propertyPrice: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyPrice : 0,
+			propertyType: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyType : '',
+			propertyLocation: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyLocation : '',
+			propertyAddress: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyAddress : '',
+			propertyBarter: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyBarter : false,
+			propertyRent: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyRent : false,
+			propertyRooms: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyRooms : 0,
+			propertyBeds: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyBeds : 0,
+			propertySquare: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertySquare : 0,
+			propertyDesc: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyDesc : '',
+			propertyImages: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyImages : [],
 		});
-	}, [getAgentPropertiesLoading, getAgentPropertiesData]);
+	}, [getPropertyLoading, getPropertyData]);
 
 	/** HANDLERS **/
 	async function uploadImages() {
@@ -131,46 +132,45 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 
 	const insertPropertyHandler = useCallback(async () => {
 		try {
-		  const result = await createProperty({
-			variables: {
-			  input: insertPropertyData,
-			},
-		  });
-	  
-		  await sweetMixinSuccessAlert('This property has been created successfully.');
-		  await router.push({
-			pathname: '/mypage',
-			query: {
-			  category: 'myProperties',
-			},
-		  });
+			const result = await createProperty({
+				variables: {
+					input: insertPropertyData,
+				},
+			});
+
+			await sweetMixinSuccessAlert('This property has been created successfully.');
+			await router.push({
+				pathname: '/mypage',
+				query: {
+					category: 'myProperties',
+				},
+			});
 		} catch (err: any) {
-		  sweetErrorHandling(err).then();
+			sweetErrorHandling(err).then();
 		}
-	  }, [insertPropertyData]);
-	  
-	  const updatePropertyHandler = useCallback(async () => {
+	}, [insertPropertyData]);
+
+	const updatePropertyHandler = useCallback(async () => {
 		try {
-		  // @ts-ignore
-		  insertPropertyData._id = getPropertyData?.getProperty?._id;
-		  const result = await updateProperty({
-			variables: {
-			  input: insertPropertyData,
-			},
-		  });
-	  
-		  await sweetMixinSuccessAlert('This property has been updated successfully.');
-		  await router.push({
-			pathname: '/mypage',
-			query: {
-			  category: 'myProperties',
-			},
-		  });
+			// @ts-ignore
+			insertPropertyData._id = getPropertyData?.getProperty?._id;
+			const result = await updateProperty({
+				variables: {
+					input: insertPropertyData,
+				},
+			});
+
+			await sweetMixinSuccessAlert('This property has been updated successfully.');
+			await router.push({
+				pathname: '/mypage',
+				query: {
+					category: 'myProperties',
+				},
+			});
 		} catch (err: any) {
-		  sweetErrorHandling(err).then();
+			sweetErrorHandling(err).then();
 		}
-	  }, [insertPropertyData]);
-	  
+	}, [insertPropertyData]);
 
 	if (user?.memberType !== 'AGENT') {
 		router.back();
