@@ -29,7 +29,7 @@ const tokenRefreshLink = new TokenRefreshLink({
 	},
 });
 
-// Custom WebSoket client
+// Custom WebSocket client
 class LoggingWebSocket {
 	private socket: WebSocket;
 
