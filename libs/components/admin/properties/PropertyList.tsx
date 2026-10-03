@@ -168,14 +168,11 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 												</Stack>
 											) : (
 												<Stack direction={'row'}>
-													<Link href={`/property/detail?id=${property?._id}`}>
-														<div>
-															<Avatar alt="Remy Sharp" src={propertyImage} sx={{ ml: '2px', mr: '10px' }} />
-														</div>
-													</Link>
-													<Link href={`/property/detail?id=${property?._id}`}>
-														<div>{property.propertyTitle}</div>
-													</Link>
+													<div>
+														<Avatar alt="Remy Sharp" src={propertyImage} sx={{ ml: '2px', mr: '10px' }} />
+													</div>
+
+													<div style={{ marginTop: '10px' }}>{property.propertyTitle}</div>
 												</Stack>
 											)}
 										</TableCell>
