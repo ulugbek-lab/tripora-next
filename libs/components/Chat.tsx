@@ -27,7 +27,7 @@ interface InfoPayload {
 const Chat = () => {
 	const chatContentRef = useRef<HTMLDivElement>(null);
 	const [messagesList, setMessagesList] = useState<MessagePayload[]>([]);
-	const [onlineUsers, setOnlineUsers] = useState<number>(0);
+	const [onlineUsers, setOnlineUsers] = useState<number>(4);
 	const textInput = useRef(null);
 	const [message, setMessage] = useState<string>('');
 	const [open, setOpen] = useState(false);
