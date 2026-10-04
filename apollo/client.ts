@@ -38,7 +38,7 @@ class LoggingWebSocket {
 		socketVar(this.socket);
 
 		this.socket.onopen = () => {
-			console.log('WebSocket connection ');
+			console.log('WebSocket connected ');
 		};
 		this.socket.onmessage = (msg) => {
 			console.log('WebSocket message received: ', msg.data);
@@ -46,6 +46,9 @@ class LoggingWebSocket {
 
 		this.socket.onerror = (error) => {
 			console.error('WebSocket error: ', error);
+		};
+		this.socket.onclose = () => {
+			console.log('WebSocket disconnected');
 		};
 	}
 
@@ -93,7 +96,7 @@ function createIsomorphicLink() {
 		const errorLink = onError(({ graphQLErrors, networkError, response }) => {
 			if (graphQLErrors) {
 				graphQLErrors.map(({ message, locations, path, extensions }) => {
-					console.log(`[GraphQL error]: Message: ${message}, Loaction: ${locations}, path: ${path}`)
+					console.log(`[GraphQL error]: Message: ${message}, Loaction: ${locations}, path: ${path}`);
 					if (!message.includes('input')) {
 						sweetErrorAlert(message);
 					}

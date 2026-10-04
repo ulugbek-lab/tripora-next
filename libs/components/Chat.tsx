@@ -27,7 +27,7 @@ interface InfoPayload {
 const Chat = () => {
 	const chatContentRef = useRef<HTMLDivElement>(null);
 	const [messagesList, setMessagesList] = useState<MessagePayload[]>([]);
-	const [onlineUsers, setOnlineUsers] = useState<number>(4);
+	const [onlineUsers, setOnlineUsers] = useState<number>(0);
 	const textInput = useRef(null);
 	const [message, setMessage] = useState<string>('');
 	const [open, setOpen] = useState(false);
@@ -39,7 +39,6 @@ const Chat = () => {
 	/** LIFECYCLE: socket listener **/
 	useEffect(() => {
 		if (!socket) return;
-
 		const handleSocketMessage = (msg: MessageEvent) => {
 			const data = JSON.parse(msg.data);
 			console.log('📩 WebSocket message received:', data);
@@ -55,7 +54,7 @@ const Chat = () => {
 					break;
 				case 'message':
 					const newMessage: MessagePayload = data;
-					setMessagesList(prev => [...prev, newMessage]);
+					setMessagesList((prev) => [...prev, newMessage]);
 					break;
 				default:
 					console.warn('❓ Unknown event:', data);
@@ -81,7 +80,7 @@ const Chat = () => {
 
 	/** Handlers **/
 	const handleOpenChat = () => {
-		setOpen(prev => !prev);
+		setOpen((prev) => !prev);
 	};
 
 	const getInputMessageHandler = useCallback((e: any) => {
@@ -143,13 +142,7 @@ const Chat = () => {
 										<div className="msg-right">{text}</div>
 									</Box>
 								) : (
-									<Box
-										key={idx}
-										flexDirection="row"
-										style={{ display: 'flex' }}
-										sx={{ m: '10px 0px' }}
-										component="div"
-									>
+									<Box key={idx} flexDirection="row" style={{ display: 'flex' }} sx={{ m: '10px 0px' }} component="div">
 										<Avatar alt="user" src={memberImage} />
 										<div className="msg-left">{text}</div>
 									</Box>
