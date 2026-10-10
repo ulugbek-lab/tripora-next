@@ -31,8 +31,8 @@ const withLayoutFull = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>{router.pathname === '/travel-package/detail' ? 'Tripora | Travel Package Details' : 'Nestar'}</title>
+						<meta name={'title'} content={router.pathname === '/travel-package/detail' ? 'Tripora | Travel Package Details' : 'Nestar'} />
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
@@ -53,8 +53,8 @@ const withLayoutFull = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>{router.pathname === '/travel-package/detail' ? 'Tripora | Travel Package Details' : 'Nestar'}</title>
+						<meta name={'title'} content={router.pathname === '/travel-package/detail' ? 'Tripora | Travel Package Details' : 'Nestar'} />
 					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>

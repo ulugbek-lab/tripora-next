@@ -1,0 +1,237 @@
+#pc-wrap #travel-package-detail-page,
+#mobile-wrap #travel-package-detail-page {
+	background: #fff;
+	padding: 300px 0 80px;
+	> .container {
+		width: min(1300px, 100%);
+		margin: 0 auto;
+		padding: 0 24px;
+		box-sizing: border-box;
+		display: block;
+	}
+	.travel-package-detail-config {
+		gap: 30px;
+		width: 100%;
+	}
+	.travel-package-info-config {
+		gap: 24px;
+	}
+	.info {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 24px;
+	}
+	.left-box {
+		gap: 10px;
+		min-width: 0;
+	}
+	.title-main {
+		font-size: 30px;
+		font-weight: 600;
+		overflow-wrap: anywhere;
+	}
+	.destination {
+		color: #717171;
+	}
+	.right-box {
+		align-items: flex-end;
+		gap: 12px;
+	}
+	.price {
+		font-size: 24px;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.buttons {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.images {
+		gap: 16px;
+	}
+	.main-image {
+		width: 100%;
+		height: 500px;
+		border-radius: 12px;
+		overflow: hidden;
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+	.no-image {
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+		background: #f6f6f6;
+	}
+	.sub-images {
+		flex-direction: row;
+		gap: 12px;
+		overflow-x: auto;
+	}
+	.sub-img-box {
+		flex-shrink: 0;
+		padding: 3px;
+		border: 2px solid transparent;
+		border-radius: 8px;
+		&[aria-pressed='true'] {
+			border-color: #eb6753;
+		}
+		img {
+			width: 130px;
+			height: 90px;
+			object-fit: cover;
+			border-radius: 6px;
+		}
+	}
+	.travel-package-desc-config {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: 30px;
+	}
+	.left-config {
+		flex: 1;
+		min-width: 0;
+		gap: 30px;
+	}
+	.right-config {
+		width: 300px;
+		flex-shrink: 0;
+	}
+	.options-config {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 20px;
+		padding-bottom: 24px;
+		border-bottom: 1px solid #ddd;
+		> * {
+			gap: 8px;
+		}
+	}
+	.label {
+		color: #717171;
+		font-size: 14px;
+	}
+	.section-title {
+		font-size: 20px;
+		font-weight: 600;
+	}
+	.description-config,
+	.reviews-config,
+	.leave-review-config {
+		gap: 20px;
+	}
+	.description {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+		line-height: 1.7;
+	}
+	.member-info {
+		padding: 24px;
+		gap: 16px;
+		border: 1px solid #ddd;
+		border-radius: 12px;
+		overflow-wrap: anywhere;
+	}
+	.member-image {
+		width: 80px;
+		height: 80px;
+		object-fit: cover;
+		border-radius: 50%;
+	}
+	.review-config {
+		gap: 16px;
+		padding: 20px 0;
+		border-bottom: 1px solid #ddd;
+	}
+	.review-mb-info {
+		flex-direction: row;
+		align-items: center;
+		gap: 12px;
+		> img {
+			width: 48px;
+			height: 48px;
+			object-fit: cover;
+			border-radius: 50%;
+		}
+		.date {
+			color: #717171;
+			font-size: 13px;
+		}
+	}
+	&.detail-state {
+		min-height: 400px;
+		align-items: center;
+		gap: 24px;
+		padding-left: 24px;
+		padding-right: 24px;
+	}
+	&.mobile {
+		padding-top: 24px;
+		.info,
+		.travel-package-desc-config {
+			flex-direction: column;
+		}
+		.right-box {
+			align-items: flex-start;
+		}
+		.right-config {
+			width: 100%;
+		}
+		.main-image {
+			height: 260px;
+		}
+		.options-config {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 800px) {
+		.info,
+		.travel-package-desc-config {
+			flex-direction: column;
+		}
+		.right-box {
+			align-items: flex-start;
+		}
+		.right-config {
+			width: 100%;
+		}
+		.main-image {
+			height: 300px;
+		}
+		.options-config {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 480px) {
+		> .container {
+			padding: 0 16px;
+		}
+		.title-main {
+			font-size: 25px;
+		}
+	}
+}
+#travel-package-list-page .travel-package-card {
+	.top > a {
+		display: block;
+		> img {
+			width: 100%;
+			height: 200px;
+			object-fit: cover;
+		}
+	}
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+	a:focus-visible {
+		outline: 2px solid #eb6753;
+		outline-offset: 2px;
+	}
+}

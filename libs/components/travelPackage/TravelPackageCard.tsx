@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -27,7 +28,12 @@ const TravelPackageCard = ({ travelPackage: item, likePackageHandler, liking }: 
 	return (
 		<Stack className="travel-package-card">
 			<Stack className="top">
-				<img src={packageImageUrl(item.packageImages[0])} alt={item.packageTitle} />
+				<Link
+					href={{ pathname: '/travel-package/detail', query: { id: item._id } }}
+					aria-label={`View ${item.packageTitle}`}
+				>
+					<img src={packageImageUrl(item.packageImages[0])} alt={item.packageTitle} />
+				</Link>
 				<Box component="div" className="price-box">
 					<Typography>
 						{item.packageCurrency} {formatterStr(item.packagePrice) || '0'}
@@ -36,9 +42,11 @@ const TravelPackageCard = ({ travelPackage: item, likePackageHandler, liking }: 
 			</Stack>
 			<Stack className="bottom">
 				<Stack className="name-address">
-					<Typography component="h2" className="name">
-						{item.packageTitle}
-					</Typography>
+					<Link href={{ pathname: '/travel-package/detail', query: { id: item._id } }}>
+						<Typography component="h2" className="name">
+							{item.packageTitle}
+						</Typography>
+					</Link>
 					<Typography className="address">
 						{item.packageCity}, {item.packageCountry}
 					</Typography>

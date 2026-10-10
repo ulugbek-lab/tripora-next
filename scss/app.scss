@@ -1,6 +1,8 @@
 /** IMPORTS **/
 @import 'variables.scss';
 @import 'reset.scss';
+@import 'pc/travelPackage/travel-package.scss';
+@import 'pc/travelPackage/detail.scss';
 
 a {
 	white-space: nowrap;
@@ -59,5 +61,3 @@ hr {
 		display: flex;
 	}
 }
-
-@import 'pc/travelPackage/travel-package.scss';

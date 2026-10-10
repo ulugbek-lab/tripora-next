@@ -45,8 +45,12 @@ const Top = () => {
 
 	useEffect(() => {
 		switch (router.pathname) {
+			case '/travel-package/detail':
 			case '/property/detail':
 				setBgColor(true);
+				break;
+			case '/travel-package':
+				setBgColor(false);
 				break;
 			default:
 				break;

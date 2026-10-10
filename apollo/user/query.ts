@@ -728,3 +728,23 @@ export const GET_TRAVEL_PACKAGE = gql`
 		}
 	}
 `;
+
+// Tripora-compatible member selection; the legacy GET_COMMENTS remains unchanged.
+export const GET_TRAVEL_PACKAGE_COMMENTS = gql`
+	query GetTravelPackageComments($input: CommentsInquiry!) {
+		getComments(input: $input) {
+			list {
+				_id
+				commentStatus
+				commentGroup
+				commentContent
+				commentRefId
+				memberId
+				createdAt
+				updatedAt
+				memberData { _id memberNick memberImage memberType }
+			}
+			metaCounter { total }
+		}
+	}
+`;

@@ -82,7 +82,7 @@ function createIsomorphicLink() {
 
 		/* WEBSOCKET SUBSCRIPTION LINK */
 		const wsLink = new WebSocketLink({
-			uri: process.env.REACT_APP_API_WS ?? 'ws://127.0.0.1:3007',
+			uri: process.env.REACT_APP_API_WS ?? 'ws://127.0.0.1:3001',
 			options: {
 				reconnect: false,
 				timeout: 30000,
@@ -93,11 +93,11 @@ function createIsomorphicLink() {
 			webSocketImpl: LoggingWebSocket,
 		});
 
-		const errorLink = onError(({ graphQLErrors, networkError, response }) => {
+		const errorLink = onError(({ graphQLErrors, networkError, response, operation }) => {
 			if (graphQLErrors) {
 				graphQLErrors.map(({ message, locations, path, extensions }) => {
 					console.log(`[GraphQL error]: Message: ${message}, Loaction: ${locations}, path: ${path}`);
-					if (!message.includes('input')) {
+					if (!operation.getContext().suppressErrorAlert && !message.includes('input')) {
 						sweetErrorAlert(message);
 					}
 				});
