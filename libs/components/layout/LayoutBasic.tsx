@@ -28,6 +28,11 @@ const withLayoutBasic = (Component: any) => {
 				bgImage = '';
 
 			switch (router.pathname) {
+				case '/travel-package':
+					title = 'Travel Packages';
+					desc = 'Find your next destination';
+					bgImage = '/img/banner/header2.svg';
+					break;
 				case '/property':
 					title = 'Property Search';
 					desc = 'We are glad to see you again!';
@@ -93,8 +98,8 @@ const withLayoutBasic = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>{router.pathname === '/travel-package' ? 'Tripora | Travel Packages' : 'Nestar'}</title>
+						<meta name={'title'} content={router.pathname === '/travel-package' ? 'Tripora | Travel Packages' : 'Nestar'} />
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
@@ -115,8 +120,8 @@ const withLayoutBasic = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>{router.pathname === '/travel-package' ? 'Tripora | Travel Packages' : 'Nestar'}</title>
+						<meta name={'title'} content={router.pathname === '/travel-package' ? 'Tripora | Travel Packages' : 'Nestar'} />
 					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>
@@ -131,7 +136,7 @@ const withLayoutBasic = (Component: any) => {
 								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
 							}}
 						>
-							<Stack className={'container'}>
+							<Stack className={'container'} style={router.pathname === '/travel-package' ? { marginTop: '300px' } : undefined}>
 								<strong>{t(memoizedValues.title)}</strong>
 								<span>{t(memoizedValues.desc)}</span>
 							</Stack>
