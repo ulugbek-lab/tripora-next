@@ -26,6 +26,611 @@ The main goals are:
 
 ---
 
+# IMPORTANT OVERRIDE — CURRENT FRONTEND MIGRATION STRATEGY
+
+The Tripora frontend migration is now **page-oriented**, not broad domain-oriented.
+
+This section overrides any older migration instructions in this file that suggest migrating many pages or domains before finishing the current page.
+
+The frontend must now be migrated and finalized **one page at a time**.
+
+Do not begin substantial work on another page until the current page has been completed, tested, cleaned up, and reviewed.
+
+The goal is no longer only to replace Property with TravelPackage.
+
+The goal is to finish each Tripora page as a production-quality travel marketplace page before moving to the next one.
+
+---
+
+## 1. Page-by-Page Migration Rule
+
+For every page, use this workflow:
+
+```text
+Inspect existing Nestar page
+↓
+Understand current logic and dependencies
+↓
+Adapt backend/data logic to Tripora
+↓
+Design the Tripora UI
+↓
+Implement UX and interactions
+↓
+Implement desktop and mobile behavior
+↓
+Replace SweetAlert usage on that page
+↓
+Remove legacy Property code made unused by that page
+↓
+Run TypeScript/build
+↓
+Test against the live backend
+↓
+Visually review the page
+↓
+Only then move to the next page
+```
+
+Do not migrate another page simply because its backend contract already exists.
+
+Do not create unfinished placeholder implementations for later pages.
+
+A page is either:
+
+- currently being migrated/finalized; or
+- left in its existing state until its turn.
+
+---
+
+## 2. Current Page Order
+
+Unless explicitly changed by the user, use this order:
+
+```text
+1. Home page
+2. TravelPackage marketplace
+3. TravelPackage detail
+4. Login / Signup
+5. Member / Agent profile
+6. My Page / Agent package management
+7. Community
+8. AI itinerary planner
+9. Admin
+10. Final global cleanup
+```
+
+Do not automatically continue to the next page after completing one.
+
+Stop and report the completed page.
+
+The user will review the page before the next one begins.
+
+---
+
+## 3. Definition of a Finished Page
+
+A page is not complete merely because:
+
+- TypeScript passes;
+- GraphQL works;
+- the backend responds;
+- the page renders.
+
+A migrated Tripora page is complete only when all applicable items are done:
+
+- correct Tripora backend integration;
+- correct TravelPackage/member/community data;
+- final page-specific UI;
+- final page-specific UX;
+- responsive desktop behavior;
+- responsive mobile behavior;
+- loading state;
+- error state;
+- empty state;
+- success feedback;
+- authentication behavior where required;
+- correct routing;
+- correct images;
+- correct filters/sorting/pagination where required;
+- `react-hot-toast` feedback where appropriate;
+- MUI confirmation dialogs for destructive actions;
+- no obsolete Property UI still used by that page;
+- unused page-specific legacy files cleaned up;
+- TypeScript passes;
+- production build passes;
+- live API behavior tested when backend is available;
+- visual layout inspected.
+
+Do not call a page complete if it still looks like the old real-estate Nestar UI with only labels changed.
+
+---
+
+# DESIGN DIRECTION
+
+## 4. Tripora Visual Identity
+
+Tripora should look like a modern travel discovery and travel-package marketplace.
+
+Use travel products such as KAYAK as **design inspiration**, especially for information hierarchy and search UX.
+
+Do NOT copy:
+
+- KAYAK branding;
+- KAYAK logos;
+- copyrighted visual assets;
+- exact page layouts;
+- exact component designs.
+
+Create an original Tripora interface using the existing:
+
+```text
+MUI
++
+SCSS
++
+existing Pages Router architecture
+```
+
+Do not introduce another design system.
+
+---
+
+## 5. Travel Marketplace Design Principles
+
+Tripora public pages should favor:
+
+- search-first layouts;
+- clear destination discovery;
+- prominent travel search controls;
+- strong destination/package imagery;
+- compact comparison-friendly package cards;
+- clear price hierarchy;
+- clear destination hierarchy;
+- clear date/duration/traveller information;
+- modern rounded surfaces;
+- restrained borders;
+- restrained shadows;
+- generous but purposeful spacing;
+- strong typography hierarchy;
+- travel-oriented icons;
+- responsive controls;
+- useful hover/focus states;
+- clean mobile layouts.
+
+Avoid:
+
+- generic admin-dashboard appearance;
+- excessive boxed sections;
+- excessive gradients;
+- overly large decorative hero content with weak functionality;
+- real-estate visual language;
+- crowded cards;
+- unnecessary animations;
+- random colors;
+- inconsistent border radii;
+- duplicated search controls.
+
+The UI should clearly communicate:
+
+```text
+travel
+destination
+package
+date
+duration
+travellers
+price
+agent
+```
+
+before secondary engagement statistics.
+
+---
+
+## 6. Search-First Public Experience
+
+For major travel discovery pages, especially Home and TravelPackage marketplace, search should have strong visual priority.
+
+A typical Tripora search hierarchy can follow this conceptual pattern:
+
+```text
+Destination
+Departure date
+Duration
+Travellers / capacity
+Package type
+Search
+```
+
+More advanced filters may remain behind:
+
+```text
+More filters
+```
+
+when appropriate.
+
+Do not force every backend filter into the primary hero search.
+
+The marketplace can expose the complete filter set.
+
+---
+
+## 7. Design Must Follow the Product Domain
+
+Do not directly convert real-estate UI labels into travel labels without reconsidering the UX.
+
+Example:
+
+Bad migration:
+
+```text
+Property location → Package location
+Bedrooms → Travellers
+Square meters → Duration
+```
+
+Correct migration:
+
+Design the travel interaction based on the TravelPackage backend domain.
+
+Remove Property concepts that do not belong.
+
+---
+
+# CLEANUP POLICY
+
+## 8. Legacy Property Cleanup
+
+The earlier migration intentionally preserved legacy Property components to avoid breaking dependencies.
+
+From this point forward, cleanup should happen **page by page**.
+
+After a page is fully replaced with its Tripora implementation:
+
+1. identify legacy Property components previously used only by that page;
+2. search all repository imports/usages;
+3. verify they are no longer used;
+4. remove them if safe;
+5. remove their unused SCSS;
+6. remove unused exports/imports;
+7. rerun TypeScript and build.
+
+Do NOT leave clearly dead Property components indefinitely.
+
+However, do NOT mass-delete Property files.
+
+Deletion requires proof that the file has no remaining dependency.
+
+Use this rule:
+
+```text
+zero imports
++
+zero route dependencies
++
+zero shared dependencies
+=
+safe cleanup candidate
+```
+
+If any dependency remains, keep the legacy file until that dependent page is migrated.
+
+---
+
+## 9. Cleanup Scope
+
+When finalizing a page, cleanup may include:
+
+- obsolete Property page components;
+- obsolete Property cards;
+- obsolete Property filters;
+- unused page-specific Property SCSS;
+- dead imports;
+- dead helper functions;
+- unused GraphQL operation imports;
+- unused temporary migration components.
+
+Do not use page cleanup as an excuse for unrelated repository-wide refactoring.
+
+---
+
+## 10. Homepage Cleanup Example
+
+Once the Tripora homepage is finalized, inspect old files such as:
+
+```text
+HeaderFilter.tsx
+TrendProperties.tsx
+TrendPropertyCard.tsx
+PopularProperties.tsx
+PopularPropertyCard.tsx
+TopProperties.tsx
+TopPropertyCard.tsx
+```
+
+If they have no remaining imports or dependencies, remove them.
+
+Do not preserve them merely because they belonged to Nestar.
+
+---
+
+# USER FEEDBACK SYSTEM
+
+## 11. react-hot-toast
+
+Tripora should use:
+
+```text
+react-hot-toast
+```
+
+for transient user feedback.
+
+Use toast feedback for events such as:
+
+- successful create;
+- successful update;
+- successful upload;
+- successful login;
+- successful profile update;
+- recoverable request failure;
+- like/favorite failure;
+- network failure;
+- validation summary when appropriate.
+
+Examples:
+
+```ts
+toast.success('Travel package created');
+toast.success('Changes saved');
+toast.error('Unable to update travel package');
+```
+
+Do not introduce new SweetAlert usage.
+
+---
+
+## 12. SweetAlert Migration
+
+SweetAlert/SweetAlert2 is legacy Nestar behavior.
+
+When working on a page that uses SweetAlert:
+
+### Replace transient alerts
+
+Replace:
+
+```text
+SweetAlert success
+SweetAlert error
+SweetAlert info
+```
+
+with:
+
+```text
+react-hot-toast
+```
+
+### Replace destructive confirmations
+
+Do NOT use toast for destructive confirmation.
+
+Replace SweetAlert confirmation dialogs with the existing MUI dialog system:
+
+```text
+Dialog
+DialogTitle
+DialogContent
+DialogActions
+Button
+```
+
+or an existing reusable MUI confirmation dialog if the project already has one.
+
+Examples requiring confirmation:
+
+- delete package;
+- soft-delete package;
+- remove account/content;
+- important status change.
+
+---
+
+## 13. SweetAlert Removal
+
+Do NOT immediately remove the SweetAlert dependency globally.
+
+Migrate it page by page.
+
+Only remove the package after repository-wide verification shows:
+
+```text
+zero SweetAlert imports
+```
+
+Then remove:
+
+- dependency;
+- unused SweetAlert helpers;
+- related imports.
+
+Do not keep multiple notification libraries after migration is complete.
+
+---
+
+# ARCHITECTURE STILL REMAINS LOCKED
+
+## 14. Architecture Preservation
+
+The new page-by-page strategy does NOT permit architecture rewriting.
+
+Continue to preserve:
+
+- Next.js Pages Router;
+- React;
+- MUI;
+- SCSS;
+- Apollo Client;
+- current auth architecture;
+- current folder hierarchy;
+- current layout architecture;
+- current GraphQL organization;
+- current routing conventions;
+- current reactive variables;
+- current project utilities where appropriate.
+
+Do NOT introduce:
+
+- App Router migration;
+- Tailwind;
+- shadcn/ui;
+- Redux;
+- Zustand;
+- React Query;
+- another GraphQL client;
+- another styling framework;
+- another toast library;
+- a new global state architecture.
+
+Design freedom applies to the UI and UX, not to rewriting the project's technical architecture.
+
+---
+
+# PAGE IMPLEMENTATION RULE
+
+## 15. Before Editing a Page
+
+Before changing any page:
+
+1. inspect its page file;
+2. inspect all directly used components;
+3. inspect its GraphQL operations;
+4. inspect its SCSS;
+5. inspect desktop/mobile behavior;
+6. identify Property-specific logic;
+7. identify reusable generic logic;
+8. identify legacy files that may become unused after migration.
+
+Do not code before understanding those dependencies.
+
+---
+
+## 16. While Editing a Page
+
+Make the page fully Tripora-specific.
+
+This includes:
+
+- domain terminology;
+- UI layout;
+- data fields;
+- imagery;
+- buttons;
+- navigation;
+- filters;
+- empty states;
+- errors;
+- toast messaging;
+- responsive behavior.
+
+Do not preserve an old Nestar interaction merely because it already exists if it does not make sense for travel.
+
+Preserve architecture, not inappropriate product UX.
+
+---
+
+## 17. After Editing a Page
+
+Before finishing:
+
+1. search for now-unused legacy components;
+2. safely remove confirmed dead files;
+3. remove unused SCSS;
+4. remove unused imports;
+5. verify no visible Property labels remain on the migrated page;
+6. test TypeScript;
+7. run production build;
+8. test the real backend when available;
+9. inspect desktop;
+10. inspect mobile.
+
+Then report:
+
+```text
+Created files
+Modified files
+Deleted legacy files
+Logic changes
+UI/design changes
+Toast migration
+Responsive behavior
+Live API verification
+TypeScript/build results
+Remaining legacy dependencies
+```
+
+Stop after the page.
+
+---
+
+# CURRENT PRIORITY
+
+## 18. Current Page
+
+The current priority is:
+
+```text
+Home page /
+```
+
+Do not start another page until the Home page redesign/finalization is completed and reviewed by the user.
+
+The Home page task now includes:
+
+- final Tripora travel design;
+- KAYAK-inspired search-first UX;
+- TravelPackage homepage data;
+- Tripora branding;
+- responsive design;
+- homepage toast migration if applicable;
+- legacy Property homepage cleanup;
+- live API validation.
+
+After completion, stop.
+
+Do not automatically begin `/travel-package`.
+
+---
+
+# FINAL PRINCIPLE
+
+The frontend migration target is now:
+
+```text
+one finished Tripora page
+↓
+clean it
+↓
+test it
+↓
+review it
+↓
+move to the next page
+```
+
+not:
+
+```text
+migrate the whole Property domain
+↓
+clean everything later
+```
+
+Tripora should retain the understandable Nestar technical architecture while becoming a visually and functionally distinct travel marketplace.
+
 ## 2. Reference Project
 
 Tripora frontend is based on the existing Nestar Next frontend.

@@ -1,56 +1,32 @@
-import React from 'react';
+import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Box } from '@mui/material';
-import Moment from 'react-moment';
+import { Stack } from '@mui/material';
 import { BoardArticle } from '../../types/board-article/board-article';
-
-interface CommunityCardProps {
-	vertical: boolean;
-	article: BoardArticle;
-	index: number;
-}
-
-const CommunityCard = (props: CommunityCardProps) => {
-	const { vertical, article, index } = props;
-	const device = useDeviceDetect();
-	const articleImage = article?.articleImage
-		? `${process.env.REACT_APP_API_URL}/${article?.articleImage}`
-		: '/img/event.svg';
-
-	if (device === 'mobile') {
-		return <div>COMMUNITY CARD (MOBILE)</div>;
-	} else {
-		if (vertical) {
-			return (
-				<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
-					<Box component={'div'} className={'vertical-card'}>
-						<div className={'community-img'} style={{ backgroundImage: `url(${articleImage})` }}>
-							<div>{index + 1}</div>
-						</div>
-						<strong>{article?.articleTitle}</strong>
-						<span>Free Board</span>
-					</Box>
-				</Link>
-			);
-		} else {
-			return (
-				<>
-					<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
-						<Box component={'div'} className="horizontal-card">
-							<img src={articleImage} alt="" />
-							<div>
-								<strong>{article.articleTitle}</strong>
-								<span>
-									<Moment format="DD.MM.YY">{article?.createdAt}</Moment>
-								</span>
-							</div>
-						</Box>
-					</Link>
-				</>
-			);
-		}
-	}
+import { packageImageUrl } from '../travelPackage/TravelPackageCard';
+const fallback = '/img/travel/package-placeholder.svg';
+const CommunityCard = ({ article }: { article: BoardArticle }) => {
+	const { t } = useTranslation('common');
+	return (
+		<Link
+			href={{ pathname: '/community/detail', query: { articleCategory: article.articleCategory, id: article._id } }}
+			className="home-story-card"
+		>
+			<img
+				src={article.articleImage ? packageImageUrl(article.articleImage) : fallback}
+				alt=""
+				loading="lazy"
+				onError={(event) => {
+					if (event.currentTarget.getAttribute('src') !== fallback) event.currentTarget.src = fallback;
+				}}
+			/>
+			<Stack>
+				<small>{t('home.community.story')}</small>
+				<strong>{article.articleTitle}</strong>
+				<span>
+					{t('home.community.by', { name: article.memberData?.memberNick ?? t('home.community.authorFallback') })}
+				</span>
+			</Stack>
+		</Link>
+	);
 };
-
 export default CommunityCard;

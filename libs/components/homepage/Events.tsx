@@ -1,94 +1,53 @@
-import React from 'react';
-import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-
-interface EventData {
-	eventTitle: string;
-	city: string;
-	description: string;
-	imageSrc: string;
-}
-const eventsData: EventData[] = [
-	{
-		eventTitle: 'Paradise City Theme Park',
-		city: 'Incheon',
-		description:
-			'Experience magic and wonder in Incheon with a visit to the night-themed indoor theme park Wonderbox at Paradise City!',
-		imageSrc: '/img/events/INCHEON.webp',
-	},
-	{
-		eventTitle: 'Taebaeksan Snow Festival',
-		city: 'Seoul',
-		description: 'If you have the opportunity to travel to South Korea, do not miss the Taebaeksan Snow Festival!',
-		imageSrc: '/img/events/SEOUL.webp',
-	},
-	{
-		eventTitle: 'Suseong Lake Event',
-		city: 'Daegu',
-		description: 'The Suseong Lake Festival is a culture and arts festival held alongside Suseongmot Lake!',
-		imageSrc: '/img/events/DAEGU.webp',
-	},
-	{
-		eventTitle: 'Sand Festival',
-		city: 'Busan',
-		description:
-			'Haeundae Sand Festival, the nation’s largest eco-friendly exhibition on sand, is held at Haeundae Beach!',
-		imageSrc: '/img/events/BUSAN.webp',
-	},
+import { useTranslation } from 'next-i18next';
+import Link from 'next/link';
+import { Stack, Typography } from '@mui/material';
+import { Direction } from '../../enums/common.enum';
+const destinations = [
+	['Seoul', 'home.destinations.SEOUL.caption', 'SEOUL'],
+	['Busan', 'home.destinations.BUSAN.caption', 'BUSAN'],
+	['Jeju', 'home.destinations.JEJU.caption', 'JEJU'],
+	['Gyeongju', 'home.destinations.GYEONGJU.caption', 'GYEONGJU'],
 ];
-
-const EventCard = ({ event }: { event: EventData }) => {
-	const device = useDeviceDetect();
-
-	if (device === 'mobile') {
-		return <div>EVENT CARD</div>;
-	} else {
-		return (
-			<Stack
-				className="event-card"
-				style={{
-					backgroundImage: `url(${event?.imageSrc})`,
-					backgroundSize: 'cover',
-					backgroundPosition: 'center',
-					backgroundRepeat: 'no-repeat',
-				}}
-			>
-				<Box component={'div'} className={'info'}>
-					<strong>{event?.city}</strong>
-					<span>{event?.eventTitle}</span>
-				</Box>
-				<Box component={'div'} className={'more'}>
-					<span>{event?.description}</span>
-				</Box>
-			</Stack>
-		);
-	}
-};
-
 const Events = () => {
-	const device = useDeviceDetect();
-
-	if (device === 'mobile') {
-		return <div>EVENT CARD</div>;
-	} else {
-		return (
-			<Stack className={'events'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<Box component={'div'} className={'left'}>
-							<span className={'white'}>Events</span>
-							<p className={'white'}>Events waiting your attention!</p>
-						</Box>
-					</Stack>
-					<Stack className={'card-wrapper'}>
-						{eventsData.map((event: EventData) => {
-							return <EventCard event={event} key={event?.eventTitle} />;
-						})}
-					</Stack>
+	const { t } = useTranslation('common');
+	return (
+		<Stack component="section" className="home-destinations" aria-labelledby="home-destinations-title">
+			<Stack className="home-section-heading">
+				<Stack>
+					<Typography component="h2" id="home-destinations-title">
+						{t('home.destinations.title')}
+					</Typography>
+					<p>{t('home.destinations.description')}</p>
 				</Stack>
 			</Stack>
-		);
-	}
+			<Stack className="home-destination-grid">
+				{destinations.map(([city, caption, image]) => (
+					<Link
+						key={city}
+						href={{
+							pathname: '/travel-package',
+							query: {
+								input: JSON.stringify({
+									page: 1,
+									limit: 9,
+									sort: 'createdAt',
+									direction: Direction.DESC,
+									search: { cityList: [city] },
+								}),
+							},
+						}}
+						className="home-destination-card"
+					>
+						<img src={`/img/banner/cities/${image}.webp`} alt={t(`home.destinations.${image}.city`)} loading="lazy" />
+						<span>
+							<strong>{t(`home.destinations.${image}.city`)}</strong>
+							<small>{t(caption)}</small>
+							<b>{t('home.destinations.explore')}</b>
+						</span>
+					</Link>
+				))}
+			</Stack>
+		</Stack>
+	);
 };
-
 export default Events;

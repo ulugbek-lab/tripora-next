@@ -18,5 +18,224 @@
   "my page": "마이 페이지",
   "Community Detail": "커뮤니티 디테일",
   "Login/Signup": "로그인/가입",
-  "Member Page": "멤버 페이지"
+  "Member Page": "멤버 페이지",
+  "home": {
+    "nav": {
+      "main": "주 메뉴",
+      "home": "Tripora 홈",
+      "packages": "여행 상품",
+      "agents": "여행 파트너",
+      "community": "커뮤니티",
+      "cs": "고객센터",
+      "signIn": "로그인",
+      "myPage": "마이 페이지",
+      "saved": "저장한 여행",
+      "signOut": "로그아웃",
+      "account": "계정 메뉴",
+      "open": "메뉴 열기",
+      "language": "언어",
+      "chooseLanguage": "언어 선택",
+      "notifications": "알림",
+      "emptyNotifications": "아직 알림이 없습니다.",
+      "closeNotifications": "알림 닫기"
+    },
+    "hero": {
+      "eyebrow": "새로운 여행이 기다려요",
+      "title": "다음 여행은 어디로 떠날까요?",
+      "description": "당신의 다음 여행에 꼭 맞는 상품을 찾아보세요.",
+      "country": "여행 국가",
+      "countryExample": "Japan / USA",
+      "city": "도시",
+      "cityExample": "Tokyo",
+      "departure": "출발일 (UTC)",
+      "search": "여행 상품 검색",
+      "searching": "검색 중…",
+      "more": "상세 조건",
+      "reset": "조건 초기화",
+      "hint": "국가와 도시 이름은 대소문자를 구분하지 않습니다.",
+      "pause": "영상 일시정지",
+      "play": "영상 재생"
+    },
+    "filters": {
+      "title": "나에게 맞는 여행 찾기",
+      "close": "상세 조건 닫기",
+      "type": "여행 유형",
+      "anyType": "모든 유형",
+      "text": "상품명 또는 여행지 검색",
+      "duration": "여행 기간 (일)",
+      "minDays": "최소 일수",
+      "maxDays": "최대 일수",
+      "capacity": "상품 정원",
+      "capacityHelp": "상품의 최대 정원 기준입니다. 실제 여행 인원이나 남은 자리를 뜻하지 않습니다.",
+      "minCapacity": "최소 정원",
+      "maxCapacity": "최대 정원",
+      "resetAll": "모든 조건 초기화",
+      "apply": "조건 적용"
+    },
+    "packageTypes": {
+      "GROUP": "그룹 여행",
+      "PRIVATE": "프라이빗 여행",
+      "ADVENTURE": "모험 여행",
+      "CULTURAL": "문화 여행",
+      "BEACH": "해변 휴양",
+      "HONEYMOON": "허니문"
+    },
+    "sections": {
+      "trending": {
+        "title": "여행자들이 좋아하는 여행",
+        "description": "Tripora 여행자들이 저장한 인기 상품을 만나보세요."
+      },
+      "popular": {
+        "title": "지금 눈여겨볼 여행",
+        "description": "많은 여행자들의 관심을 받는 상품입니다."
+      },
+      "top": {
+        "title": "더 많은 여행을 발견하세요",
+        "description": "높은 순위의 상품에서 다음 여행을 찾아보세요."
+      }
+    },
+    "controls": {
+      "exploreAll": "모두 보기 →",
+      "retry": "다시 시도",
+      "previous": "이전 여행 상품",
+      "next": "다음 여행 상품",
+      "slide": "{{slidesLength}}개 중 {{index}}번째",
+      "first": "첫 번째 여행 상품입니다",
+      "last": "마지막 여행 상품입니다",
+      "carouselRole": "여행 상품 캐러셀",
+      "slideRole": "여행 상품"
+    },
+    "states": {
+      "loadingPackages": "여행 상품 불러오는 중",
+      "packagesError": "여행 상품을 불러오지 못했습니다.",
+      "packagesEmpty": "아직 등록된 여행 상품이 없습니다.",
+      "packagesEmptyHint": "새로운 여행이 곧 추가됩니다. 다시 방문해 주세요."
+    },
+    "card": {
+      "view": "여행 보기 →",
+      "viewLabel": "{{title}} 보기",
+      "photoUnavailable": "여행 사진이 없습니다",
+      "addSaved": "{{title}} 저장",
+      "removeSaved": "{{title}} 저장 취소",
+      "capacity": "최대 {{count}}명",
+      "departure": "출발 {{date}} · UTC",
+      "dateUnavailable": "날짜 미정",
+      "days_one": "{{count}}일",
+      "days_few": "{{count}}일",
+      "days_many": "{{count}}일",
+      "days_other": "{{count}}일"
+    },
+    "feedback": {
+      "saved": "여행을 저장했습니다",
+      "unsaved": "저장한 여행에서 삭제했습니다",
+      "signInToSave": "여행을 저장하려면 로그인해 주세요.",
+      "saveError": "저장 상태를 변경하지 못했습니다. 다시 시도해 주세요.",
+      "packagesError": "여행 상품을 불러오지 못했습니다. 다시 시도해 주세요.",
+      "signedOut": "로그아웃했습니다",
+      "refreshError": "상품을 새로고침하지 못했습니다. 페이지를 다시 열어 주세요.",
+      "sessionError": "로그인 상태를 복원하지 못했습니다. 다시 로그인해 주세요.",
+      "searchError": "검색을 완료하지 못했습니다. 다시 시도해 주세요.",
+      "languageError": "언어를 변경하지 못했습니다. 다시 시도해 주세요."
+    },
+    "errors": {
+      "filters": "검색 조건을 확인해 주세요.",
+      "type": "올바른 여행 유형을 선택해 주세요.",
+      "date": "올바른 출발일을 선택해 주세요.",
+      "range": "{{label}}: 최소·최대 값을 0 이상의 정수로 입력해 주세요. 최소 값은 최대 값보다 클 수 없습니다.",
+      "country": "현재 상품에서 해당 국가를 찾지 못했습니다. 영문 표기를 확인하거나 상세 조건의 검색을 이용해 주세요.",
+      "city": "해당 여행지에서 도시를 찾지 못했습니다. 영문 표기를 확인하거나 국가 조건을 지워 검색해 주세요."
+    },
+    "destinations": {
+      "title": "새로운 풍경을 만나보세요",
+      "description": "마음에 드는 여행지에서 다음 여행을 시작해 보세요.",
+      "explore": "여행 상품 보기 →",
+      "SEOUL": {
+        "city": "서울",
+        "caption": "도시의 빛과 문화가 만나는 곳"
+      },
+      "BUSAN": {
+        "city": "부산",
+        "caption": "바다와 다채로운 골목이 있는 곳"
+      },
+      "JEJU": {
+        "city": "제주",
+        "caption": "섬의 바람 속 느긋한 휴식"
+      },
+      "GYEONGJU": {
+        "city": "경주",
+        "caption": "걸음마다 역사를 만나는 곳"
+      }
+    },
+    "banner": {
+      "title": "계획은 가볍게, 여행은 더 자유롭게.",
+      "description": "일정과 여행 기간, 가격을 한곳에서 비교해 보세요.",
+      "action": "다음 여행 찾기"
+    },
+    "agents": {
+      "title": "여행을 만드는 사람들",
+      "description": "여행 파트너가 소개하는 다양한 상품을 만나보세요.",
+      "all": "파트너 모두 보기 →",
+      "profile": "프로필 보기 →",
+      "loading": "여행 파트너 불러오는 중",
+      "empty": "아직 등록된 여행 파트너가 없습니다.",
+      "error": "여행 파트너를 불러오지 못했습니다.",
+      "retry": "다시 불러오기",
+      "retryError": "여행 파트너를 불러오지 못했습니다. 다시 시도해 주세요.",
+      "packages_one": "여행 파트너 · 상품 {{count}}개",
+      "packages_few": "여행 파트너 · 상품 {{count}}개",
+      "packages_many": "여행 파트너 · 상품 {{count}}개",
+      "packages_other": "여행 파트너 · 상품 {{count}}개"
+    },
+    "community": {
+      "title": "여행길에서 만난 이야기",
+      "description": "여행자들이 나누는 경험과 아이디어입니다.",
+      "join": "이야기 나누기 →",
+      "empty": "다음 이야기는 당신의 여행일지도 몰라요.",
+      "emptyHint": "커뮤니티에서 당신의 여행 경험을 나눠 주세요.",
+      "visit": "커뮤니티 보기 →",
+      "loading": "여행 이야기 불러오는 중",
+      "error": "여행 이야기를 불러오지 못했습니다.",
+      "retry": "다시 불러오기",
+      "retryError": "여행 이야기를 불러오지 못했습니다. 다시 시도해 주세요.",
+      "story": "여행자 이야기",
+      "by": "{{name}}님의 이야기",
+      "authorFallback": "Tripora 여행자"
+    },
+    "footer": {
+      "taglineFirst": "작은 호기심으로",
+      "taglineSecond": "더 넓은 세상을 만나보세요.",
+      "explore": "둘러보기",
+      "packages": "여행 상품",
+      "destinations": "여행지",
+      "community": "커뮤니티",
+      "tripora": "Tripora",
+      "about": "Tripora 소개",
+      "agents": "여행 파트너",
+      "support": "고객지원",
+      "cs": "고객센터",
+      "faq": "도움말 및 FAQ",
+      "account": "내 계정",
+      "note": "상품 정보와 이용 가능 여부는 여행 파트너가 제공합니다.",
+      "copyright": "© {{year}} Tripora",
+      "socialLabel": "Tripora 소셜 미디어",
+      "socialPlaceholder": "{{brand}} — 링크 준비 중"
+    },
+    "seo": {
+      "title": "Tripora | 다음 여행을 찾아보세요",
+      "description": "Tripora에서 여행 상품과 여행지를 비교하고 다음 여행을 찾아보세요.",
+      "skip": "여행 상품으로 이동"
+    },
+    "chat": {
+      "title": "실시간 채팅",
+      "welcome": "실시간 채팅에 오신 것을 환영합니다!",
+      "placeholder": "메시지를 입력하세요",
+      "input": "채팅 메시지",
+      "open": "채팅 열기",
+      "close": "채팅 닫기",
+      "send": "메시지 보내기",
+      "empty": "메시지를 입력해 주세요",
+      "unavailable": "채팅을 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+      "user": "사용자"
+    }
+  }
 }

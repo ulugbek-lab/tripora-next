@@ -1,48 +1,32 @@
 import { NextPage } from 'next';
-import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
 import CommunityBoards from '../libs/components/homepage/CommunityBoards';
-import PopularProperties from '../libs/components/homepage/PopularProperties';
+import PopularTravelPackages from '../libs/components/homepage/PopularTravelPackages';
 import TopAgents from '../libs/components/homepage/TopAgents';
 import Events from '../libs/components/homepage/Events';
-import TrendProperties from '../libs/components/homepage/TrendProperties';
-import TopProperties from '../libs/components/homepage/TopProperties';
+import TrendingTravelPackages from '../libs/components/homepage/TrendingTravelPackages';
+import TopTravelPackages from '../libs/components/homepage/TopTravelPackages';
 import { Stack } from '@mui/material';
 import Advertisement from '../libs/components/homepage/Advertisement';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common'], {
+			...require('../next-i18next.config'),
+			// The development server may have cached common before Home keys were added.
+			reloadOnPrerender: process.env.NODE_ENV === 'development',
+		})),
 	},
 });
-
-const Home: NextPage = () => {
-	const device: string = useDeviceDetect();
-
-	if (device === 'mobile') {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
-				<Advertisement />
-				<TopProperties />
-				<TopAgents />
-			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
-				<Advertisement />
-				<TopProperties />
-				<TopAgents />
-				<Events />
-				<CommunityBoards />
-			</Stack>
-		);
-	}
-};
-
+const Home: NextPage = () => (
+	<Stack className="home-page">
+		<TrendingTravelPackages />
+		<Events />
+		<PopularTravelPackages />
+		<Advertisement />
+		<TopTravelPackages />
+		<TopAgents />
+		<CommunityBoards />
+	</Stack>
+);
 export default withLayoutMain(Home);

@@ -689,6 +689,7 @@ export const GET_AGENT_TRAVEL_PACKAGES = gql`
 		getAgentTravelPackages(input: $input) {
 			list {
 				${travelPackageFields}
+				packageDesc
 			}
 			metaCounter { total }
 		}
@@ -747,4 +748,45 @@ export const GET_TRAVEL_PACKAGE_COMMENTS = gql`
 			metaCounter { total }
 		}
 	}
+`;
+
+// Homepage agent query uses the Tripora Member contract; legacy GET_AGENTS stays intact.
+export const GET_TRAVEL_AGENTS = gql`
+	query GetTravelAgents($input: AgentsInquiry!) {
+		getAgents(input: $input) {
+			list { _id memberType memberNick memberImage memberPackages }
+			metaCounter { total }
+		}
+	}
+`;
+
+export const GET_TRAVEL_MEMBER = gql`
+ query GetTravelMember($input: String!) {
+  getMember(memberId: $input) {
+   _id memberType memberStatus memberAuthType memberPhone memberNick memberFullName memberImage memberAddress memberDesc
+   memberPackages memberArticles memberFollowers memberFollowings memberLikes memberViews memberRank
+   createdAt updatedAt
+   meFollowed { followingId followerId myFollowing }
+  }
+ }
+`;
+
+// Home uses only the community fields supported by the current Tripora contract.
+export const GET_HOME_BOARD_ARTICLES = gql`
+ query GetHomeBoardArticles($input: BoardArticlesInquiry!) {
+  getBoardArticles(input: $input) {
+   list { _id articleCategory articleTitle articleImage createdAt memberData { memberNick } }
+   metaCounter { total }
+  }
+ }
+`;
+
+// Minimal metadata for Home destination resolution; package results stay server-filtered.
+export const GET_HOME_DESTINATIONS = gql`
+ query GetHomeDestinations($input: TravelPackagesInquiry!) {
+  getTravelPackages(input: $input) {
+   list { _id packageCountry packageCity }
+   metaCounter { total }
+  }
+ }
 `;

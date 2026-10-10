@@ -9,7 +9,9 @@ import { formatterStr } from '../../utils';
 
 interface TravelPackageCardProps {
 	travelPackage: TravelPackage;
-	likePackageHandler: (id: string) => Promise<void>;
+	likePackageHandler?: (id: string) => Promise<void>;
+	hideEngagement?: boolean;
+	isFavorite?: boolean;
 	liking: boolean;
 }
 
@@ -21,10 +23,16 @@ export function packageImageUrl(path?: string): string {
 	return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }
 
-const TravelPackageCard = ({ travelPackage: item, likePackageHandler, liking }: TravelPackageCardProps) => {
+const TravelPackageCard = ({
+	travelPackage: item,
+	likePackageHandler,
+	liking,
+	hideEngagement,
+	isFavorite,
+}: TravelPackageCardProps) => {
 	const date = new Date(item.packageStartDate);
 	const startDate = Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : 'Date unavailable';
-	const liked = Boolean(item.meLiked?.[0]?.myFavorite);
+	const liked = isFavorite ?? Boolean(item.meLiked?.[0]?.myFavorite);
 	return (
 		<Stack className="travel-package-card">
 			<Stack className="top">
@@ -59,23 +67,25 @@ const TravelPackageCard = ({ travelPackage: item, likePackageHandler, liking }: 
 						Max {item.packageMaxTravellers} travellers · {item.packageAvailableSlots} slots available
 					</Typography>
 				</Stack>
-				<Stack className="type-buttons">
-					<Stack className="buttons">
-						<RemoveRedEyeIcon fontSize="small" />
-						<Typography>{item.packageViews}</Typography>
-						<IconButton
-							aria-label={
-								liked ? `Remove ${item.packageTitle} from favorites` : `Add ${item.packageTitle} to favorites`
-							}
-							aria-pressed={liked}
-							disabled={liking}
-							onClick={() => void likePackageHandler(item._id)}
-						>
-							{liked ? <FavoriteIcon color="primary" /> : <FavoriteBorderIcon />}
-						</IconButton>
-						<Typography>{item.packageLikes}</Typography>
+				{!hideEngagement && (
+					<Stack className="type-buttons">
+						<Stack className="buttons">
+							<RemoveRedEyeIcon fontSize="small" />
+							<Typography>{item.packageViews}</Typography>
+							<IconButton
+								aria-label={
+									liked ? `Remove ${item.packageTitle} from favorites` : `Add ${item.packageTitle} to favorites`
+								}
+								aria-pressed={liked}
+								disabled={liking}
+								onClick={() => void likePackageHandler?.(item._id)}
+							>
+								{liked ? <FavoriteIcon color="primary" /> : <FavoriteBorderIcon />}
+							</IconButton>
+							<Typography>{item.packageLikes}</Typography>
+						</Stack>
 					</Stack>
-				</Stack>
+				)}
 			</Stack>
 		</Stack>
 	);

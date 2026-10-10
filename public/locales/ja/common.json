@@ -1,0 +1,241 @@
+{
+  "Home": "Home",
+  "Properties": "Properties",
+  "Agents": "Agents",
+  "Community": "Community",
+  "My Page": "My Page",
+  "CS": "CS",
+  "Login": "Login",
+  "Register": "Register",
+  "Location": "Location",
+  "Property type": "Property type",
+  "Rooms": "Rooms",
+  "Advanced": "Advanced",
+  "Property Search": "Property Search",
+  "We are glad to see you again!": "We are glad to see you again!",
+  "Home / For Rent": "Home / For Rent",
+  "Agent Page": "Agent Page",
+  "my page": "my page",
+  "Community Detail": "Community Detail",
+  "Login/Signup": "Login/Signup",
+  "Member Page": "Member Page",
+  "home": {
+    "nav": {
+      "main": "メインナビゲーション",
+      "home": "Tripora ホーム",
+      "packages": "旅行プラン",
+      "agents": "旅行パートナー",
+      "community": "コミュニティ",
+      "cs": "サポート",
+      "signIn": "ログイン",
+      "myPage": "マイページ",
+      "saved": "保存したプラン",
+      "signOut": "ログアウト",
+      "account": "アカウントメニュー",
+      "open": "メニューを開く",
+      "language": "言語",
+      "chooseLanguage": "言語を選択",
+      "notifications": "通知",
+      "emptyNotifications": "通知はまだありません。",
+      "closeNotifications": "通知を閉じる"
+    },
+    "hero": {
+      "eyebrow": "世界が、あなたを待っている",
+      "title": "次は、どこへ行こう？",
+      "description": "次の旅にぴったりのプランを見つけよう。",
+      "country": "旅行先の国",
+      "countryExample": "Japan / USA",
+      "city": "都市",
+      "cityExample": "Tokyo",
+      "departure": "出発日 (UTC)",
+      "search": "プランを検索",
+      "searching": "検索中…",
+      "more": "詳細条件",
+      "reset": "条件をリセット",
+      "hint": "国名・都市名は大文字と小文字を区別しません。",
+      "pause": "動画を一時停止",
+      "play": "動画を再生"
+    },
+    "filters": {
+      "title": "旅の条件を選ぼう",
+      "close": "詳細条件を閉じる",
+      "type": "旅行タイプ",
+      "anyType": "すべてのタイプ",
+      "text": "プラン名・旅行先で検索",
+      "duration": "旅行日数",
+      "minDays": "最短日数",
+      "maxDays": "最長日数",
+      "capacity": "ツアー定員",
+      "capacityHelp": "ツアーの最大定員で絞り込みます。参加人数や残席数ではありません。",
+      "minCapacity": "最小定員",
+      "maxCapacity": "最大定員",
+      "resetAll": "すべてリセット",
+      "apply": "条件を適用"
+    },
+    "packageTypes": {
+      "GROUP": "団体旅行",
+      "PRIVATE": "プライベート旅行",
+      "ADVENTURE": "アドベンチャー",
+      "CULTURAL": "文化体験",
+      "BEACH": "ビーチリゾート",
+      "HONEYMOON": "ハネムーン"
+    },
+    "sections": {
+      "trending": {
+        "title": "みんなが気になる旅",
+        "description": "Triporaの旅仲間が保存したプランをチェック。"
+      },
+      "popular": {
+        "title": "注目の旅行プラン",
+        "description": "多くの旅仲間がチェックしているプラン。"
+      },
+      "top": {
+        "title": "もっと旅を見つけよう",
+        "description": "ランキング上位のプランから、次の旅を探そう。"
+      }
+    },
+    "controls": {
+      "exploreAll": "すべて見る →",
+      "retry": "再試行",
+      "previous": "前のプラン",
+      "next": "次のプラン",
+      "slide": "{{slidesLength}}件中{{index}}件目",
+      "first": "最初のプランです",
+      "last": "最後のプランです",
+      "carouselRole": "旅行プランのカルーセル",
+      "slideRole": "旅行プラン"
+    },
+    "states": {
+      "loadingPackages": "プランを読み込み中",
+      "packagesError": "プランを読み込めませんでした。",
+      "packagesEmpty": "プランはまだ掲載されていません。",
+      "packagesEmptyHint": "新しい旅との出会いを、どうぞお楽しみに。"
+    },
+    "card": {
+      "view": "プランを見る →",
+      "viewLabel": "{{title}}を見る",
+      "photoUnavailable": "旅の写真は準備中です",
+      "addSaved": "{{title}}を保存",
+      "removeSaved": "{{title}}の保存を解除",
+      "capacity": "最大{{count}}名",
+      "departure": "出発 {{date}} · UTC",
+      "dateUnavailable": "日程未定",
+      "days_one": "{{count}}日間",
+      "days_few": "{{count}}日間",
+      "days_many": "{{count}}日間",
+      "days_other": "{{count}}日間"
+    },
+    "feedback": {
+      "saved": "プランを保存しました",
+      "unsaved": "保存を解除しました",
+      "signInToSave": "プランの保存にはログインが必要です。",
+      "saveError": "保存状態を更新できませんでした。もう一度お試しください。",
+      "packagesError": "プランを読み込めませんでした。もう一度お試しください。",
+      "signedOut": "ログアウトしました",
+      "refreshError": "プランを更新できませんでした。ページを再読み込みしてください。",
+      "sessionError": "ログイン状態を復元できませんでした。再度ログインしてください。",
+      "searchError": "検索できませんでした。もう一度お試しください。",
+      "languageError": "言語を変更できませんでした。もう一度お試しください。"
+    },
+    "errors": {
+      "filters": "検索条件をご確認ください。",
+      "type": "旅行タイプを選択してください。",
+      "date": "正しい出発日を選択してください。",
+      "range": "{{label}}：最小値・最大値を0以上の整数で入力してください。最小値は最大値以下にしてください。",
+      "country": "掲載中のプランに該当する国がありません。英語表記を確認するか、詳細条件のキーワード検索をお試しください。",
+      "city": "該当する都市がありません。英語表記を確認するか、国の条件を解除して検索してください。"
+    },
+    "destinations": {
+      "title": "いつもと違う景色へ",
+      "description": "気になる旅行先から、次の旅を始めよう。",
+      "explore": "プランを探す →",
+      "SEOUL": {
+        "city": "ソウル",
+        "caption": "街のきらめきと文化に出会う"
+      },
+      "BUSAN": {
+        "city": "釜山",
+        "caption": "海辺の時間と彩り豊かな街並み"
+      },
+      "JEJU": {
+        "city": "済州島",
+        "caption": "島の風に包まれる、ゆったりした時間"
+      },
+      "GYEONGJU": {
+        "city": "慶州",
+        "caption": "歩くたびに出会う歴史"
+      }
+    },
+    "banner": {
+      "title": "旅の計画を、もっと気軽に。",
+      "description": "旅程・日数・料金を、一か所で比較。",
+      "action": "次の旅を見つける"
+    },
+    "agents": {
+      "title": "旅をつくる人たち",
+      "description": "旅行パートナーが届けるプランを見てみよう。",
+      "all": "パートナーを見る →",
+      "profile": "プロフィール →",
+      "loading": "パートナーを読み込み中",
+      "empty": "パートナーはまだ登録されていません。",
+      "error": "パートナーを読み込めませんでした。",
+      "retry": "再読み込み",
+      "retryError": "パートナーを読み込めませんでした。もう一度お試しください。",
+      "packages_one": "旅行パートナー · {{count}}件のプラン",
+      "packages_few": "旅行パートナー · {{count}}件のプラン",
+      "packages_many": "旅行パートナー · {{count}}件のプラン",
+      "packages_other": "旅行パートナー · {{count}}件のプラン"
+    },
+    "community": {
+      "title": "旅先からのストーリー",
+      "description": "旅仲間がシェアするアイデアと体験。",
+      "join": "交流に参加する →",
+      "empty": "次のストーリーは、あなたの旅かも。",
+      "emptyHint": "コミュニティで、あなたの旅をシェアしよう。",
+      "visit": "コミュニティへ →",
+      "loading": "ストーリーを読み込み中",
+      "error": "ストーリーを読み込めませんでした。",
+      "retry": "再読み込み",
+      "retryError": "ストーリーを読み込めませんでした。もう一度お試しください。",
+      "story": "旅仲間のストーリー",
+      "by": "{{name}}の投稿",
+      "authorFallback": "Triporaの旅仲間"
+    },
+    "footer": {
+      "taglineFirst": "少しの好奇心で。",
+      "taglineSecond": "世界いっぱいの出会いを。",
+      "explore": "旅を探す",
+      "packages": "旅行プラン",
+      "destinations": "旅行先",
+      "community": "コミュニティ",
+      "tripora": "Tripora",
+      "about": "Triporaについて",
+      "agents": "旅行パートナー",
+      "support": "サポート",
+      "cs": "サポート窓口",
+      "faq": "ヘルプ・よくある質問",
+      "account": "アカウント",
+      "note": "プランの詳細・空き状況は旅行パートナーが提供します。",
+      "copyright": "© {{year}} Tripora",
+      "socialLabel": "Triporaのソーシャルメディア",
+      "socialPlaceholder": "{{brand}} — リンクは準備中です"
+    },
+    "seo": {
+      "title": "Tripora | 次の旅を見つけよう",
+      "description": "Triporaでプランや旅行先を比較して、次の旅を見つけよう。",
+      "skip": "プランへスキップ"
+    },
+    "chat": {
+      "title": "オンラインチャット",
+      "welcome": "チャットへようこそ！",
+      "placeholder": "メッセージを入力",
+      "input": "チャットメッセージ",
+      "open": "チャットを開く",
+      "close": "チャットを閉じる",
+      "send": "送信",
+      "empty": "メッセージを入力してください",
+      "unavailable": "現在チャットを利用できません。後でもう一度お試しください。",
+      "user": "ユーザー"
+    }
+  }
+}

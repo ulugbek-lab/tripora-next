@@ -1,129 +1,55 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation, Pagination } from 'swiper';
-import TopAgentCard from './TopAgentCard';
-import { Member } from '../../types/member/member';
-import { AgentsInquiry } from '../../types/member/member.input';
+import { useTranslation } from 'next-i18next';
 import { useQuery } from '@apollo/client';
-import { GET_AGENTS } from '../../../apollo/user/query';
-import { T } from '../../types/common';
-
-interface TopAgentsProps {
-	initialInput: AgentsInquiry;
-}
-
-const TopAgents = (props: TopAgentsProps) => {
-	const { initialInput } = props;
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const [topAgents, setTopAgents] = useState<Member[]>([]);
-
-	/** APOLLO REQUESTS **/
-	const {loading: getAgentsLoading, 
-			data: getAgentsData, error: 
-			getAgentsError, 
-			refetch: getAgentsRefetch } = useQuery(GET_AGENTS, {
-				fetchPolicy: "cache-and-network",
-				variables:{input: initialInput},
-				notifyOnNetworkStatusChange: true,
-				onCompleted: (data:T) => {
-					setTopAgents(data?.getAgents?.list)
-					console.log("kelgan",data?.getAgents?.list);
-					
-				}
-	
-		})
-	/** HANDLERS **/
-
-	if (device === 'mobile') {
-		return (
-			<Stack className={'top-agents'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<span>Top Agents</span>
-					</Stack>
-					<Stack className={'wrapper'}>
-						<Swiper
-							className={'top-agents-swiper'}
-							slidesPerView={'auto'}
-							centeredSlides={true}
-							spaceBetween={29}
-							modules={[Autoplay]}
-						>
-							{topAgents.map((agent: Member) => {
-								return (
-									<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
-										<TopAgentCard agent={agent} key={agent?.memberNick} />
-									</SwiperSlide>
-								);
-							})}
-						</Swiper>
-					</Stack>
+import Link from 'next/link';
+import { Alert, Button, Skeleton, Stack, Typography } from '@mui/material';
+import toast from 'react-hot-toast';
+import { GET_TRAVEL_AGENTS } from '../../../apollo/user/query';
+import { Member } from '../../types/member/member';
+import { Direction } from '../../enums/common.enum';
+import TopAgentCard from './TopAgentCard';
+const input = { page: 1, limit: 4, sort: 'createdAt', direction: Direction.DESC, search: {} };
+const TopAgents = () => {
+	const { t } = useTranslation('common');
+	const { data, loading, error, refetch } = useQuery<{ getAgents: { list: Member[] } }>(GET_TRAVEL_AGENTS, {
+		context: { suppressErrorAlert: true },
+		fetchPolicy: 'cache-and-network',
+		variables: { input },
+	});
+	const agents = data?.getAgents.list ?? [];
+	const retry = async () => {
+		try {
+			await refetch();
+		} catch {
+			toast.error(t('home.agents.retryError'));
+		}
+	};
+	return (
+		<Stack component="section" className="home-agents" aria-labelledby="home-agents-title">
+			<Stack className="home-section-heading">
+				<Stack>
+					<Typography component="h2" id="home-agents-title">
+						{t('home.agents.title')}
+					</Typography>
+					<p>{t('home.agents.description')}</p>
 				</Stack>
+				<Link href="/agent">{t('home.agents.all')}</Link>
 			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'top-agents'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<Box component={'div'} className={'left'}>
-							<span>Top Agents</span>
-							<p>Our Top Agents always ready to serve you</p>
-						</Box>
-						<Box component={'div'} className={'right'}>
-							<div className={'more-box'}>
-								<span>See All Agents</span>
-								<img src="/img/icons/rightup.svg" alt="" />
-							</div>
-						</Box>
-					</Stack>
-					<Stack className={'wrapper'}>
-						<Box component={'div'} className={'switch-btn swiper-agents-prev'}>
-							<ArrowBackIosNewIcon />
-						</Box>
-						<Box component={'div'} className={'card-wrapper'}>
-							<Swiper
-								className={'top-agents-swiper'}
-								slidesPerView={'auto'}
-								spaceBetween={29}
-								modules={[Autoplay, Navigation, Pagination]}
-								navigation={{
-									nextEl: '.swiper-agents-next',
-									prevEl: '.swiper-agents-prev',
-								}}
-							>
-								{topAgents.map((agent: Member) => {
-									return (
-										<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
-											<TopAgentCard agent={agent} key={agent?.memberNick} />
-										</SwiperSlide>
-									);
-								})}
-							</Swiper>
-						</Box>
-						<Box component={'div'} className={'switch-btn swiper-agents-next'}>
-							<ArrowBackIosNewIcon />
-						</Box>
-					</Stack>
+			{error ? (
+				<Alert severity="error" action={<Button onClick={() => void retry()}>{t('home.agents.retry')}</Button>}>
+					{t('home.agents.error')}
+				</Alert>
+			) : loading && !agents.length ? (
+				<Skeleton variant="rounded" height={130} aria-label={t('home.agents.loading')} />
+			) : !agents.length ? (
+				<Stack className="home-empty-state">{t('home.agents.empty')}</Stack>
+			) : (
+				<Stack className="home-agent-grid">
+					{agents.map((agent) => (
+						<TopAgentCard key={agent._id} agent={agent} />
+					))}
 				</Stack>
-			</Stack>
-		);
-	}
+			)}
+		</Stack>
+	);
 };
-
-TopAgents.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 10,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {},
-	},
-};
-
 export default TopAgents;

@@ -4,6 +4,7 @@ import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Stack } from '@mui/material';
 import MemberMenu from '../../libs/components/member/MemberMenu';
+import MemberTravelPackages from '../../libs/components/member/MemberTravelPackages';
 import MemberProperties from '../../libs/components/member/MemberProperties';
 import { useRouter } from 'next/router';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
@@ -25,7 +26,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 const MemberPage: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const category: any = router.query?.category;
+	const category: any = router.query?.category ?? 'travelPackages';
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
@@ -36,11 +37,11 @@ const MemberPage: NextPage = () => {
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (!router.isReady) return;
-		if (!category) {
+		if (!router.query.category) {
 			router.replace(
 				{
 					pathname: router.pathname,
-					query: { ...router.query, category: 'properties' },
+					query: { ...router.query, category: 'travelPackages' },
 				},
 				undefined,
 				{ shallow: true },
@@ -105,11 +106,15 @@ const MemberPage: NextPage = () => {
 		}
 	};
 
-	if (device === 'mobile') {
+	if (device === 'mobile' && category !== 'travelPackages') {
 		return <>MEMBER PAGE MOBILE</>;
 	} else {
 		return (
-			<div id="member-page" style={{ position: 'relative' }}>
+			<div
+				id="member-page"
+				className={category === 'travelPackages' ? `travel-package-member ${device === 'mobile' ? 'mobile' : ''}` : ''}
+				style={{ position: 'relative' }}
+			>
 				<div className="container">
 					<Stack className={'member-page'}>
 						<Stack className={'back-frame'}>
@@ -118,6 +123,7 @@ const MemberPage: NextPage = () => {
 							</Stack>
 							<Stack className="main-config" mb={'76px'}>
 								<Stack className={'list-config'}>
+									{category === 'travelPackages' && <MemberTravelPackages />}
 									{category === 'properties' && <MemberProperties />}
 									{category === 'followers' && (
 										<MemberFollowers

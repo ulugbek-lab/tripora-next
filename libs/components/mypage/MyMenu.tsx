@@ -1,3 +1,4 @@
+import { packageImageUrl } from '../travelPackage/TravelPackageCard';
 import React from 'react';
 import { useRouter } from 'next/router';
 import { Stack, Typography, Box, List, ListItem } from '@mui/material';
@@ -27,6 +28,26 @@ const MyMenu = () => {
 		}
 	};
 
+	const travelLinks = (
+		<Stack className="travel-package-links">
+			<Typography>Travel Packages</Typography>
+			{user.memberType === 'AGENT' && (
+				<>
+					<Link href="/mypage?category=addTravelPackage">Add Travel Package</Link>
+					<Link href="/mypage?category=myTravelPackages">My Travel Packages</Link>
+				</>
+			)}
+			<Link href="/mypage?category=favoriteTravelPackages">Favorite Travel Packages</Link>
+			<Link href="/mypage?category=visitedTravelPackages">Recently Visited Packages</Link>
+		</Stack>
+	);
+	const travelCategory = [
+		'myTravelPackages',
+		'addTravelPackage',
+		'favoriteTravelPackages',
+		'visitedTravelPackages',
+	].includes(category);
+	if (device === 'mobile' && travelCategory) return travelLinks;
 	if (device === 'mobile') {
 		return <div>MY MENU</div>;
 	} else {
@@ -35,7 +56,7 @@ const MyMenu = () => {
 				<Stack className={'profile'}>
 					<Box component={'div'} className={'profile-img'}>
 						<img
-							src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
+							src={user?.memberImage ? (travelCategory ? packageImageUrl(user.memberImage) : `${REACT_APP_API_URL}/${user?.memberImage}`) : '/img/profile/defaultUser.svg'}
 							alt={'member-photo'}
 						/>
 					</Box>
@@ -54,6 +75,7 @@ const MyMenu = () => {
 						)}
 					</Stack>
 				</Stack>
+				{travelLinks}
 				<Stack className={'sections'}>
 					<Stack className={'section'} style={{ height: user.memberType === 'AGENT' ? '228px' : '153px' }}>
 						<Typography className="title" variant={'h5'}>

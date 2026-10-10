@@ -18,5 +18,224 @@
   "my page": "my page",
   "Community Detail": "Community Detail",
   "Login/Signup": "Login/Signup",
-  "Member Page": "Member Page"
+  "Member Page": "Member Page",
+  "home": {
+    "nav": {
+      "main": "Main navigation",
+      "home": "Tripora home",
+      "packages": "Trip packages",
+      "agents": "Agents",
+      "community": "Community",
+      "cs": "CS",
+      "signIn": "Sign in",
+      "myPage": "My page",
+      "saved": "Saved packages",
+      "signOut": "Sign out",
+      "account": "Account menu",
+      "open": "Open navigation",
+      "language": "Language",
+      "chooseLanguage": "Choose language",
+      "notifications": "Notifications",
+      "emptyNotifications": "No notifications yet.",
+      "closeNotifications": "Close notifications"
+    },
+    "hero": {
+      "eyebrow": "THE WORLD IS CALLING",
+      "title": "Where will curiosity take you?",
+      "description": "Find a travel package that fits your next adventure.",
+      "country": "Destination country",
+      "countryExample": "Japan / USA",
+      "city": "City",
+      "cityExample": "Tokyo",
+      "departure": "Departure date (UTC)",
+      "search": "Search packages",
+      "searching": "Searching…",
+      "more": "More filters",
+      "reset": "Reset filters",
+      "hint": "Country and city names ignore capitalization.",
+      "pause": "Pause video",
+      "play": "Play video"
+    },
+    "filters": {
+      "title": "Tailor your trip",
+      "close": "Close more filters",
+      "type": "Package type",
+      "anyType": "Any type",
+      "text": "Search title or destination",
+      "duration": "Duration in days",
+      "minDays": "Min days",
+      "maxDays": "Max days",
+      "capacity": "Package capacity",
+      "capacityHelp": "Filter by maximum group capacity, not your party size or remaining places.",
+      "minCapacity": "Min capacity",
+      "maxCapacity": "Max capacity",
+      "resetAll": "Reset all filters",
+      "apply": "Apply filters"
+    },
+    "packageTypes": {
+      "GROUP": "Group",
+      "PRIVATE": "Private",
+      "ADVENTURE": "Adventure",
+      "CULTURAL": "Cultural",
+      "BEACH": "Beach",
+      "HONEYMOON": "Honeymoon"
+    },
+    "sections": {
+      "trending": {
+        "title": "Trips travellers love",
+        "description": "Explore packages saved by the Tripora community."
+      },
+      "popular": {
+        "title": "Worth a closer look",
+        "description": "The travel packages getting the most attention."
+      },
+      "top": {
+        "title": "More trips to discover",
+        "description": "Browse highly ranked packages for your next escape."
+      }
+    },
+    "controls": {
+      "exploreAll": "Explore all →",
+      "retry": "Retry",
+      "previous": "Previous packages",
+      "next": "Next packages",
+      "slide": "Slide {{index}} of {{slidesLength}}",
+      "first": "This is the first package",
+      "last": "This is the last package",
+      "carouselRole": "Package carousel",
+      "slideRole": "Travel package"
+    },
+    "states": {
+      "loadingPackages": "Loading travel packages",
+      "packagesError": "Unable to load travel packages.",
+      "packagesEmpty": "No travel packages to show yet.",
+      "packagesEmptyHint": "Check back soon for new adventures."
+    },
+    "card": {
+      "view": "View trip →",
+      "viewLabel": "View {{title}}",
+      "photoUnavailable": "Trip photo unavailable",
+      "addSaved": "Add {{title}} to favorites",
+      "removeSaved": "Remove {{title}} from favorites",
+      "capacity": "Up to {{count}}",
+      "departure": "Departs {{date}} · UTC",
+      "dateUnavailable": "Date unavailable",
+      "days_one": "{{count}} day",
+      "days_few": "{{count}} days",
+      "days_many": "{{count}} days",
+      "days_other": "{{count}} days"
+    },
+    "feedback": {
+      "saved": "Travel package saved",
+      "unsaved": "Removed from saved packages",
+      "signInToSave": "Please sign in to save travel packages.",
+      "saveError": "Unable to update your favorite. Please try again.",
+      "packagesError": "Unable to load travel packages. Please try again.",
+      "signedOut": "Signed out",
+      "refreshError": "Unable to refresh packages. Please reload the page.",
+      "sessionError": "Your session could not be restored. Please sign in again.",
+      "searchError": "Unable to complete your search. Please try again.",
+      "languageError": "Unable to change language. Please try again."
+    },
+    "errors": {
+      "filters": "Please check your filters.",
+      "type": "Choose a valid package type.",
+      "date": "Choose a valid departure date.",
+      "range": "{{label}}: enter both bounds as nonnegative whole numbers, with minimum ≤ maximum.",
+      "country": "No matching country found in current packages. Check the spelling or try the text search in More filters.",
+      "city": "No matching city found for this destination. Check the spelling or clear the country to search more widely."
+    },
+    "destinations": {
+      "title": "A change of scenery",
+      "description": "Start with a destination. See where it takes you.",
+      "explore": "Explore packages →",
+      "SEOUL": {
+        "city": "Seoul",
+        "caption": "City lights & cultural discoveries"
+      },
+      "BUSAN": {
+        "city": "Busan",
+        "caption": "Coastal days & colourful streets"
+      },
+      "JEJU": {
+        "city": "Jeju",
+        "caption": "Island air & a slower pace"
+      },
+      "GYEONGJU": {
+        "city": "Gyeongju",
+        "caption": "History around every corner"
+      }
+    },
+    "banner": {
+      "title": "Less planning. More possibilities.",
+      "description": "Compare package itineraries, trip lengths and prices in one place.",
+      "action": "Find your next adventure"
+    },
+    "agents": {
+      "title": "Meet the people behind the trips",
+      "description": "Discover travel agents and the packages they share.",
+      "all": "Meet all agents →",
+      "profile": "View profile →",
+      "loading": "Loading travel agents",
+      "empty": "No travel agents to show yet.",
+      "error": "Unable to load travel agents.",
+      "retry": "Retry agents",
+      "retryError": "Unable to load travel agents. Please try again.",
+      "packages_one": "Travel agent · {{count}} package",
+      "packages_few": "Travel agent · {{count}} packages",
+      "packages_many": "Travel agent · {{count}} packages",
+      "packages_other": "Travel agent · {{count}} packages"
+    },
+    "community": {
+      "title": "Stories from the road",
+      "description": "Ideas and experiences shared by the community.",
+      "join": "Join the conversation →",
+      "empty": "The next story could be yours.",
+      "emptyHint": "Explore the community and share your travel experiences.",
+      "visit": "Visit the community →",
+      "loading": "Loading traveller stories",
+      "error": "Unable to load traveller stories.",
+      "retry": "Retry stories",
+      "retryError": "Unable to load traveller stories. Please try again.",
+      "story": "TRAVELLER STORY",
+      "by": "By {{name}}",
+      "authorFallback": "a Tripora traveller"
+    },
+    "footer": {
+      "taglineFirst": "A little curiosity.",
+      "taglineSecond": "A whole world to explore.",
+      "explore": "Explore",
+      "packages": "Travel packages",
+      "destinations": "Destinations",
+      "community": "Community",
+      "tripora": "Tripora",
+      "about": "About Tripora",
+      "agents": "Travel agents",
+      "support": "Support",
+      "cs": "CS Center",
+      "faq": "Help & FAQs",
+      "account": "Account",
+      "note": "Package details and availability are provided by agents.",
+      "copyright": "© {{year}} Tripora",
+      "socialLabel": "Tripora social media",
+      "socialPlaceholder": "{{brand}} — link coming soon"
+    },
+    "seo": {
+      "title": "Tripora | Find your next trip",
+      "description": "Discover travel packages, compare destinations and find your next trip with Tripora.",
+      "skip": "Skip to packages"
+    },
+    "chat": {
+      "title": "Online Chat",
+      "welcome": "Welcome to Live chat!",
+      "placeholder": "Type message",
+      "input": "Chat message",
+      "open": "Open chat",
+      "close": "Close chat",
+      "send": "Send message",
+      "empty": "Please type a message",
+      "unavailable": "Chat is unavailable. Please try again later.",
+      "user": "User"
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { packageImageUrl } from '../travelPackage/TravelPackageCard';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Stack, Typography, Box, List, ListItem, Button } from '@mui/material';
@@ -5,7 +6,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
-import { GET_MEMBER } from '../../../apollo/user/query';
+import { GET_MEMBER, GET_TRAVEL_MEMBER } from '../../../apollo/user/query';
 import { useQuery } from '@apollo/client';
 import { T } from '../../types/common';
 
@@ -18,7 +19,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 	const { subscribeHandler, unsubscribeHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const category: any = router.query?.category;
+	const category: any = router.query?.category ?? 'travelPackages';
 	const [member, setMember] = useState<Member | null>(null);
 	const { memberId } = router.query;
 
@@ -29,7 +30,8 @@ const MemberMenu = (props: MemberMenuProps) => {
 		data: getMemberData,
 		error: getMemberError,
 		refetch: getMemberRefetch,
-	} = useQuery(GET_MEMBER, {
+	} = useQuery(category === 'travelPackages' ? GET_TRAVEL_MEMBER : GET_MEMBER, {
+		context: { suppressErrorAlert: category === 'travelPackages' },
 		fetchPolicy: 'network-only',
 		variables: { input: memberId },
 		skip: !memberId,
@@ -39,7 +41,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 		},
 	});
 
-	if (device === 'mobile') {
+	if (device === 'mobile' && category !== 'travelPackages') {
 		return <div>MEMBER MENU MOBILE</div>;
 	} else {
 		return (
@@ -47,7 +49,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 				<Stack className={'profile'}>
 					<Box component={'div'} className={'profile-img'}>
 						<img
-							src={member?.memberImage ? `${REACT_APP_API_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
+							src={member?.memberImage ? (category === 'travelPackages' ? packageImageUrl(member.memberImage) : `${REACT_APP_API_URL}/${member?.memberImage}`) : '/img/profile/defaultUser.svg'}
 							alt={'member-photo'}
 						/>
 					</Box>
@@ -88,6 +90,9 @@ const MemberMenu = (props: MemberMenuProps) => {
 							Details
 						</Typography>
 						<List className={'sub-section'}>
+							<Link href={{ pathname: '/member', query: { ...router.query, category: 'travelPackages' } }}>
+								<Typography>Travel Packages {member?.memberPackages ?? ''}</Typography>
+							</Link>
 							{member?.memberType === 'AGENT' && (
 								<ListItem className={category === 'properties' ? 'focus' : ''}>
 									<Link

@@ -24,7 +24,18 @@ interface InfoPayload {
 	action: string;
 }
 
-const Chat = () => {
+const Chat = ({
+	onFeedback,
+	labels,
+}: {
+	onFeedback?: (message: string) => void;
+	labels?: Partial<
+		Record<
+			'title' | 'welcome' | 'placeholder' | 'input' | 'open' | 'close' | 'send' | 'empty' | 'unavailable' | 'user',
+			string
+		>
+	>;
+}) => {
 	const chatContentRef = useRef<HTMLDivElement>(null);
 	const [messagesList, setMessagesList] = useState<MessagePayload[]>([]);
 	const [onlineUsers, setOnlineUsers] = useState<number>(0);
@@ -95,10 +106,14 @@ const Chat = () => {
 
 	const onClickHandler = () => {
 		if (!message) {
-			sweetErrorAlert('Please type a message');
+			if (onFeedback) onFeedback(labels?.empty ?? 'Please type a message');
+			else sweetErrorAlert('Please type a message');
 			return;
 		}
-		console.log('📤 Sending message:', message);
+		if (onFeedback && (!socket || socket.readyState !== WebSocket.OPEN)) {
+			onFeedback(labels?.unavailable ?? 'Chat is unavailable. Please try again later.');
+			return;
+		}
 		socket.send(JSON.stringify({ event: 'message', data: message }));
 		setMessage('');
 	};
@@ -107,20 +122,24 @@ const Chat = () => {
 	return (
 		<Stack className="chatting">
 			{openButton && (
-				<button className="chat-button" onClick={handleOpenChat}>
+				<button
+					className="chat-button"
+					aria-label={open ? labels?.close ?? 'Close chat' : labels?.open ?? 'Open chat'}
+					onClick={handleOpenChat}
+				>
 					{open ? <CloseFullscreenIcon /> : <MarkChatUnreadIcon />}
 				</button>
 			)}
 			<Stack className={`chat-frame ${open ? 'open' : ''}`}>
 				<Box className={'chat-top'} component="div">
-					<div style={{ fontFamily: 'Nunito' }}>Online Chat</div>
+					<div style={{ fontFamily: 'Nunito' }}>{labels?.title ?? 'Online Chat'}</div>
 					<RippleBadge style={{ margin: '-18px 0 0 21px' }} badgeContent={onlineUsers} />
 				</Box>
 				<Box className={'chat-content'} id="chat-content" ref={chatContentRef} component="div">
 					<ScrollableFeed>
 						<Stack className={'chat-main'}>
 							<Box flexDirection="row" style={{ display: 'flex' }} sx={{ m: '10px 0px' }} component="div">
-								<div className={'welcome'}>Welcome to Live chat!</div>
+								<div className={'welcome'}>{labels?.welcome ?? 'Welcome to Live chat!'}</div>
 							</Box>
 
 							{messagesList.map((ele: MessagePayload, idx) => {
@@ -143,7 +162,7 @@ const Chat = () => {
 									</Box>
 								) : (
 									<Box key={idx} flexDirection="row" style={{ display: 'flex' }} sx={{ m: '10px 0px' }} component="div">
-										<Avatar alt="user" src={memberImage} />
+										<Avatar alt={labels?.user ?? 'user'} src={memberImage} />
 										<div className="msg-left">{text}</div>
 									</Box>
 								);
@@ -156,13 +175,14 @@ const Chat = () => {
 						ref={textInput}
 						type="text"
 						name="message"
+						aria-label={labels?.input ?? 'Chat message'}
 						value={message}
 						className="msg-input"
-						placeholder="Type message"
+						placeholder={labels?.placeholder ?? 'Type message'}
 						onChange={getInputMessageHandler}
 						onKeyDown={getKeyHandler}
 					/>
-					<button className="send-msg-btn" onClick={onClickHandler}>
+					<button className="send-msg-btn" aria-label={labels?.send ?? 'Send message'} onClick={onClickHandler}>
 						<SendIcon style={{ color: '#fff' }} />
 					</button>
 				</Box>
