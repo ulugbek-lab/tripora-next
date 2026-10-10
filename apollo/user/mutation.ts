@@ -328,3 +328,64 @@ export const UNSUBSCRIBE = gql`
 		}
 	}
 `;
+
+
+/**************************
+ *     TRAVEL-PACKAGE     *
+ *************************/
+
+const travelPackageMutationFields = `
+	_id
+	packageType
+	packageStatus
+	packageCountry
+	packageCity
+	packageTitle
+	packagePrice
+	packageCurrency
+	packageDurationDays
+	packageMaxTravellers
+	packageAvailableSlots
+	packageImages
+	packageStartDate
+	memberId
+	packageViews
+	packageLikes
+	packageComments
+	packageRank
+	soldOutAt
+	deletedAt
+	createdAt
+	updatedAt
+	packageDesc
+`;
+
+export const CREATE_TRAVEL_PACKAGE = gql`
+	mutation CreateTravelPackage($input: TravelPackageInput!, $files: [Upload!]) {
+		createTravelPackage(input: $input, files: $files) {
+			${travelPackageMutationFields}
+		}
+	}
+`;
+
+export const UPDATE_TRAVEL_PACKAGE = gql`
+	mutation UpdateTravelPackage($input: TravelPackageUpdate!, $files: [Upload!]) {
+		updateTravelPackage(input: $input, files: $files) {
+			${travelPackageMutationFields}
+		}
+	}
+`;
+
+export const LIKE_TARGET_TRAVEL_PACKAGE = gql`
+	mutation LikeTargetTravelPackage($input: String!) {
+		likeTargetTravelPackage(packageId: $input) {
+			${travelPackageMutationFields}
+		}
+	}
+`;
+
+export const UPLOAD_TRAVEL_PACKAGE_IMAGES = gql`
+	mutation UploadTravelPackageImages($files: [Upload!]!) {
+		uploadTravelPackageImages(files: $files)
+	}
+`;

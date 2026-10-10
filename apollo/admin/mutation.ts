@@ -153,3 +153,50 @@ export const REMOVE_COMMENT_BY_ADMIN = gql`
 		}
 	}
 `;
+
+
+/**************************
+ *     TRAVEL-PACKAGE     *
+ *************************/
+
+const travelPackageAdminMutationFields = `
+	_id
+	packageType
+	packageStatus
+	packageCountry
+	packageCity
+	packageTitle
+	packagePrice
+	packageCurrency
+	packageDurationDays
+	packageMaxTravellers
+	packageAvailableSlots
+	packageImages
+	packageStartDate
+	memberId
+	packageViews
+	packageLikes
+	packageComments
+	packageRank
+	soldOutAt
+	deletedAt
+	createdAt
+	updatedAt
+	packageDesc
+`;
+
+export const UPDATE_TRAVEL_PACKAGE_BY_ADMIN = gql`
+	mutation UpdateTravelPackageByAdmin($input: TravelPackageUpdate!) {
+		updateTravelPackageByAdmin(input: $input) {
+			${travelPackageAdminMutationFields}
+		}
+	}
+`;
+
+export const REMOVE_TRAVEL_PACKAGE_BY_ADMIN = gql`
+	mutation RemoveTravelPackageByAdmin($input: String!) {
+		removeTravelPackageByAdmin(packageId: $input) {
+			${travelPackageAdminMutationFields}
+		}
+	}
+`;

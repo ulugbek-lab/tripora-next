@@ -616,3 +616,115 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 		}
 	}
 `;
+
+/**************************
+ *     TRAVEL-PACKAGE     *
+ *************************/
+
+const travelPackageFields = `
+	_id
+	packageType
+	packageStatus
+	packageCountry
+	packageCity
+	packageTitle
+	packagePrice
+	packageCurrency
+	packageDurationDays
+	packageMaxTravellers
+	packageAvailableSlots
+	packageImages
+	packageStartDate
+	memberId
+	packageViews
+	packageLikes
+	packageComments
+	packageRank
+	soldOutAt
+	deletedAt
+	createdAt
+	updatedAt
+	memberData {
+		_id
+		memberType
+		memberStatus
+		memberAuthType
+		memberPhone
+		memberNick
+		memberFullName
+		memberImage
+		memberAddress
+		memberDesc
+		memberWarnings
+		memberBlocks
+		memberPackages
+		memberRank
+		memberPoints
+		memberLikes
+		memberViews
+		deletedAt
+		createdAt
+		updatedAt
+	}
+	meLiked {
+		memberId
+		likeRefId
+		myFavorite
+	}
+`;
+
+export const GET_TRAVEL_PACKAGES = gql`
+	query GetTravelPackages($input: TravelPackagesInquiry!) {
+		getTravelPackages(input: $input) {
+			list {
+				${travelPackageFields}
+			}
+			metaCounter { total }
+		}
+	}
+`;
+
+export const GET_AGENT_TRAVEL_PACKAGES = gql`
+	query GetAgentTravelPackages($input: AgentTravelPackagesInquiry!) {
+		getAgentTravelPackages(input: $input) {
+			list {
+				${travelPackageFields}
+			}
+			metaCounter { total }
+		}
+	}
+`;
+
+export const GET_FAVORITE_TRAVEL_PACKAGES = gql`
+	query GetFavoriteTravelPackages($input: OrdinaryInquiry!) {
+		getFavoriteTravelPackages(input: $input) {
+			list {
+				${travelPackageFields}
+			}
+			metaCounter { total }
+		}
+	}
+`;
+
+export const GET_VISITED_TRAVEL_PACKAGES = gql`
+	query GetVisitedTravelPackages($input: OrdinaryInquiry!) {
+		getVisitedTravelPackages(input: $input) {
+			list {
+				${travelPackageFields}
+			}
+			metaCounter { total }
+		}
+	}
+`;
+
+export const GET_TRAVEL_PACKAGE = gql`
+	query GetTravelPackage($input: String!) {
+		getTravelPackage(packageId: $input) {
+			${travelPackageFields}
+			packageDesc
+			memberData {
+				meFollowed { followingId followerId myFollowing }
+			}
+		}
+	}
+`;

@@ -15,6 +15,7 @@ export interface Member {
 	memberAddress?: string;
 	memberDesc?: string;
 	memberProperties: number;
+	memberPackages?: number;
 	memberRank: number;
 	memberArticles: number;
 	memberPoints: number;
