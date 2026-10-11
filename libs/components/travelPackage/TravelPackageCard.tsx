@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'next-i18next';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import Link from 'next/link';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -13,6 +16,7 @@ interface TravelPackageCardProps {
 	hideEngagement?: boolean;
 	isFavorite?: boolean;
 	liking: boolean;
+	marketplace?: boolean;
 }
 
 export function packageImageUrl(path?: string): string {
@@ -23,7 +27,7 @@ export function packageImageUrl(path?: string): string {
 	return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }
 
-const TravelPackageCard = ({
+const LegacyTravelPackageCard = ({
 	travelPackage: item,
 	likePackageHandler,
 	liking,
@@ -91,4 +95,78 @@ const TravelPackageCard = ({
 	);
 };
 
+const MarketplaceCard = ({ travelPackage: item, likePackageHandler, liking }: TravelPackageCardProps) => {
+	const { t, i18n } = useTranslation('common');
+	const [unavailable, setUnavailable] = useState(!item.packageImages?.[0]);
+	useEffect(() => setUnavailable(!item.packageImages?.[0]), [item.packageImages?.[0]]);
+	const locale =
+		({ en: 'en-US', kr: 'ko-KR', ru: 'ru-RU', ja: 'ja-JP', zh: 'zh-CN' } as Record<string, string>)[i18n.language] ??
+		'en-US';
+	const date = new Date(item.packageStartDate);
+	const startDate = Number.isFinite(date.getTime())
+		? date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+		: t('marketplace.card.dateUnavailable');
+	const href = { pathname: '/travel-package/detail', query: { id: item._id } };
+	const liked = Boolean(item.meLiked?.[0]?.myFavorite);
+	return (
+		<Stack component="article" className="marketplace-card">
+			<div className="marketplace-card-media">
+				<Link href={href} aria-label={t('marketplace.card.viewLabel', { title: item.packageTitle })}>
+					<img
+						src={unavailable ? '/img/travel/package-placeholder.svg' : packageImageUrl(item.packageImages[0])}
+						alt={unavailable ? t('marketplace.card.photoUnavailable') : item.packageTitle}
+						loading="lazy"
+						onError={() => setUnavailable(true)}
+						onLoad={(e) => {
+							if (e.currentTarget.naturalWidth < 2) setUnavailable(true);
+						}}
+					/>
+				</Link>
+				{unavailable && <span className="photo-unavailable">{t('marketplace.card.photoUnavailable')}</span>}
+				<span className="package-type">{t(`marketplace.packageTypes.${item.packageType}`)}</span>
+				<IconButton
+					className="package-save"
+					aria-label={t(liked ? 'marketplace.card.removeSaved' : 'marketplace.card.addSaved', {
+						title: item.packageTitle,
+					})}
+					aria-pressed={liked}
+					disabled={liking}
+					onClick={() => void likePackageHandler?.(item._id)}
+				>
+					{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+				</IconButton>
+			</div>
+			<Stack className="marketplace-card-info">
+				<p className="package-destination">
+					{item.packageCity}, {item.packageCountry}
+				</p>
+				<Link href={href} className="package-title">
+					<Typography component="h2">{item.packageTitle}</Typography>
+				</Link>
+				<Stack className="package-facts">
+					<span>
+						<ScheduleIcon />
+						{t('marketplace.card.days', { count: item.packageDurationDays })}
+					</span>
+					<span>
+						<PeopleOutlineIcon />
+						{t('marketplace.card.capacity', { count: item.packageMaxTravellers })}
+					</span>
+				</Stack>
+				<p className="package-date">{t('marketplace.card.departure', { date: startDate })}</p>
+				<p className="package-availability">{t('marketplace.card.slots', { count: item.packageAvailableSlots })}</p>
+				<Stack className="package-card-bottom">
+					<span className="package-price">
+						<small>{item.packageCurrency}</small>{' '}
+						{item.packagePrice.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+					</span>
+					<Link href={href}>{t('marketplace.card.view')}</Link>
+				</Stack>
+			</Stack>
+		</Stack>
+	);
+};
+
+const TravelPackageCard = (props: TravelPackageCardProps) =>
+	props.marketplace ? <MarketplaceCard {...props} /> : <LegacyTravelPackageCard {...props} />;
 export default TravelPackageCard;

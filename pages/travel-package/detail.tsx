@@ -1,16 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NextPage } from 'next';
-import { Alert, Button, CircularProgress, IconButton, Pagination, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, Pagination, Stack, TextField, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import moment from 'moment';
+import { useTranslation } from 'next-i18next';
+import toast from 'react-hot-toast';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
+import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
+import DetailGallery from '../../libs/components/travelPackage/DetailGallery';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import withLayoutFull from '../../libs/components/layout/LayoutFull';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import withLayoutDetail from '../../libs/components/layout/LayoutDetail';
 import Review from '../../libs/components/travelPackage/Review';
 import { packageImageUrl } from '../../libs/components/travelPackage/TravelPackageCard';
 import { TravelPackage } from '../../libs/types/travel-package/travel-package';
@@ -22,16 +31,28 @@ import { Direction } from '../../libs/enums/common.enum';
 import { GET_TRAVEL_PACKAGE, GET_TRAVEL_PACKAGE_COMMENTS } from '../../apollo/user/query';
 import { LIKE_TARGET_TRAVEL_PACKAGE, CREATE_COMMENT, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { userVar } from '../../apollo/store';
-import { formatterStr } from '../../libs/utils';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 
 export const getStaticProps = async ({ locale }: { locale: string }) => ({
-	props: { ...(await serverSideTranslations(locale, ['common'])) },
+	props: {
+		...(await serverSideTranslations(locale, ['common'], {
+			...require('../../next-i18next.config'),
+			reloadOnPrerender: process.env.NODE_ENV === 'development',
+		})),
+	},
 });
+
+// Temporary public-facing contact placeholders; replace with real agent contacts later.
+const TEMP_AGENT_CONTACT = {
+	phone: '+82 10-1234-5678',
+	email: 'agent@tripora.com',
+};
 
 const TravelPackageDetail: NextPage = () => {
 	const router = useRouter();
-	const device = useDeviceDetect();
+	const { t, i18n } = useTranslation('common');
+	const locale =
+		({ en: 'en-US', kr: 'ko-KR', ru: 'ru-RU', ja: 'ja-JP', zh: 'zh-CN' } as Record<string, string>)[i18n.language] ??
+		'en-US';
 	const user = useReactiveVar(userVar);
 	const packageId =
 		typeof router.query.id === 'string' && /^[a-f\d]{24}$/i.test(router.query.id) ? router.query.id : '';
@@ -85,7 +106,7 @@ const TravelPackageDetail: NextPage = () => {
 	const likeHandler = async () => {
 		if (action || !active) return;
 		if (!user._id) {
-			await sweetMixinErrorAlert('Please sign in to save travel packages.');
+			toast.error(t('detail.signInToSave'));
 			return;
 		}
 		const targetId = packageId;
@@ -95,7 +116,7 @@ const TravelPackageDetail: NextPage = () => {
 			// The mutation does not attach meLiked. Reload only this package's personalized detail.
 			if (activeId.current === targetId) await refetch({ input: targetId });
 		} catch {
-			await sweetMixinErrorAlert('Unable to update your favorite. Please try again.');
+			toast.error(t('detail.saveError'));
 		} finally {
 			setAction(null);
 		}
@@ -104,7 +125,7 @@ const TravelPackageDetail: NextPage = () => {
 	const followHandler = async () => {
 		if (action || !item?.memberData?._id) return;
 		if (!user._id) {
-			await sweetMixinErrorAlert('Please sign in to follow this member.');
+			toast.error(t('detail.signInToFollow'));
 			return;
 		}
 		const targetId = packageId,
@@ -116,7 +137,7 @@ const TravelPackageDetail: NextPage = () => {
 			await (followed ? unsubscribe : subscribe)({ variables: { input: ownerId } });
 			if (activeId.current === targetId) await refetch({ input: targetId });
 		} catch {
-			await sweetMixinErrorAlert('Unable to update your follow. Please try again.');
+			toast.error(t('detail.followError'));
 		} finally {
 			setAction(null);
 		}
@@ -144,38 +165,44 @@ const TravelPackageDetail: NextPage = () => {
 				setCommentPage({ id: targetId, page: 1 });
 			}
 			if (activeId.current === targetId) await refetch({ input: targetId });
-			await sweetTopSmallSuccessAlert('Comment added', 800);
+			toast.success(t('detail.commentAdded'));
 		} catch {
-			await sweetMixinErrorAlert('Unable to add your comment. Please try again.');
+			toast.error(t('detail.commentError'));
 		} finally {
 			setAction(null);
 		}
 	};
 
-	const backLink = <Link href="/travel-package">Back to travel packages</Link>;
+	const backLink = (
+		<Link className="detail-back-link" href="/travel-package">
+			<ArrowBackIcon fontSize="small" />
+			{t('detail.back')}
+		</Link>
+	);
 	if (!router.isReady || (packageId && loading))
 		return (
-			<Stack
-				id="travel-package-detail-page"
-				className={`detail-state ${device === 'mobile' ? 'mobile' : ''}`}
-				role="status"
-			>
-				<CircularProgress />
-				<Typography>Loading travel package…</Typography>
+			<Stack id="travel-package-detail-page" className="detail-state" role="status">
+				<CircularProgress size={30} />
+				<Typography>{t('detail.loading')}</Typography>
 			</Stack>
 		);
 	if (!packageId)
 		return (
 			<Stack id="travel-package-detail-page" className="detail-state">
-				<Alert severity="info">Select a valid travel package to view its details.</Alert>
+				<Alert severity="info">{t('detail.invalid')}</Alert>
 				{backLink}
 			</Stack>
 		);
 	if (error || !available || !item)
 		return (
 			<Stack id="travel-package-detail-page" className="detail-state">
-				<Alert severity="warning">This travel package is unavailable or could not be loaded.</Alert>
-				<Button onClick={() => void refetch({ input: packageId })}>Retry</Button>
+				<Typography component="h1">{t('detail.unavailable')}</Typography>
+				<Button
+					variant="outlined"
+					onClick={() => void refetch({ input: packageId }).catch(() => toast.error(t('detail.unavailable')))}
+				>
+					{t('detail.retry')}
+				</Button>
 				{backLink}
 			</Stack>
 		);
@@ -184,153 +211,153 @@ const TravelPackageDetail: NextPage = () => {
 	const liked = Boolean(item.meLiked?.[0]?.myFavorite);
 	const member = item.memberData;
 	const followed = Boolean(member?.meFollowed?.[0]?.myFollowing);
-	const start = moment.utc(item.packageStartDate);
+	const start = new Date(item.packageStartDate);
+	const dateLabel = Number.isFinite(start.getTime())
+		? start.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+		: t('detail.dateUnavailable');
 	return (
-		<div id="travel-package-detail-page" className={device === 'mobile' ? 'mobile' : ''}>
-			<div className="container">
+		<main id="travel-package-detail-page">
+			<div className="detail-container">
+				{backLink}
 				<Stack className="travel-package-detail-config">
-					{backLink}
-					<Stack className="travel-package-info-config">
-						<Stack className="info">
-							<Stack className="left-box">
-								<Typography component="h1" className="title-main">
-									{item.packageTitle}
-								</Typography>
-								<Typography className="destination">
-									{item.packageCity}, {item.packageCountry}
-								</Typography>
-								<Typography>
-									{item.packageType.charAt(0) + item.packageType.slice(1).toLowerCase()} ·{' '}
-									{item.packageStatus === TravelPackageStatus.SOLD_OUT ? 'Sold out' : 'Active'}
-								</Typography>
-							</Stack>
-							<Stack className="right-box">
-								<Typography className="price">
-									{item.packageCurrency} {formatterStr(item.packagePrice) || '0'}
-								</Typography>
-								<Stack className="buttons">
-									<RemoveRedEyeIcon />
-									<Typography>{item.packageViews} views</Typography>
-									<IconButton
-										aria-label={liked ? 'Remove travel package from favorites' : 'Add travel package to favorites'}
-										aria-pressed={liked}
-										disabled={Boolean(action) || !active}
-										onClick={() => void likeHandler()}
-									>
-										{liked ? <FavoriteIcon color="primary" /> : <FavoriteBorderIcon />}
-									</IconButton>
-									<Typography>{item.packageLikes} likes</Typography>
-									<Typography>{item.packageComments} comments</Typography>
-								</Stack>
+					<DetailGallery
+						images={images}
+						title={item.packageTitle}
+						selected={selectedImage}
+						onSelect={setSelectedImage}
+					/>
+					<header className="detail-heading">
+						<Stack className="left-box">
+							<p className="destination">
+								{item.packageCity}, {item.packageCountry}
+							</p>
+							<Typography component="h1" className="title-main">
+								{item.packageTitle}
+							</Typography>
+							<Stack className="detail-badges">
+								<span>{t(`detail.packageTypes.${item.packageType}`)}</span>
+								<span className={active ? 'status-active' : 'status-sold-out'}>
+									{t(active ? 'detail.active' : 'detail.soldOut')}
+								</span>
 							</Stack>
 						</Stack>
-						{item.packageStatus === TravelPackageStatus.SOLD_OUT && (
-							<Alert severity="info">This travel package is sold out.</Alert>
-						)}
-						<Stack className="images">
-							<Stack className="main-image">
-								{images.length ? (
-									<img
-										src={packageImageUrl(images[selectedImage] ?? images[0])}
-										alt={`${item.packageTitle} — image ${Math.min(selectedImage + 1, images.length)}`}
-									/>
-								) : (
-									<Stack className="no-image">
-										<Typography>No package images available.</Typography>
-									</Stack>
-								)}
-							</Stack>
-							{images.length > 1 && (
-								<Stack className="sub-images">
-									{images.map((image, index) => (
-										<Button
-											key={`${image}-${index}`}
-											className="sub-img-box"
-											aria-label={`Show package image ${index + 1}`}
-											aria-pressed={index === selectedImage}
-											onClick={() => setSelectedImage(index)}
-										>
-											<img src={packageImageUrl(image)} alt={`${item.packageTitle} thumbnail ${index + 1}`} />
-										</Button>
-									))}
-								</Stack>
-							)}
+						<Stack className="right-box">
+							<Typography className="label">{t('detail.price')}</Typography>
+							<Typography className="price">
+								<small>{item.packageCurrency}</small>{' '}
+								{item.packagePrice.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+							</Typography>
+							<Button
+								className="detail-save"
+								variant="outlined"
+								startIcon={liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+								aria-label={t(liked ? 'detail.removeSaved' : 'detail.addSaved')}
+								aria-pressed={liked}
+								disabled={Boolean(action) || !active}
+								onClick={() => void likeHandler()}
+							>
+								{t(liked ? 'detail.saved' : 'detail.save')}
+							</Button>
+						</Stack>
+					</header>
+					{item.packageStatus === TravelPackageStatus.SOLD_OUT && (
+						<Alert severity="info">{t('detail.soldOutHint')}</Alert>
+					)}
+					<Stack className="options-config">
+						<Stack>
+							<EventOutlinedIcon />
+							<Typography className="label">{t('detail.departure')}</Typography>
+							<Typography>{dateLabel}</Typography>
+						</Stack>
+						<Stack>
+							<ScheduleIcon />
+							<Typography className="label">{t('detail.duration')}</Typography>
+							<Typography>{t('detail.days', { count: item.packageDurationDays })}</Typography>
+						</Stack>
+						<Stack>
+							<PeopleOutlineIcon />
+							<Typography className="label">{t('detail.capacity')}</Typography>
+							<Typography>{item.packageMaxTravellers}</Typography>
+						</Stack>
+						<Stack>
+							<ConfirmationNumberOutlinedIcon />
+							<Typography className="label">{t('detail.slots')}</Typography>
+							<Typography>{item.packageAvailableSlots}</Typography>
 						</Stack>
 					</Stack>
 					<Stack className="travel-package-desc-config">
 						<Stack className="left-config">
-							<Stack className="options-config">
-								<Stack>
-									<Typography className="label">Departure (UTC)</Typography>
-									<Typography>{start.isValid() ? start.format('DD MMMM, YYYY') : 'Date unavailable'}</Typography>
-								</Stack>
-								<Stack>
-									<Typography className="label">Duration</Typography>
-									<Typography>{item.packageDurationDays} days</Typography>
-								</Stack>
-								<Stack>
-									<Typography className="label">Maximum travellers</Typography>
-									<Typography>{item.packageMaxTravellers}</Typography>
-								</Stack>
-								<Stack>
-									<Typography className="label">Available slots</Typography>
-									<Typography>{item.packageAvailableSlots}</Typography>
-								</Stack>
-							</Stack>
-							<Stack className="description-config">
+							<section className="description-config">
 								<Typography component="h2" className="section-title">
-									Package description
+									{t('detail.about')}
 								</Typography>
-								<Typography className="description">
-									{item.packageDesc?.trim() || 'No description available.'}
-								</Typography>
-							</Stack>
-							<Stack className="reviews-config">
-								<Typography component="h2" className="section-title">
-									Comments ({commentTotal})
-								</Typography>
+								<Typography className="description">{item.packageDesc?.trim() || t('detail.noDescription')}</Typography>
+							</section>
+							<section className="reviews-config">
+								<Stack className="comments-heading">
+									<Typography component="h2" className="section-title">
+										{t('detail.comments', { count: commentTotal })}
+									</Typography>
+									<span>
+										<RemoveRedEyeIcon fontSize="small" />
+										{t('detail.views', { count: item.packageViews })}
+									</span>
+								</Stack>
 								{commentsLoading ? (
-									<Stack role="status">
+									<Stack className="comment-state" role="status">
 										<CircularProgress size={24} />
-										<Typography>Loading comments…</Typography>
+										<Typography>{t('detail.loadingComments')}</Typography>
 									</Stack>
 								) : commentsError ? (
 									<Alert
 										severity="error"
 										action={
-											<Button onClick={() => void commentsRefetch({ input: commentsInquiry })}>Retry comments</Button>
+											<Button
+												onClick={() =>
+													void commentsRefetch({ input: commentsInquiry }).catch(() =>
+														toast.error(t('detail.commentsError')),
+													)
+												}
+											>
+												{t('detail.retry')}
+											</Button>
 										}
 									>
-										Unable to load comments.
+										{t('detail.commentsError')}
 									</Alert>
 								) : comments.length ? (
 									comments.map((comment) => <Review key={comment._id} comment={comment} />)
 								) : (
-									<Typography>No comments yet.</Typography>
+									<Typography className="comment-state">{t('detail.noComments')}</Typography>
 								)}
 								{!commentsLoading && !commentsError && commentTotal > commentsInquiry.limit && (
 									<Pagination
 										page={commentsInquiry.page}
 										count={Math.ceil(commentTotal / commentsInquiry.limit)}
 										onChange={(_, page) => setCommentPage({ id: packageId, page })}
-										shape="circular"
-										color="primary"
+										shape="rounded"
+										getItemAriaLabel={(type, page, selected) =>
+											type === 'page'
+												? t(selected ? 'detail.pagination.current' : 'detail.pagination.page', { page })
+												: t(`detail.pagination.${type}`)
+										}
 									/>
 								)}
-							</Stack>
+							</section>
 							<Stack component="form" className="leave-review-config" onSubmit={createCommentHandler}>
 								<Typography component="h2" className="section-title">
-									Leave a comment
+									{t('detail.leaveComment')}
 								</Typography>
-								{!user._id && <Typography>Sign in to leave a comment.</Typography>}
+								{!user._id && <Typography className="comment-help">{t('detail.signInToComment')}</Typography>}
 								<TextField
-									label="Comment"
+									label={t('detail.comment')}
+									placeholder={t('detail.commentPlaceholder')}
 									multiline
 									minRows={3}
 									value={commentText}
-									onChange={(e) => setCommentText(e.target.value)}
+									onChange={(event) => setCommentText(event.target.value)}
 									inputProps={{ maxLength: 100 }}
-									helperText={`${commentText.length}/100 characters`}
+									helperText={t('detail.counter', { count: commentText.length, max: 100 })}
 									disabled={!user._id || !active || Boolean(action)}
 								/>
 								<Button
@@ -338,14 +365,14 @@ const TravelPackageDetail: NextPage = () => {
 									variant="contained"
 									disabled={!user._id || !active || Boolean(action) || !commentText.trim()}
 								>
-									Submit comment
+									{t(action === 'comment' ? 'detail.submitting' : 'detail.submit')}
 								</Button>
 							</Stack>
 						</Stack>
-						<Stack className="right-config">
+						<aside className="right-config">
 							<Stack className="member-info">
 								<Typography component="h2" className="section-title">
-									Package agent / member
+									{t('detail.agent')}
 								</Typography>
 								{member ? (
 									<>
@@ -353,29 +380,62 @@ const TravelPackageDetail: NextPage = () => {
 											className="member-image"
 											src={member.memberImage ? packageImageUrl(member.memberImage) : '/img/profile/defaultUser.svg'}
 											alt={member.memberNick}
+											onError={(event) => {
+												event.currentTarget.onerror = null;
+												if (!event.currentTarget.src.endsWith('/img/profile/defaultUser.svg'))
+													event.currentTarget.src = '/img/profile/defaultUser.svg';
+											}}
 										/>
-										<Link href={member._id === user._id ? '/mypage' : `/member?memberId=${member._id}`}>
-											{member.memberFullName || member.memberNick}
+										<Link
+											className="member-name"
+											href={member._id === user._id ? '/mypage' : `/member?memberId=${member._id}`}
+										>
+											{member.memberFullName || member.memberNick || t('detail.agent')}
 										</Link>
-										<Typography>{member.memberType}</Typography>
-										{member.memberPhone && <Typography>{member.memberPhone}</Typography>}
+										<Typography className="label">
+											{t(member.memberType === 'AGENT' ? 'detail.travelAgent' : 'detail.member')}
+										</Typography>
+										
 										{member.memberDesc && <Typography className="description">{member.memberDesc}</Typography>}
-										{member._id !== user._id && (
-											<Button variant="outlined" disabled={Boolean(action)} onClick={() => void followHandler()}>
-												{followed ? 'Unfollow' : 'Follow'}
-											</Button>
-										)}
+
 									</>
 								) : (
-									<Typography>Member information unavailable.</Typography>
+									<>
+										<img className="member-image" src="/img/profile/defaultUser.svg" alt="" />
+										<Typography className="member-name">{t('detail.agent')}</Typography>
+										<Typography className="label">{t('detail.travelAgent')}</Typography>
+									</>
 								)}
+								<Stack className="agent-contact">
+									<a href={`tel:${TEMP_AGENT_CONTACT.phone.replace(/[^+\d]/g, '')}`}>
+										<PhoneOutlinedIcon aria-hidden="true" />
+										<span><small>{t('detail.phone')}</small>{TEMP_AGENT_CONTACT.phone}</span>
+									</a>
+									<a href={`mailto:${TEMP_AGENT_CONTACT.email}`}>
+										<EmailOutlinedIcon aria-hidden="true" />
+										<span><small>{t('detail.email')}</small>{TEMP_AGENT_CONTACT.email}</span>
+									</a>
+								</Stack>
+								{member && (
+									<Link className="agent-profile-link" href={member._id === user._id ? '/mypage' : `/member?memberId=${member._id}`}>
+										{t('detail.viewProfile')}
+									</Link>
+								)}
+								{member && member._id !== user._id && (
+									<Button variant="outlined" disabled={Boolean(action)} onClick={() => void followHandler()}>
+										{t(followed ? 'detail.unfollow' : 'detail.follow')}
+									</Button>
+								)}
+								<Button className="agent-message" variant="contained" type="button" startIcon={<ChatBubbleOutlineIcon />} onClick={() => toast(t('detail.messagingSoon'))}>
+									{t('detail.messageAgent')}
+								</Button>
 							</Stack>
-						</Stack>
+						</aside>
 					</Stack>
 				</Stack>
 			</div>
-		</div>
+		</main>
 	);
 };
 
-export default withLayoutFull(TravelPackageDetail);
+export default withLayoutDetail(TravelPackageDetail);

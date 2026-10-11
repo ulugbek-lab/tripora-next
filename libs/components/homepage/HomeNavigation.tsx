@@ -33,6 +33,7 @@ const HomeNavigation = () => {
 	const [switching, setSwitching] = useState(false);
 	const currentLanguage = languages.find((item) => item.code === router.locale) ?? languages[0];
 	const links = [
+		['/', 'home.nav.homeLink'],
 		['/travel-package', 'home.nav.packages'],
 		['/agent', 'home.nav.agents'],
 		['/community?articleCategory=TRAVEL_STORY', 'home.nav.community'],

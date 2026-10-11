@@ -1118,3 +1118,62 @@
 #pc-wrap.tripora-home-shell:lang(ko) .travel-package-header-search h1 {
 	word-break: keep-all;
 }
+
+// Match the detail page's restrained warm palette across the full-width Home content.
+#pc-wrap.tripora-home-shell {
+	#home-main {
+		background: #faf8f5;
+	}
+	.home-card-type {
+		background: #fff0e7;
+		color: #984019;
+	}
+	.home-card-price {
+		color: #b94318;
+		small {
+			color: #596660;
+		}
+	}
+	.home-card-facts svg {
+		color: #426457;
+	}
+	.home-section-heading > a,
+	.home-section-actions > a,
+	.home-card-bottom > a,
+	.home-destination-card b {
+		color: #b94318;
+	}
+	.home-discovery-banner {
+		background: #fff0e7;
+		> svg {
+			color: #b94318;
+		}
+	}
+	.home-agent-card {
+		background: #fcf8f2;
+		&:hover {
+			background: #fff0e7;
+		}
+	}
+	.home-story-card {
+		background: #fff;
+	}
+	.home-search-surface {
+		background: #fffcf9;
+		.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+			border-color: #d9511e;
+		}
+		.MuiInputLabel-root.Mui-focused,
+		.MuiButton-text {
+			color: #b94318;
+		}
+	}
+}
+.home-filter-dialog {
+	.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+		border-color: #d9511e;
+	}
+	.MuiInputLabel-root.Mui-focused {
+		color: #b94318;
+	}
+}

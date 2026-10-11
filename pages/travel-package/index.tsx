@@ -1,12 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Alert, Box, Button, CircularProgress, Menu, MenuItem, Pagination, Stack, Typography } from '@mui/material';
+import {
+	Alert,
+	Button,
+	Chip,
+	CircularProgress,
+	Drawer,
+	IconButton,
+	Menu,
+	MenuItem,
+	Pagination,
+	Stack,
+	Typography,
+	useMediaQuery,
+} from '@mui/material';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import withLayoutMarketplace from '../../libs/components/layout/LayoutMarketplace';
+import { useTranslation } from 'next-i18next';
+import TuneIcon from '@mui/icons-material/Tune';
+import CloseIcon from '@mui/icons-material/Close';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import toast from 'react-hot-toast';
 import Filter from '../../libs/components/travelPackage/Filter';
 import TravelPackageCard from '../../libs/components/travelPackage/TravelPackageCard';
 import { TravelPackagesInquiry, TravelPackageSearch } from '../../libs/types/travel-package/travel-package.input';
@@ -16,14 +33,18 @@ import {
 	packageCurrencies,
 	availableTravelPackageSorts,
 } from '../../libs/enums/travel-package.enum';
-import { Direction, Message } from '../../libs/enums/common.enum';
+import { Direction } from '../../libs/enums/common.enum';
 import { GET_TRAVEL_PACKAGES } from '../../apollo/user/query';
 import { LIKE_TARGET_TRAVEL_PACKAGE } from '../../apollo/user/mutation';
 import { userVar } from '../../apollo/store';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 
 export const getStaticProps = async ({ locale }: { locale: string }) => ({
-	props: { ...(await serverSideTranslations(locale, ['common'])) },
+	props: {
+		...(await serverSideTranslations(locale, ['common'], {
+			...require('../../next-i18next.config'),
+			reloadOnPrerender: process.env.NODE_ENV === 'development',
+		})),
+	},
 });
 
 export const initialInput: TravelPackagesInquiry = {
@@ -99,16 +120,18 @@ export function parseInquiry(raw: string | string[] | undefined): TravelPackages
 }
 
 const sortingOptions = [
-	{ label: 'Newest', sort: 'createdAt', direction: Direction.DESC },
-	{ label: 'Lowest price', sort: 'packagePrice', direction: Direction.ASC },
-	{ label: 'Highest price', sort: 'packagePrice', direction: Direction.DESC },
-	{ label: 'Most viewed', sort: 'packageViews', direction: Direction.DESC },
-	{ label: 'Most liked', sort: 'packageLikes', direction: Direction.DESC },
-	{ label: 'Start date', sort: 'packageStartDate', direction: Direction.ASC },
+	{ label: 'newest', sort: 'createdAt', direction: Direction.DESC },
+	{ label: 'lowest', sort: 'packagePrice', direction: Direction.ASC },
+	{ label: 'highest', sort: 'packagePrice', direction: Direction.DESC },
+	{ label: 'viewed', sort: 'packageViews', direction: Direction.DESC },
+	{ label: 'liked', sort: 'packageLikes', direction: Direction.DESC },
+	{ label: 'startDate', sort: 'packageStartDate', direction: Direction.ASC },
 ];
 
 const TravelPackageList: NextPage = () => {
-	const device = useDeviceDetect();
+	const { t, i18n } = useTranslation('common');
+	const compact = useMediaQuery('(max-width:900px)');
+	const [filtersOpen, setFiltersOpen] = useState(false);
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [searchFilter, setSearchFilter] = useState<TravelPackagesInquiry>(initialInput);
@@ -122,9 +145,10 @@ const TravelPackageList: NextPage = () => {
 		if (router.isReady) setSearchFilter(parseInquiry(router.query.input));
 	}, [router.isReady, router.query.input]);
 
-	const [likeTargetTravelPackage] = useMutation(LIKE_TARGET_TRAVEL_PACKAGE);
+	const [likeTargetTravelPackage] = useMutation(LIKE_TARGET_TRAVEL_PACKAGE, { context: { suppressErrorAlert: true } });
 	const { data, loading, error, refetch } = useQuery<{ getTravelPackages: TravelPackages }>(GET_TRAVEL_PACKAGES, {
 		variables: { input: searchFilter },
+		context: { suppressErrorAlert: true },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		skip: !synchronized,
@@ -140,71 +164,164 @@ const TravelPackageList: NextPage = () => {
 				shallow: true,
 			});
 		} catch {
-			setRouteError('Unable to update the travel package search. Please try again.');
+			setRouteError(t('marketplace.routeError'));
 		}
 	};
 
 	const likePackageHandler = async (id: string) => {
 		if (likingId) return;
 		try {
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user._id) {
+				toast.error(t('marketplace.signInToSave'));
+				return;
+			}
 			setLikingId(id);
 			await likeTargetTravelPackage({ variables: { input: id } });
 			// Refetch this observable's current variables, including filters/page changed during the mutation.
 			await refetch();
-			await sweetTopSmallSuccessAlert('Success', 800);
+			toast.success(t('marketplace.savedUpdated'));
 		} catch (err) {
-			await sweetMixinErrorAlert(err instanceof Error ? err.message : 'Unable to update your favorite.');
+			toast.error(t('marketplace.saveError'));
 		} finally {
 			setLikingId(null);
 		}
 	};
 
-	const sortLabel =
-		sortingOptions.find((option) => option.sort === searchFilter.sort && option.direction === searchFilter.direction)
-			?.label ?? searchFilter.sort;
+	const selectedSort = sortingOptions.find(
+		(option) => option.sort === searchFilter.sort && option.direction === searchFilter.direction,
+	);
+	const sortLabel = selectedSort
+		? t(`marketplace.sort.${selectedSort.label}`)
+		: t(`marketplace.sortFields.${searchFilter.sort}`);
 	const busy = loading || !synchronized;
+	const locale =
+		({ en: 'en-US', kr: 'ko-KR', ru: 'ru-RU', ja: 'ja-JP', zh: 'zh-CN' } as Record<string, string>)[i18n.language] ??
+		'en-US';
+	const filterLabels: Partial<Record<keyof TravelPackageSearch, string>> = {
+		countryList: searchFilter.search.countryList?.join(', '),
+		cityList: searchFilter.search.cityList?.join(', '),
+		typeList: searchFilter.search.typeList?.map((type) => t(`marketplace.packageTypes.${type}`)).join(', '),
+		packageCurrency: searchFilter.search.packageCurrency,
+		text: searchFilter.search.text,
+		memberId: searchFilter.search.memberId ? t('marketplace.agentFilter') : undefined,
+	};
+	for (const [field, key] of [
+		['priceRange', 'price'],
+		['durationRange', 'duration'],
+		['maxTravellersRange', 'capacity'],
+	] as const) {
+		const range = searchFilter.search[field];
+		if (range)
+			filterLabels[field] = t(`marketplace.summary.${key}`, {
+				min: range.start.toLocaleString(locale),
+				max: range.end.toLocaleString(locale),
+				currency: searchFilter.search.packageCurrency,
+			});
+	}
+	const dateRange = searchFilter.search.startDateRange;
+	if (dateRange)
+		filterLabels.startDateRange = t('marketplace.summary.dates', {
+			min: new Date(dateRange.start).toLocaleDateString(locale, { timeZone: 'UTC' }),
+			max: new Date(dateRange.end).toLocaleDateString(locale, { timeZone: 'UTC' }),
+		});
+	const activeFilters = Object.entries(filterLabels).filter(([, label]) => Boolean(label));
+	const removeFilter = (field: keyof TravelPackageSearch) => {
+		const search = { ...searchFilter.search };
+		delete search[field];
+		if (field === 'packageCurrency') delete search.priceRange;
+		void pushInquiry({ ...searchFilter, search, page: 1 });
+	};
+	const filters = (
+		<Filter searchFilter={searchFilter} onChange={(search) => pushInquiry({ ...searchFilter, search, page: 1 })} />
+	);
 	return (
-		<div id="travel-package-list-page" className={device === 'mobile' ? 'mobile' : ''}>
-			<div className="container">
-				<Box component="div" className="right">
-					<Typography>Sort by</Typography>
-					<Button onClick={(event) => setAnchorEl(event.currentTarget)} endIcon={<KeyboardArrowDownRoundedIcon />}>
-						{sortLabel}
-					</Button>
-					<Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-						{sortingOptions.map((option) => (
-							<MenuItem
-								key={option.label}
-								selected={option.label === sortLabel}
-								onClick={() => {
-									setAnchorEl(null);
-									void pushInquiry({ ...searchFilter, sort: option.sort, direction: option.direction, page: 1 });
-								}}
-							>
-								{option.label}
-							</MenuItem>
-						))}
-					</Menu>
-				</Box>
-				<Stack className="travel-package-page">
-					<Stack className="filter-config">
-						<Filter
-							searchFilter={searchFilter}
-							onChange={(search) => pushInquiry({ ...searchFilter, search, page: 1 })}
-						/>
+		<main id="travel-package-list-page">
+			<div className="marketplace-container">
+				<header className="marketplace-heading">
+					<p className="marketplace-eyebrow">{t('marketplace.eyebrow')}</p>
+					<Typography component="h1">{t('marketplace.title')}</Typography>
+					<p>{t('marketplace.description')}</p>
+				</header>
+				<Stack className="marketplace-toolbar">
+					<Typography className="result-count" aria-live="polite">
+						{busy
+							? t('marketplace.loading')
+							: error
+							? t('marketplace.results')
+							: t('marketplace.resultCount', { count: total })}
+					</Typography>
+					<Stack direction="row" alignItems="center" gap={1}>
+						{compact && (
+							<Button variant="outlined" startIcon={<TuneIcon />} onClick={() => setFiltersOpen(true)}>
+								{t('marketplace.filters')} {activeFilters.length > 0 && `(${activeFilters.length})`}
+							</Button>
+						)}
+						<Button
+							className="sort-control"
+							aria-label={t('marketplace.sortBy')}
+							aria-haspopup="menu"
+							aria-expanded={Boolean(anchorEl)}
+							onClick={(event) => setAnchorEl(event.currentTarget)}
+							endIcon={<KeyboardArrowDownRoundedIcon />}
+						>
+							{sortLabel}
+						</Button>
+						<Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+							{sortingOptions.map((option) => (
+								<MenuItem
+									key={option.label}
+									selected={option === selectedSort}
+									onClick={() => {
+										setAnchorEl(null);
+										void pushInquiry({ ...searchFilter, sort: option.sort, direction: option.direction, page: 1 });
+									}}
+								>
+									{t(`marketplace.sort.${option.label}`)}
+								</MenuItem>
+							))}
+						</Menu>
 					</Stack>
-					<Stack className="main-config">
+				</Stack>
+				{activeFilters.length > 0 && (
+					<Stack className="active-filters" aria-label={t('marketplace.activeFilters')}>
+						{activeFilters.map(([field, label]) => (
+							<Chip
+								key={field}
+								label={label}
+								onDelete={() => removeFilter(field as keyof TravelPackageSearch)}
+								deleteIcon={<CloseIcon aria-label={t('marketplace.removeFilter', { label })} />}
+							/>
+						))}
+						<Button size="small" onClick={() => void pushInquiry({ ...searchFilter, search: {}, page: 1 })}>
+							{t('marketplace.clearAll')}
+						</Button>
+					</Stack>
+				)}
+				<Stack className="travel-package-page">
+					{!compact && (
+						<aside className="filter-config" aria-label={t('marketplace.filters')}>
+							{filters}
+						</aside>
+					)}
+					<Stack className="main-config" id="marketplace-results" aria-busy={busy}>
 						{routeError && <Alert severity="error">{routeError}</Alert>}
 						{busy ? (
 							<Stack className="state-box" role="status">
-								<CircularProgress />
-								<Typography>Loading travel packages…</Typography>
+								<CircularProgress size={30} />
+								<Typography>{t('marketplace.loading')}</Typography>
 							</Stack>
 						) : error ? (
-							<Alert severity="error" action={<Button onClick={() => void refetch()}>Retry</Button>}>
-								Unable to load travel packages. Please try again.
-							</Alert>
+							<Stack className="state-box">
+								<TravelExploreIcon />
+								<Typography component="h2">{t('marketplace.queryError')}</Typography>
+								<Typography>{t('marketplace.retryHint')}</Typography>
+								<Button
+									variant="outlined"
+									onClick={() => void refetch().catch(() => toast.error(t('marketplace.queryError')))}
+								>
+									{t('marketplace.retry')}
+								</Button>
+							</Stack>
 						) : (
 							<>
 								<Stack className="list-config">
@@ -212,6 +329,7 @@ const TravelPackageList: NextPage = () => {
 										packages.map((travelPackage) => (
 											<TravelPackageCard
 												key={travelPackage._id}
+												marketplace
 												travelPackage={travelPackage}
 												likePackageHandler={likePackageHandler}
 												liking={Boolean(likingId)}
@@ -219,8 +337,17 @@ const TravelPackageList: NextPage = () => {
 										))
 									) : (
 										<Stack className="state-box">
-											<img src="/img/icons/icoAlert.svg" alt="" />
-											<Typography>No travel packages found.</Typography>
+											<TravelExploreIcon />
+											<Typography component="h2">{t('marketplace.empty')}</Typography>
+											<Typography>{t('marketplace.emptyHint')}</Typography>
+											{activeFilters.length > 0 && (
+												<Button
+													variant="outlined"
+													onClick={() => void pushInquiry({ ...searchFilter, search: {}, page: 1 })}
+												>
+													{t('marketplace.clearAll')}
+												</Button>
+											)}
 										</Stack>
 									)}
 								</Stack>
@@ -230,10 +357,19 @@ const TravelPackageList: NextPage = () => {
 											page={searchFilter.page}
 											count={Math.ceil(total / searchFilter.limit)}
 											onChange={(_, page) => void pushInquiry({ ...searchFilter, page })}
-											shape="circular"
-											color="primary"
+											shape="rounded"
+											getItemAriaLabel={(type, page, selected) =>
+												type === 'page'
+													? t(selected ? 'marketplace.pagination.current' : 'marketplace.pagination.page', { page })
+													: t(`marketplace.pagination.${type}`)
+											}
 										/>
-										<Typography>Total {total} travel packages available</Typography>
+										<Typography variant="caption">
+											{t('marketplace.pageOf', {
+												page: searchFilter.page,
+												total: Math.ceil(total / searchFilter.limit),
+											})}
+										</Typography>
 									</Stack>
 								)}
 							</>
@@ -241,8 +377,27 @@ const TravelPackageList: NextPage = () => {
 					</Stack>
 				</Stack>
 			</div>
-		</div>
+			{compact && (
+				<Drawer
+					anchor="left"
+					open={filtersOpen}
+					onClose={() => setFiltersOpen(false)}
+					PaperProps={{ className: 'marketplace-filter-drawer' }}
+				>
+					<Stack className="drawer-heading">
+						<Typography component="h2">{t('marketplace.filters')}</Typography>
+						<IconButton aria-label={t('marketplace.closeFilters')} onClick={() => setFiltersOpen(false)}>
+							<CloseIcon />
+						</IconButton>
+					</Stack>
+					{filters}
+					<Button className="drawer-results" variant="outlined" onClick={() => setFiltersOpen(false)}>
+						{t('marketplace.showResults')}
+					</Button>
+				</Drawer>
+			)}
+		</main>
 	);
 };
 
-export default withLayoutBasic(TravelPackageList);
+export default withLayoutMarketplace(TravelPackageList);
