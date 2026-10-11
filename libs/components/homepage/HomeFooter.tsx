@@ -50,7 +50,6 @@ const HomeFooter = () => {
 					</Stack>
 					<Stack component="nav" aria-label={t('home.footer.tripora')}>
 						<Typography component="h3">{t('home.footer.tripora')}</Typography>
-						<Link href="/about">{t('home.footer.about')}</Link>
 						<Link href="/agent">{t('home.footer.agents')}</Link>
 					</Stack>
 					<Stack component="nav" aria-label={t('home.footer.support')}>

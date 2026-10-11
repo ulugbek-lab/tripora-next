@@ -1,227 +1,174 @@
-#pc-wrap {
-  .cs-page {
-    position: relative;
-    padding: 60px 0px 60px;
-    width: 100%;
-    height: auto;
-    .container {
-      display: flex;
-      flex-direction: column;
-      .cs-main-info {
-        display: flex;
-        flex-direction: column;
-        .info {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          span {
-            color: #000;
-            font-family: $font;
-            font-size: 35px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
-            letter-spacing: 0.525px;
-          }
-          p {
-            color: #757575;
-            font-family: $font;
-            font-size: 16px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-          }
-        }
-        .btns {
-          margin-top: 50px;
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          :first-child {
-            border-radius: 4px 0 0 4px;
-          }
-          :last-child {
-            border-radius: 0 4px 4px 0;
-          }
-          div {
-            width: 204px;
-            height: 46px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #EEE;
-            cursor: pointer;
-            color: #BDBDBD;
-            font-family: $font;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
-            letter-spacing: 0.42px;
-            &.active {
-              border: 1px solid #725CE8;
-              background: #EB6753;
-              color: #FFF;
-            }
-          }
-        }
-      }
-      .cs-content {
-        margin-top: 25px;
-        display: flex;
-        flex-direction: column;
-        .title {
-          margin-bottom: 25px;
-          color: #000;
-          font-family: $font;
-          font-size: 27px;
-          font-style: normal;
-          font-weight: 700;
-          line-height: normal;
-          letter-spacing: 0.54px;
-        }
-        .pagination {
-          margin-top: 50px;
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-        }
-        .notice-content {
-          .main {
-            border: 1px solid #EEE;
-            .top {
-              padding: 25px 33px;
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              span {
-                color: #000;
-                font-family: $font;
-                font-size: 14px;
-                font-style: normal;
-                font-weight: 400;
-                line-height: normal;
-                text-transform: capitalize;
-              }
-            }
-            .bottom {
-              display: flex;
-              flex-direction: column;
-              .notice-card {
-                padding: 20px 14px 20px 30px;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                border: 1px solid #EEE;
-                &.event {
-                  background: #F6D79A;
-                }
-                div {
-                  padding: 6px 9px;
-                  border-radius: 12px;
-                  border: 1px solid #EB6753;
-                  color: #EB6753;
-                  font-family: $font;
-                  font-size: 12px;
-                  font-style: normal;
-                  font-weight: 400;
-                }
-                .notice-number {
-                  margin-left: 18px;
-                  width: 39px;
-                  color: #BDBDBD;
-                  font-family: $font;
-                  font-size: 14px;
-                  font-style: normal;
-                  font-weight: 400;
-                  line-height: normal;
-                }
-                .notice-title {
-                  width: 1060px;
-                  color: #000;
-                  font-family: $font;
-                  font-size: 16px;
-                  font-style: normal;
-                  font-weight: 400;
-                  line-height: normal;
-                }
-                .notice-date {
-                  color: #BDBDBD;
-                  font-family: $font;
-                  font-size: 14px;
-                  font-style: normal;
-                  font-weight: 400;
-                  line-height: normal;
-                }
-              }
-            }
-
-          }
-
-        }
-        .faq-content {
-          margin-top: 25px;
-          display: flex;
-          flex-direction: column;
-          .categories {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            div {
-              width: 14%;
-              height: 40px;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              color: #BDBDBD;
-              text-align: center;
-              font-family: $font;
-              font-size: 15px;
-              font-style: normal;
-              font-weight: 400;
-              line-height: normal;
-              letter-spacing: -0.225px;
-              cursor: pointer;
-              &.active {
-                border-bottom: 1px solid #EB6753;
-                color: #EB6753;
-              }
-            }
-          }
-          .wrap {
-            margin-top: 50px;
-            .MuiAccordionDetails-root {
-              padding: 30px 20px;
-              background: #FAFAFA;
-            }
-            .badge {
-              margin: 0 24px;
-              display: inline-block;
-              padding: 4px 10px;
-              border: 1px solid #725CE8;
-              border-radius: 7px;
-              color: #725CE8;
-            }
-            .question {
-              .badge {
-                background: #e92C28;
-                color: #fff;
-              }
-            }
-            .answer {
-              margin-left: 80px;
-              display: flex;
-              white-space: nowrap;
-              align-items: center;
-              flex-direction: row;
-              .badge {
-                color: #EB6753;
-                border: 1px solid #EB6753;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+#pc-wrap.tripora-cs-shell {
+	background: #faf8f5;
+	.home-navigation {
+		background: #fff;
+		max-width: none;
+		padding-inline: max(24px, calc((100vw - 1192px) / 2));
+		border-bottom: 1px solid #e1e6df;
+	}
+	.home-footer {
+		margin-top: 0;
+	}
+	.cs-page {
+		padding: 42px 0 64px;
+	}
+	.cs-container {
+		width: min(1240px, 100%);
+		margin: auto;
+		padding: 0 24px;
+	}
+	.cs-heading {
+		margin-bottom: 32px;
+		h1 {
+			font-size: clamp(30px, 3.4vw, 42px);
+			line-height: 1.2;
+			font-weight: 750;
+			letter-spacing: -1px;
+			margin: 10px 0;
+		}
+		> p:last-child {
+			color: #596660;
+			font-size: 16px;
+			line-height: 1.65;
+			max-width: 650px;
+		}
+	}
+	.cs-eyebrow {
+		font-size: 11px;
+		font-weight: 700;
+		color: #b94318;
+		letter-spacing: 2px;
+	}
+	.cs-layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 300px;
+		gap: 28px;
+		align-items: start;
+	}
+	.cs-faq {
+		padding: 26px;
+		border: 1px solid #e1e6df;
+		border-radius: 16px;
+		background: #fff;
+		min-width: 0;
+		> h2 {
+			font-size: 23px;
+			line-height: 1.35;
+			font-weight: 700;
+			margin-bottom: 20px;
+		}
+	}
+	.faq-content {
+		gap: 22px;
+		.MuiTabs-root {
+			border-bottom: 1px solid #e1e6df;
+		}
+		.MuiTab-root {
+			font-size: 13px;
+			font-weight: 600;
+			text-transform: none;
+			padding-inline: 16px;
+			min-width: 0;
+			color: #596660;
+		}
+		.Mui-selected {
+			color: #b94318;
+		}
+		.MuiTabs-indicator {
+			background: #d9511e;
+		}
+	}
+	.cs-faq-list {
+		.MuiAccordion-root {
+			border: 1px solid #e1e6df;
+			border-radius: 12px;
+			margin-bottom: 12px;
+			overflow: hidden;
+			&::before {
+				display: none;
+			}
+			&.Mui-expanded {
+				background: #fffcf9;
+			}
+		}
+		.MuiAccordionSummary-root {
+			padding: 4px 18px;
+			h3 {
+				font-size: 15px;
+				font-weight: 650;
+				line-height: 1.6;
+			}
+			.MuiAccordionSummary-expandIconWrapper {
+				color: #426457;
+			}
+		}
+		.MuiAccordionDetails-root {
+			padding: 0 18px 20px;
+			p {
+				font-size: 14px;
+				line-height: 1.8;
+				color: #596660;
+			}
+		}
+	}
+	.cs-contact {
+		padding: 26px;
+		gap: 16px;
+		border: 1px solid #e8e2da;
+		border-radius: 16px;
+		background: #fcf8f2;
+		h2 {
+			font-size: 20px;
+			font-weight: 700;
+			line-height: 1.4;
+		}
+		p {
+			color: #596660;
+			font-size: 14px;
+			line-height: 1.7;
+		}
+		> a {
+			color: #b94318;
+			font-size: 14px;
+			font-weight: 600;
+			white-space: normal;
+			overflow-wrap: anywhere;
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+		.cs-contact-note {
+			border-top: 1px solid #e8e2da;
+			padding-top: 16px;
+			font-size: 12px;
+		}
+	}
+	.cs-contact-icon {
+		align-self: flex-start;
+		display: inline-flex;
+		padding: 10px;
+		border-radius: 10px;
+		background: #fff0e7;
+		color: #984019;
+	}
+	@media (max-width: 900px) {
+		.cs-layout {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 600px) {
+		.cs-page {
+			padding: 28px 0 40px;
+		}
+		.cs-container {
+			padding-inline: 16px;
+		}
+		.cs-faq,
+		.cs-contact {
+			padding: 20px;
+		}
+		.faq-content .MuiTab-root {
+			padding-inline: 12px;
+		}
+	}
 }

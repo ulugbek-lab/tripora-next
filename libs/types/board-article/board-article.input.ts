@@ -5,12 +5,13 @@ export interface BoardArticleInput {
 	articleCategory: BoardArticleCategory;
 	articleTitle: string;
 	articleContent: string;
-	articleImage: string;
+	articleImage?: string;
 	memberId?: string;
 }
 
 interface BAISearch {
-	articleCategory: BoardArticleCategory;
+	articleCategory?: BoardArticleCategory;
+	memberId?: string;
 	text?: string;
 }
 

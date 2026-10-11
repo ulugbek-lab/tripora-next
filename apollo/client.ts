@@ -4,7 +4,8 @@ import createUploadLink from 'apollo-upload-client/public/createUploadLink.js';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { onError } from '@apollo/client/link/error';
-import { getJwtToken } from '../libs/auth';
+import decodeJWT, { JwtPayload } from 'jwt-decode';
+import { getJwtToken, setJwtToken, updateUserInfo, logOut } from '../libs/auth';
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 import { sweetErrorAlert } from '../libs/sweetAlert';
 import { socketVar } from './store';
@@ -20,13 +21,28 @@ function getHeaders() {
 
 const tokenRefreshLink = new TokenRefreshLink({
 	accessTokenField: 'accessToken',
-	isTokenValidOrUndefined: () => {
-		return true;
-	}, // @ts-ignore
-	fetchAccessToken: () => {
-		// execute refresh token
-		return null;
+	isTokenValidOrUndefined: (operation) => {
+		const token = getJwtToken();
+		if (!token || ['Login', 'Signup'].includes(operation.operationName)) return true;
+		try {
+			const { exp } = decodeJWT<JwtPayload>(token);
+			return Boolean(exp && exp * 1000 > Date.now());
+		} catch {
+			return false;
+		}
 	},
+	fetchAccessToken: () => fetch(process.env.REACT_APP_API_GRAPHQL_URL as string, {
+		method: 'POST',
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json', 'Apollo-Require-Preflight': 'true' },
+		body: JSON.stringify({ query: 'mutation { accessToken: refreshToken }' }),
+	}),
+	handleFetch: (accessToken) => {
+		if (!getJwtToken()) return;
+		updateUserInfo(accessToken);
+		setJwtToken(accessToken);
+	},
+	handleError: () => { void logOut(); },
 });
 
 // Custom WebSocket client
@@ -71,13 +87,13 @@ function createIsomorphicLink() {
 					'Apollo-Require-Preflight': 'true',
 				},
 			}));
-			console.warn('requesting.. ', operation);
 			return forward(operation);
 		});
 
 		// @ts-ignore
 		const link = new createUploadLink({
 			uri: process.env.REACT_APP_API_GRAPHQL_URL,
+			credentials: 'include',
 		});
 
 		/* WEBSOCKET SUBSCRIPTION LINK */

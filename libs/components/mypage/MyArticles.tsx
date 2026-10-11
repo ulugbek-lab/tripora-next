@@ -1,130 +1,76 @@
 import React, { useState } from 'react';
-import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Pagination, Stack, Typography } from '@mui/material';
-import CommunityCard from '../common/CommunityCard';
+import Link from 'next/link';
+import { Alert, Button, CircularProgress, Pagination, Stack } from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next';
+import toast from 'react-hot-toast';
 import { userVar } from '../../../apollo/store';
-import { T } from '../../types/common';
-import { BoardArticle } from '../../types/board-article/board-article';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../../apollo/user/mutation';
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
-import { Messages } from '../../config';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
-
-const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
-	const device = useDeviceDetect();
+import { LIKE_TARGET_BOARD_ARTICLE } from '../../../apollo/user/mutation';
+import { BoardArticles } from '../../types/board-article/board-article';
+import CommunityCard from '../common/CommunityCard';
+const MyArticles = () => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
-	const [searchCommunity, setSearchCommunity] = useState({
-		...initialInput,
-		search: { memberId: user._id },
-	});
-	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
-	const [totalCount, setTotalCount] = useState<number>(0);
-
-	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
-
-	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getBoardArticlesError,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+	const [page, setPage] = useState(1);
+	const [busy, setBusy] = useState(false);
+	const { data, loading, error, refetch } = useQuery<{ getBoardArticles: BoardArticles }>(GET_BOARD_ARTICLES, {
+		variables: { input: { page, limit: 6, sort: 'createdAt', direction: 'DESC', search: { memberId: user._id } } },
+		skip: !user._id,
 		fetchPolicy: 'network-only',
-		variables: {
-			input: searchCommunity,
-		},
 		notifyOnNetworkStatusChange: true,
-		onCompleted(data: any) {
-			setBoardArticles(data?.getBoardArticles?.list);
-			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
-		},
+		context: { suppressErrorAlert: true },
 	});
-
-	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
-		setSearchCommunity({ ...searchCommunity, page: value });
-	};
-
-	const likeBoardArticlesHandler = async (e: any, user: any, id: string) => {
+	const [like] = useMutation(LIKE_TARGET_BOARD_ARTICLE, { context: { suppressErrorAlert: true } });
+	const articles = data?.getBoardArticles?.list ?? [];
+	const total = data?.getBoardArticles?.metaCounter?.[0]?.total ?? 0;
+	const onLike = async (id: string) => {
+		if (busy || !user._id) return;
+		setBusy(true);
 		try {
-			e.stopPropagation();
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
-
-			await likeTargetBoardArticle({
-				variables: {
-					input: id,
-				},
-			});
-			await boardArticlesRefetch({ input: searchCommunity });
-			await sweetTopSmallSuccessAlert('Success!', 750);
-		} catch (err: any) {
-			console.log('ERROR, likeBoardArticlesHandler', err.message);
-			sweetMixinErrorAlert(err.message).then();
+			await like({ variables: { input: id } });
+			await refetch();
+		} catch {
+			toast.error(t('myPage.actionError'));
+		} finally {
+			setBusy(false);
 		}
 	};
-
-	if (device === 'mobile') {
-		return <>ARTICLE PAGE MOBILE</>;
-	} else
-		return (
-			<div id="my-articles-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">Article</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
+	return (
+		<Stack>
+			<h2>{t('myPage.myArticles')}</h2>
+			<Button component={Link} href="/mypage?category=writeArticle" variant="outlined">
+				{t('myPage.writeArticle')}
+			</Button>
+			{loading ? (
+				<Stack className="mypage-state" role="status">
+					<CircularProgress size={28} />
+					<p>{t('myPage.loading')}</p>
 				</Stack>
-				<Stack className="article-list-box">
-					{boardArticles?.length > 0 ? (
-						boardArticles?.map((boardArticle: BoardArticle) => {
-							return (
-								<CommunityCard
-									boardArticle={boardArticle}
-									key={boardArticle?._id}
-									size={'small'}
-									likeArticleHandler={likeBoardArticlesHandler}
-								/>
-							);
-						})
-					) : (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Articles found!</p>
-						</div>
-					)}
-				</Stack>
-
-				{boardArticles?.length > 0 && (
-					<Stack className="pagination-conf">
-						<Stack className="pagination-box">
-							<Pagination
-								count={Math.ceil(totalCount / searchCommunity.limit)}
-								page={searchCommunity.page}
-								shape="circular"
-								color="primary"
-								onChange={paginationHandler}
-							/>
-						</Stack>
-						<Stack className="total">
-							<Typography>Total {totalCount ?? 0} article(s) available</Typography>
-						</Stack>
-					</Stack>
-				)}
-			</div>
-		);
+			) : error ? (
+				<Alert
+					severity="error"
+					action={
+						<Button onClick={() => void refetch().catch(() => toast.error(t('myPage.loadError')))}>
+							{t('myPage.retry')}
+						</Button>
+					}
+				>
+					{t('myPage.loadError')}
+				</Alert>
+			) : articles.length ? (
+				<div className="community-grid">
+					{articles.map((article) => (
+						<CommunityCard key={article._id} boardArticle={article} tripora onLike={onLike} busy={busy} />
+					))}
+				</div>
+			) : (
+				<p className="mypage-state">{t('myPage.noArticles')}</p>
+			)}
+			{!loading && !error && total > 6 && (
+				<Pagination page={page} count={Math.ceil(total / 6)} onChange={(_, value) => setPage(value)} />
+			)}
+		</Stack>
+	);
 };
-
-MyArticles.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 6,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {},
-	},
-};
-
 export default MyArticles;

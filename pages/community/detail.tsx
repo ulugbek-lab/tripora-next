@@ -1,3 +1,5 @@
+import { useTranslation } from 'next-i18next';
+import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -35,17 +37,23 @@ import { CommentUpdate } from '../../libs/types/comment/comment.update';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common'], {
+			...require('../../next-i18next.config'),
+			reloadOnPrerender: process.env.NODE_ENV === 'development',
+		})),
 	},
 });
 
 const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
+	const { t } = useTranslation('common');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const { query } = router;
 
 	const articleId = query?.id as string;
-	const articleCategory = query?.articleCategory as string;
+	const articleCategory = Object.values(BoardArticleCategory).includes(query.articleCategory as BoardArticleCategory)
+		? (query.articleCategory as BoardArticleCategory)
+		: BoardArticleCategory.TRAVEL_STORY;
 
 	const [comment, setComment] = useState<string>('');
 	const [wordsCnt, setWordsCnt] = useState<number>(0);
@@ -248,39 +256,27 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 							</Stack>
 							<Tabs
 								orientation="vertical"
-								aria-label="lab API tabs example"
+								aria-label={t('communityPage.categoriesLabel')}
 								TabIndicatorProps={{
 									style: { display: 'none' },
 								}}
 								onChange={tabChangeHandler}
 								value={articleCategory}
 							>
-								<Tab
-									value={'FREE'}
-									label={'Free Board'}
-									className={`tab-button ${articleCategory === 'FREE' ? 'active' : ''}`}
-								/>
-								<Tab
-									value={'RECOMMEND'}
-									label={'Recommendation'}
-									className={`tab-button ${articleCategory === 'RECOMMEND' ? 'active' : ''}`}
-								/>
-								<Tab
-									value={'NEWS'}
-									label={'News'}
-									className={`tab-button ${articleCategory === 'NEWS' ? 'active' : ''}`}
-								/>
-								<Tab
-									value={'HUMOR'}
-									label={'Humor'}
-									className={`tab-button ${articleCategory === 'HUMOR' ? 'active' : ''}`}
-								/>
+								{Object.values(BoardArticleCategory).map((category) => (
+									<Tab
+										key={category}
+										value={category}
+										label={t(`communityPage.categories.${category}`)}
+										className={`tab-button ${articleCategory === category ? 'active' : ''}`}
+									/>
+								))}
 							</Tabs>
 						</Stack>
 						<div className="community-detail-config">
 							<Stack className="title-box">
 								<Stack className="left">
-									<Typography className="title">{articleCategory} BOARD</Typography>
+									<Typography className="title">{t(`communityPage.categories.${articleCategory}`)}</Typography>
 									<Typography className="sub-title">
 										Express your opinions freely here without content restrictions
 									</Typography>

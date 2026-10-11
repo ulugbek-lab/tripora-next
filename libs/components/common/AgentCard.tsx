@@ -1,83 +1,68 @@
 import React from 'react';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Stack, Box, Typography } from '@mui/material';
 import Link from 'next/link';
-import { REACT_APP_API_URL } from '../../config';
-import IconButton from '@mui/material/IconButton';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { Avatar, Button, IconButton, Stack } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../../apollo/store';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import { useTranslation } from 'next-i18next';
+import { Member } from '../../types/member/member';
+import { packageImageUrl } from '../travelPackage/TravelPackageCard';
 
 interface AgentCardProps {
-	agent: any;
-	likeMemberHandler: any;
+	agent: Member;
+	onLike?: (id: string) => Promise<void>;
+	liking?: boolean;
+	onFollow?: () => void;
+	following?: boolean;
+	busy?: boolean;
 }
-
-const AgentCard = (props: AgentCardProps) => {
-	const { agent, likeMemberHandler } = props;
-	const device = useDeviceDetect();
-	const user = useReactiveVar(userVar);
-	const imagePath: string = agent?.memberImage
-		? `${REACT_APP_API_URL}/${agent?.memberImage}`
-		: '/img/profile/defaultUser.svg';
-
-	if (device === 'mobile') {
-		return <div>AGENT CARD</div>;
-	} else {
-		return (
-			<Stack className="agent-general-card">
-				<Link
-					href={{
-						pathname: '/agent/detail',
-						query: { agentId: agent?._id },
-					}}
-				>
-					<Box
-						component={'div'}
-						className={'agent-img'}
-						style={{
-							backgroundImage: `url(${imagePath})`,
-							backgroundSize: 'cover',
-							backgroundPosition: 'center',
-							backgroundRepeat: 'no-repeat',
-						}}
+const AgentCard = ({ agent, onLike, liking, onFollow, following, busy }: AgentCardProps) => {
+	const { t } = useTranslation('common');
+	const name = agent.memberFullName || agent.memberNick || t('agents.agent');
+	const href = { pathname: '/member', query: { memberId: agent._id } };
+	const liked = Boolean(agent.meLiked?.[0]?.myFavorite);
+	return (
+		<Stack component="article" className="tripora-agent-card">
+			<Link href={href} className="agent-identity">
+				<Avatar src={agent.memberImage ? packageImageUrl(agent.memberImage) : undefined} alt={name}>
+					{name.charAt(0)}
+				</Avatar>
+				<div>
+					<h2>{name}</h2>
+					<span className="agent-role">{t(agent.memberType === 'AGENT' ? 'agents.travelAgent' : 'agents.member')}</span>
+				</div>
+			</Link>
+			{agent.memberDesc && <p className="agent-summary">{agent.memberDesc}</p>}
+			{agent.memberAddress && (
+				<p className="agent-location">
+					<LocationOnOutlinedIcon fontSize="small" />
+					{agent.memberAddress}
+				</p>
+			)}
+			<div className="agent-stats">
+				{agent.memberPackages !== undefined && <span>{t('agents.packageCount', { count: agent.memberPackages })}</span>}
+				<span>{t('agents.viewCount', { count: agent.memberViews ?? 0 })}</span>
+			</div>
+			<Stack className="agent-actions">
+				<Link href={href}>{t('agents.viewProfile')}</Link>
+				{onFollow && (
+					<Button variant="outlined" disabled={busy} onClick={onFollow}>
+						{t(following ? 'agents.unfollow' : 'agents.follow')}
+					</Button>
+				)}
+				{onLike && (
+					<IconButton
+						aria-label={t(liked ? 'agents.unlike' : 'agents.like', { name })}
+						aria-pressed={liked}
+						disabled={liking}
+						onClick={() => void onLike(agent._id)}
 					>
-						<div>{agent?.memberProperties} properties</div>
-					</Box>
-				</Link>
-
-				<Stack className={'agent-desc'}>
-					<Box component={'div'} className={'agent-info'}>
-						<Link
-							href={{
-								pathname: '/agent/detail',
-								query: { agentId: agent?._id },
-							}}
-						>
-							<strong>{agent?.memberFullName ?? agent?.memberNick}</strong>
-						</Link>
-						<span>Agent</span>
-					</Box>
-					<Box component={'div'} className={'buttons'}>
-						<IconButton color={'default'}>
-							<RemoveRedEyeIcon />
-						</IconButton>
-						<Typography className="view-cnt">{agent?.memberViews}</Typography>
-						<IconButton color={'default'} onClick={() => likeMemberHandler(user, agent?._id)}>
-							{agent?.meLiked && agent?.meLiked[0]?.myFavorite ? (
-								<FavoriteIcon color={'primary'} />
-							) : (
-								<FavoriteBorderIcon />
-							)}
-						</IconButton>
-						<Typography className="view-cnt">{agent?.memberLikes}</Typography>
-					</Box>
-				</Stack>
+						{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+						<small>{agent.memberLikes ?? 0}</small>
+					</IconButton>
+				)}
 			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
-
 export default AgentCard;

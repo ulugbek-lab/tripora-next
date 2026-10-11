@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
@@ -11,17 +12,20 @@ import { T } from '../../types/common';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { useMutation } from '@apollo/client';
 import { CREATE_BOARD_ARTICLE } from '../../../apollo/user/mutation';
-import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert';
+import toast from 'react-hot-toast';
 import { Message } from '../../enums/common.enum';
 
 const TuiEditor = () => {
+	const { t } = useTranslation('common');
 	const editorRef = useRef<Editor>(null),
 		token = getJwtToken(),
 		router = useRouter();
-	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
+	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.TRAVEL_STORY);
 
 	/** APOLLO REQUESTS **/
-	const [createBoardArticle] = useMutation(CREATE_BOARD_ARTICLE);
+	const [createBoardArticle, { loading: creating }] = useMutation(CREATE_BOARD_ARTICLE, {
+		context: { suppressErrorAlert: true },
+	});
 
 	const memoizedValues = useMemo(() => {
 		const articleTitle = '',
@@ -68,7 +72,7 @@ const TuiEditor = () => {
 
 			return `${REACT_APP_API_URL}/${responseImage}`;
 		} catch (err) {
-			console.log('Error, uploadImage:', err);
+			toast.error(t('myPage.uploadError'));
 		}
 	};
 
@@ -82,12 +86,17 @@ const TuiEditor = () => {
 	};
 
 	const handleRegisterButton = async () => {
+		if (creating) return;
 		try {
 			const editor = editorRef.current;
 			const articleContent = editor?.getInstance().getHTML() as string;
 			memoizedValues.articleContent = articleContent;
 
-			if (memoizedValues.articleContent == '' && memoizedValues.articleTitle === '') {
+			if (
+				!memoizedValues.articleContent.replace(/<[^>]*>/g, '').trim() ||
+				memoizedValues.articleTitle.trim().length < 3 ||
+				memoizedValues.articleTitle.trim().length > 50
+			) {
 				throw new Error(Message.INSERT_ALL_INPUTS);
 			}
 			await createBoardArticle({
@@ -95,7 +104,7 @@ const TuiEditor = () => {
 					input: { ...memoizedValues, articleCategory },
 				},
 			});
-			await sweetTopSuccessAlert('Article is created successfully', 700);
+			toast.success(t('myPage.saved'));
 			await router.push({
 				pathname: '/mypage',
 				query: {
@@ -104,57 +113,50 @@ const TuiEditor = () => {
 			});
 		} catch (err: any) {
 			console.log(err);
-			sweetErrorHandling(new Error(Message.INSERT_ALL_INPUTS)).then();
-		}
-	};
-
-	const doDisabledCheck = () => {
-		if (memoizedValues.articleContent === '' || memoizedValues.articleTitle === '') {
-			return true;
+			toast.error(t(err.message === Message.INSERT_ALL_INPUTS ? 'myPage.articleValidation' : 'myPage.actionError'));
 		}
 	};
 
 	return (
 		<Stack>
-			<Stack direction="row" style={{ margin: '40px' }} justifyContent="space-evenly">
-				<Box component={'div'} className={'form_row'} style={{ width: '300px' }}>
+			<Stack className="article-form-fields">
+				<Box component={'div'} className={'form_row'} style={{ width: '100%' }}>
 					<Typography style={{ color: '#7f838d', margin: '10px' }} variant="h3">
-						Category
+						{t('communityPage.category')}
 					</Typography>
 					<FormControl sx={{ width: '100%', background: 'white' }}>
 						<Select
 							value={articleCategory}
 							onChange={changeCategoryHandler}
 							displayEmpty
-							inputProps={{ 'aria-label': 'Without label' }}
+							inputProps={{ 'aria-label': t('communityPage.categoriesLabel') }}
 						>
-							<MenuItem value={BoardArticleCategory.FREE}>
-								<span>Free</span>
-							</MenuItem>
-							<MenuItem value={BoardArticleCategory.HUMOR}>Humor</MenuItem>
-							<MenuItem value={BoardArticleCategory.NEWS}>News</MenuItem>
-							<MenuItem value={BoardArticleCategory.RECOMMEND}>Recommendation</MenuItem>
+							{Object.values(BoardArticleCategory).map((category) => (
+								<MenuItem key={category} value={category}>
+									{t(`communityPage.categories.${category}`)}
+								</MenuItem>
+							))}
 						</Select>
 					</FormControl>
 				</Box>
-				<Box component={'div'} style={{ width: '300px', flexDirection: 'column' }}>
+				<Box component={'div'} style={{ width: '100%', flexDirection: 'column' }}>
 					<Typography style={{ color: '#7f838d', margin: '10px' }} variant="h3">
-						Title
+						{t('communityPage.articleTitle')}
 					</Typography>
 					<TextField
 						onChange={articleTitleHandler}
 						id="filled-basic"
-						label="Type Title"
-						style={{ width: '300px', background: 'white' }}
+						label={t('communityPage.titlePlaceholder')}
+						style={{ width: '100%', background: 'white' }}
 					/>
 				</Box>
 			</Stack>
 
 			<Editor
-				initialValue={'Type here'}
-				placeholder={'Type here'}
+				initialValue={''}
+				placeholder={t('communityPage.contentPlaceholder')}
 				previewStyle={'vertical'}
-				height={'640px'}
+				height={'440px'}
 				// @ts-ignore
 				initialEditType={'WYSIWYG'}
 				toolbarItems={[
@@ -180,9 +182,10 @@ const TuiEditor = () => {
 					variant="contained"
 					color="primary"
 					style={{ margin: '30px', width: '250px', height: '45px' }}
+					disabled={creating}
 					onClick={handleRegisterButton}
 				>
-					Register
+					{t('communityPage.publish')}
 				</Button>
 			</Stack>
 		</Stack>

@@ -20,7 +20,7 @@ export const GET_AGENTS = gql`
 				memberDesc
 				memberWarnings
 				memberBlocks
-				memberProperties
+				memberPackages
 				memberRank
 				memberPoints
 				memberLikes
@@ -391,7 +391,7 @@ export const GET_BOARD_ARTICLE = gql`
 				memberDesc
 				memberWarnings
 				memberBlocks
-				memberProperties
+				memberPackages
 				memberRank
 				memberPoints
 				memberLikes
@@ -443,7 +443,7 @@ export const GET_BOARD_ARTICLES = gql`
 					memberDesc
 					memberWarnings
 					memberBlocks
-					memberProperties
+					memberPackages
 					memberRank
 					memberPoints
 					memberLikes
@@ -786,6 +786,34 @@ export const GET_HOME_DESTINATIONS = gql`
  query GetHomeDestinations($input: TravelPackagesInquiry!) {
   getTravelPackages(input: $input) {
    list { _id packageCountry packageCity }
+   metaCounter { total }
+  }
+ }
+`;
+
+// Public profile connections: only fields used by the Tripora Member cards.
+export const GET_PUBLIC_MEMBER_FOLLOWERS = gql`
+ query PublicMemberFollowers($input: FollowInquiry!) {
+  getMemberFollowers(input: $input) {
+   list { _id meLiked { memberId likeRefId myFavorite } meFollowed { followingId followerId myFollowing }
+    followerData { _id memberType memberNick memberFullName memberImage memberDesc memberAddress memberPackages memberLikes memberViews } }
+   metaCounter { total }
+  }
+ }
+`;
+export const GET_PUBLIC_MEMBER_FOLLOWINGS = gql`
+ query PublicMemberFollowings($input: FollowInquiry!) {
+  getMemberFollowings(input: $input) {
+   list { _id meLiked { memberId likeRefId myFavorite } meFollowed { followingId followerId myFollowing }
+    followingData { _id memberType memberNick memberFullName memberImage memberDesc memberAddress memberPackages memberLikes memberViews } }
+   metaCounter { total }
+  }
+ }
+`;
+export const GET_PUBLIC_MEMBER_ARTICLES = gql`
+ query PublicMemberArticles($input: BoardArticlesInquiry!) {
+  getBoardArticles(input: $input) {
+   list { _id articleCategory articleTitle articleImage articleLikes articleViews createdAt meLiked { memberId likeRefId myFavorite } }
    metaCounter { total }
   }
  }

@@ -1,5 +1,18 @@
+import { useTranslation } from 'next-i18next';
+import toast from 'react-hot-toast';
 import React, { useState } from 'react';
-import { Alert, Button, CircularProgress, Pagination, Stack, Typography } from '@mui/material';
+import {
+	Alert,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+	CircularProgress,
+	Pagination,
+	Stack,
+	Typography,
+} from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberType } from '../../enums/member.enum';
@@ -9,10 +22,10 @@ import { AgentTravelPackagesInquiry } from '../../types/travel-package/travel-pa
 import { TravelPackages } from '../../types/travel-package/travel-package';
 import { GET_AGENT_TRAVEL_PACKAGES } from '../../../apollo/user/query';
 import { UPDATE_TRAVEL_PACKAGE } from '../../../apollo/user/mutation';
-import { sweetConfirmAlert } from '../../sweetAlert';
 import TravelPackageCard from './TravelPackageCard';
 
 const MyTravelPackages = () => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [inquiry, setInquiry] = useState<AgentTravelPackagesInquiry>({
 		page: 1,
@@ -23,6 +36,7 @@ const MyTravelPackages = () => {
 	});
 	const [busy, setBusy] = useState(false);
 	const [actionError, setActionError] = useState('');
+	const [confirmation, setConfirmation] = useState<{ id: string; status: TravelPackageStatus } | null>(null);
 	const { data, loading, error, refetch } = useQuery<{ getAgentTravelPackages: TravelPackages }>(
 		GET_AGENT_TRAVEL_PACKAGES,
 		{
@@ -43,18 +57,19 @@ const MyTravelPackages = () => {
 			!list.some((item) => item._id === id && item.memberId === user._id)
 		)
 			return;
-		if (
-			!(await sweetConfirmAlert(
-				status === TravelPackageStatus.DELETE
-					? 'Delete this travel package? It will no longer be accessible.'
-					: `Change this package to ${status === TravelPackageStatus.ACTIVE ? 'active' : 'sold out'}?`,
-			))
-		)
+		setConfirmation({ id, status });
+	};
+	const commitStatus = async () => {
+		if (!confirmation || busy) return;
+		const { id, status } = confirmation;
+		if (!list.some((item) => item._id === id && item.memberId === user._id) || user.memberType !== MemberType.AGENT)
 			return;
+		setConfirmation(null);
 		setBusy(true);
 		setActionError('');
 		try {
 			await updatePackage({ variables: { input: { _id: id, packageStatus: status } } });
+			toast.success(t('myPage.saved'));
 			const result = await refetch({ input: inquiry });
 			const last = Math.max(
 				1,
@@ -62,26 +77,26 @@ const MyTravelPackages = () => {
 			);
 			if (inquiry.page > last) setInquiry({ ...inquiry, page: last });
 		} catch {
-			setActionError('Unable to update this package. Check that you own it and try again.');
+			setActionError(t('myPage.actionError'));
+			toast.error(t('myPage.actionError'));
 		} finally {
 			setBusy(false);
 		}
 	};
-	if (user.memberType !== MemberType.AGENT)
-		return <Alert severity="info">Only agents can manage travel packages.</Alert>;
+	if (user.memberType !== MemberType.AGENT) return <Alert severity="info">{t('myPage.agentOnly')}</Alert>;
 	return (
 		<Stack className="travel-package-management">
 			<Typography component="h1" className="main-title">
-				My Travel Packages
+				{t('myPage.myTravelPackages')}
 			</Typography>
 			<Stack className="tab-name-box">
 				{[
-					['All', undefined],
-					['Active', TravelPackageStatus.ACTIVE],
-					['Sold out', TravelPackageStatus.SOLD_OUT],
+					['all', undefined],
+					['active', TravelPackageStatus.ACTIVE],
+					['soldOut', TravelPackageStatus.SOLD_OUT],
 				].map(([label, status]) => (
 					<Button
-						key={label}
+						key={t(`myPage.${label}`)}
 						disabled={busy}
 						className={inquiry.search.packageStatus === status ? 'active-tab-name' : 'tab-name'}
 						onClick={() =>
@@ -92,7 +107,7 @@ const MyTravelPackages = () => {
 							})
 						}
 					>
-						{label}
+						{t(`myPage.${label}`)}
 					</Button>
 				))}
 			</Stack>
@@ -100,11 +115,18 @@ const MyTravelPackages = () => {
 			{loading ? (
 				<Stack role="status">
 					<CircularProgress />
-					<Typography>Loading owned travel packages…</Typography>
+					<Typography>{t('myPage.loading')}</Typography>
 				</Stack>
 			) : error ? (
-				<Alert severity="error" action={<Button onClick={() => void refetch()}>Retry packages</Button>}>
-					Unable to load your packages. Please sign in as an agent and try again.
+				<Alert
+					severity="error"
+					action={
+						<Button onClick={() => void refetch().catch(() => toast.error(t('myPage.loadError')))}>
+							{t('myPage.retry')}
+						</Button>
+					}
+				>
+					{t('myPage.loadError')}
 				</Alert>
 			) : (
 				<Stack className="list-box">
@@ -120,7 +142,7 @@ const MyTravelPackages = () => {
 							/>
 						))
 					) : (
-						<Typography>No travel packages found.</Typography>
+						<Typography>{t('myPage.noPackages')}</Typography>
 					)}
 				</Stack>
 			)}
@@ -131,12 +153,36 @@ const MyTravelPackages = () => {
 						page={inquiry.page}
 						count={Math.ceil(total / inquiry.limit)}
 						onChange={(_, page) => setInquiry({ ...inquiry, page })}
-						shape="circular"
+						shape="rounded"
+						getItemAriaLabel={(type, number, selected) =>
+							type === 'page'
+								? t(selected ? 'marketplace.pagination.current' : 'marketplace.pagination.page', { page: number })
+								: t(`marketplace.pagination.${type}`)
+						}
 						color="primary"
 					/>
-					<Typography>{total} travel packages</Typography>
+					<Typography>{t('agents.packageCount', { count: total })}</Typography>
 				</Stack>
 			)}
+			<Dialog
+				className="mypage-confirm-dialog"
+				open={Boolean(confirmation)}
+				onClose={() => !busy && setConfirmation(null)}
+				aria-labelledby="package-confirm-title"
+			>
+				<DialogTitle id="package-confirm-title">{t('myPage.confirmTitle')}</DialogTitle>
+				<DialogContent>
+					{t(confirmation?.status === TravelPackageStatus.DELETE ? 'myPage.deleteConfirm' : 'myPage.statusConfirm')}
+				</DialogContent>
+				<DialogActions>
+					<Button disabled={busy} onClick={() => setConfirmation(null)}>
+						{t('myPage.cancel')}
+					</Button>
+					<Button variant="contained" disabled={busy} onClick={() => void commitStatus()}>
+						{t('myPage.confirm')}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</Stack>
 	);
 };

@@ -1,214 +1,184 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Button, Stack, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Alert, Avatar, Button, CircularProgress, Stack, TextField } from '@mui/material';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next';
 import axios from 'axios';
-import { Messages, REACT_APP_API_URL } from '../../config';
-import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import toast from 'react-hot-toast';
 import { userVar } from '../../../apollo/store';
-import { MemberUpdate } from '../../types/member/member.update';
+import { GET_TRAVEL_MEMBER } from '../../../apollo/user/query';
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
-import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
+import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
+import { Member } from '../../types/member/member';
+import { packageImageUrl } from '../travelPackage/TravelPackageCard';
 
-const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
-	const device = useDeviceDetect();
-	const token = getJwtToken();
+const MyProfile = () => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
-	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
-
-	/** APOLLO REQUESTS **/
-	const [updateMember] = useMutation(UPDATE_MEMBER);
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		setUpdateData({
-			...updateData,
-			memberNick: user.memberNick,
-			memberPhone: user.memberPhone,
-			memberAddress: user.memberAddress,
-			memberImage: user.memberImage,
-		});
-	}, [user]);
-
-	/** HANDLERS **/
-	const uploadImage = async (e: any) => {
-		try {
-			const image = e.target.files[0];
-			console.log('+image:', image);
-
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImageUploader($file: Upload!, $target: String!) {
-						imageUploader(file: $file, target: $target) 
-				  }`,
-					variables: {
-						file: null,
-						target: 'member',
-					},
-				}),
-			);
-			formData.append(
-				'map',
-				JSON.stringify({
-					'0': ['variables.file'],
-				}),
-			);
-			formData.append('0', image);
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const responseImage = response.data.data.imageUploader;
-			console.log('+responseImage: ', responseImage);
-			updateData.memberImage = responseImage;
-			setUpdateData({ ...updateData });
-
-			return `${REACT_APP_API_URL}/${responseImage}`;
-		} catch (err) {
-			console.log('Error, uploadImage:', err);
-		}
-	};
-
-	const updatePropertyHandler = useCallback(async () => {
-		try {
-			if (!user._id) throw new Error(Messages.error2);
-			updateData._id = user._id;
-			const result = await updateMember({
-				variables: {
-					input: updateData,
-				},
-			});
-
-			const jwtToken = result.data.updateMember?.accessToken;
-			await updateStorage({ jwtToken });
-			updateUserInfo(result.data.updateMember?.accessToken);
-			await sweetMixinSuccessAlert('Information updated successfully.');
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	}, [updateData]);
-
-	const doDisabledCheck = () => {
-		if (
-			updateData.memberNick === '' ||
-			updateData.memberPhone === '' ||
-			updateData.memberAddress === '' ||
-			updateData.memberImage === ''
-		) {
-			return true;
-		}
-	};
-
-	console.log('+updateData', updateData);
-
-	if (device === 'mobile') {
-		return <>MY PROFILE PAGE MOBILE</>;
-	} else
-		return (
-			<div id="my-profile-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Profile</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="top-box">
-					<Stack className="photo-box">
-						<Typography className="title">Photo</Typography>
-						<Stack className="image-big-box">
-							<Stack className="image-box">
-								<img
-									src={
-										updateData?.memberImage
-											? `${REACT_APP_API_URL}/${updateData?.memberImage}`
-											: `/img/profile/defaultUser.svg`
-									}
-									alt=""
-								/>
-							</Stack>
-							<Stack className="upload-big-box">
-								<input
-									type="file"
-									hidden
-									id="hidden-input"
-									onChange={uploadImage}
-									accept="image/jpg, image/jpeg, image/png"
-								/>
-								<label htmlFor="hidden-input" className="labeler">
-									<Typography>Upload Profile Image</Typography>
-								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG or PNG format!</Typography>
-							</Stack>
-						</Stack>
-					</Stack>
-					<Stack className="small-input-box">
-						<Stack className="input-box">
-							<Typography className="title">Username</Typography>
-							<input
-								type="text"
-								placeholder="Your username"
-								value={updateData.memberNick}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
-							/>
-						</Stack>
-						<Stack className="input-box">
-							<Typography className="title">Phone</Typography>
-							<input
-								type="text"
-								placeholder="Your Phone"
-								value={updateData.memberPhone}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
-							/>
-						</Stack>
-					</Stack>
-					<Stack className="address-box">
-						<Typography className="title">Address</Typography>
-						<input
-							type="text"
-							placeholder="Your address"
-							value={updateData.memberAddress}
-							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
-						/>
-					</Stack>
-					<Stack className="about-me-box">
-						<Button className="update-button" onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
-							<Typography>Update Profile</Typography>
-							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
-								<g clipPath="url(#clip0_7065_6985)">
-									<path
-										d="M12.6389 0H4.69446C4.49486 0 4.33334 0.161518 4.33334 0.361122C4.33334 0.560727 4.49486 0.722245 4.69446 0.722245H11.7672L0.105803 12.3836C-0.0352676 12.5247 -0.0352676 12.7532 0.105803 12.8942C0.176321 12.9647 0.268743 13 0.361131 13C0.453519 13 0.545907 12.9647 0.616459 12.8942L12.2778 1.23287V8.30558C12.2778 8.50518 12.4393 8.6667 12.6389 8.6667C12.8385 8.6667 13 8.50518 13 8.30558V0.361122C13 0.161518 12.8385 0 12.6389 0Z"
-										fill="white"
-									/>
-								</g>
-								<defs>
-									<clipPath id="clip0_7065_6985">
-										<rect width="13" height="13" fill="white" />
-									</clipPath>
-								</defs>
-							</svg>
-						</Button>
-					</Stack>
-				</Stack>
-			</div>
-		);
-};
-
-MyProfile.defaultProps = {
-	initialValues: {
-		_id: '',
-		memberImage: '',
+	const [draft, setDraft] = useState({
 		memberNick: '',
 		memberPhone: '',
+		memberFullName: '',
 		memberAddress: '',
-	},
+		memberDesc: '',
+		memberImage: '',
+	});
+	const [busy, setBusy] = useState(false);
+	const { data, loading, error, refetch } = useQuery<{ getMember: Member }>(GET_TRAVEL_MEMBER, {
+		variables: { input: user._id },
+		skip: !user._id,
+		fetchPolicy: 'network-only',
+		context: { suppressErrorAlert: true },
+	});
+	const member = data?.getMember;
+	const reset = () => {
+		if (member)
+			setDraft({
+				memberNick: member.memberNick,
+				memberPhone: member.memberPhone,
+				memberFullName: member.memberFullName ?? '',
+				memberAddress: member.memberAddress ?? '',
+				memberDesc: member.memberDesc ?? '',
+				memberImage: member.memberImage ?? '',
+			});
+	};
+	useEffect(reset, [member]);
+	const [updateMember] = useMutation(UPDATE_MEMBER, { context: { suppressErrorAlert: true } });
+	const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const image = event.target.files?.[0];
+		if (!image || busy) return;
+		if (!['image/jpeg', 'image/png'].includes(image.type)) {
+			toast.error(t('myPage.imageFormat'));
+			return;
+		}
+		setBusy(true);
+		try {
+			const body = new FormData();
+			body.append(
+				'operations',
+				JSON.stringify({
+					query:
+						'mutation ImageUploader($file: Upload!, $target: String!) { imageUploader(file: $file, target: $target) }',
+					variables: { file: null, target: 'member' },
+				}),
+			);
+			body.append('map', JSON.stringify({ '0': ['variables.file'] }));
+			body.append('0', image);
+			const result = await axios.post(process.env.REACT_APP_API_GRAPHQL_URL as string, body, {
+				headers: { 'Apollo-Require-Preflight': 'true', Authorization: `Bearer ${getJwtToken()}` },
+				withCredentials: true,
+			});
+			const path = result.data?.data?.imageUploader;
+			if (!path || result.data.errors?.length) throw new Error();
+			setDraft((current) => ({ ...current, memberImage: path }));
+		} catch {
+			toast.error(t('myPage.uploadError'));
+		} finally {
+			setBusy(false);
+			event.target.value = '';
+		}
+	};
+	const save = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (busy || !user._id) return;
+		if (
+			draft.memberNick.trim().length < 3 ||
+			draft.memberNick.trim().length > 12 ||
+			!draft.memberPhone.trim() ||
+			(draft.memberFullName.trim() &&
+				(draft.memberFullName.trim().length < 3 || draft.memberFullName.trim().length > 100))
+		) {
+			toast.error(t('myPage.profileValidation'));
+			return;
+		}
+		setBusy(true);
+		try {
+			const input = {
+				...draft,
+				_id: user._id,
+				memberNick: draft.memberNick.trim(),
+				memberPhone: draft.memberPhone.trim(),
+				...(draft.memberFullName.trim()
+					? { memberFullName: draft.memberFullName.trim() }
+					: { memberFullName: undefined }),
+			};
+			const result = await updateMember({ variables: { input } });
+			const token = result.data?.updateMember?.accessToken;
+			if (!token) throw new Error();
+			updateStorage({ jwtToken: token });
+			updateUserInfo(token);
+			await refetch();
+			toast.success(t('myPage.saved'));
+		} catch {
+			toast.error(t('myPage.actionError'));
+		} finally {
+			setBusy(false);
+		}
+	};
+	if (loading)
+		return (
+			<Stack className="mypage-state" role="status">
+				<CircularProgress size={28} />
+				<p>{t('myPage.loading')}</p>
+			</Stack>
+		);
+	if (error || !member)
+		return (
+			<Alert
+				severity="error"
+				action={
+					<Button onClick={() => void refetch().catch(() => toast.error(t('myPage.loadError')))}>
+						{t('myPage.retry')}
+					</Button>
+				}
+			>
+				{t('myPage.loadError')}
+			</Alert>
+		);
+	return (
+		<Stack component="form" className="mypage-profile-form" onSubmit={save}>
+			<h2>{t('myPage.myProfile')}</h2>
+			<Stack className="profile-photo">
+				<Avatar src={draft.memberImage ? packageImageUrl(draft.memberImage) : undefined} alt={draft.memberNick}>
+					{draft.memberNick.charAt(0)}
+				</Avatar>
+				<Button component="label" variant="outlined" disabled={busy}>
+					{t('myPage.uploadImage')}
+					<input hidden type="file" accept="image/jpeg,image/png" onChange={upload} />
+				</Button>
+				<small>{t('myPage.imageFormat')}</small>
+			</Stack>
+			<div className="form-fields">
+				{(['memberNick', 'memberFullName', 'memberPhone', 'memberAddress'] as const).map((field) => (
+					<TextField
+						key={field}
+						label={t(`myPage.${field}`)}
+						value={draft[field]}
+						disabled={busy}
+						onChange={(event) => setDraft({ ...draft, [field]: event.target.value })}
+					/>
+				))}
+			</div>
+			<TextField
+				label={t('myPage.memberDesc')}
+				multiline
+				minRows={3}
+				value={draft.memberDesc}
+				disabled={busy}
+				onChange={(event) => setDraft({ ...draft, memberDesc: event.target.value })}
+			/>
+			<p>
+				{t(member.memberType === 'AGENT' ? 'agents.travelAgent' : member.memberType === 'ADMIN' ? 'agents.admin' : 'agents.member')} ·{' '}
+				{t(`myPage.memberStatuses.${member.memberStatus}`)}
+			</p>
+			<Stack className="form-actions">
+				<Button type="submit" variant="contained" disabled={busy}>
+					{t(busy ? 'myPage.working' : 'myPage.save')}
+				</Button>
+				<Button type="button" variant="outlined" disabled={busy} onClick={reset}>
+					{t('myPage.cancel')}
+				</Button>
+			</Stack>
+		</Stack>
+	);
 };
-
 export default MyProfile;

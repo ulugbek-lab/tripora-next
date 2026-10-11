@@ -1,5 +1,19 @@
+import { useTranslation } from 'next-i18next';
+import toast from 'react-hot-toast';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Button, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import {
+	Alert,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+	CircularProgress,
+	MenuItem,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { userVar } from '../../../apollo/store';
@@ -47,23 +61,30 @@ const emptyValues: PackageFormValues = {
 	packageImages: [],
 	packageStatus: TravelPackageStatus.ACTIVE,
 };
-export function validatePackageForm(values: PackageFormValues): TravelPackageInput {
+export function validatePackageForm(
+	values: PackageFormValues,
+	translate?: (key: string) => string,
+): TravelPackageInput {
 	const title = values.packageTitle.trim(),
 		country = values.packageCountry.trim(),
 		city = values.packageCity.trim();
 	if (title.length < 5 || title.length > 120 || !country || !city)
-		throw new Error('Enter a title of 5–120 characters, country, and city.');
+		throw new Error(
+			translate ? translate('myPage.validation.title') : 'Enter a title of 5–120 characters, country, and city.',
+		);
 	if (
 		!Object.values(TravelPackageType).includes(values.packageType as TravelPackageType) ||
 		!packageCurrencies.includes(values.packageCurrency as typeof packageCurrencies[number])
 	)
-		throw new Error('Choose a valid package type and currency.');
+		throw new Error(
+			translate ? translate('myPage.validation.typeCurrency') : 'Choose a valid package type and currency.',
+		);
 	const price = Number(values.packagePrice),
 		duration = Number(values.packageDurationDays),
 		capacity = Number(values.packageMaxTravellers),
 		slots = Number(values.packageAvailableSlots);
 	if (!values.packagePrice.trim() || !Number.isFinite(price) || price < 0)
-		throw new Error('Price must be a nonnegative number.');
+		throw new Error(translate ? translate('myPage.validation.price') : 'Price must be a nonnegative number.');
 	for (const [value, minimum] of [
 		[duration, 1],
 		[capacity, 1],
@@ -71,7 +92,9 @@ export function validatePackageForm(values: PackageFormValues): TravelPackageInp
 	])
 		if (!Number.isInteger(value) || value < minimum || value > 2147483647)
 			throw new Error(
-				'Duration and capacity must be positive whole numbers; available slots must be a nonnegative whole number.',
+				translate
+					? translate('myPage.validation.numbers')
+					: 'Duration and capacity must be positive whole numbers; available slots must be a nonnegative whole number.',
 			);
 	if (
 		!values.packageAvailableSlots.trim() ||
@@ -79,15 +102,18 @@ export function validatePackageForm(values: PackageFormValues): TravelPackageInp
 		!values.packageMaxTravellers.trim() ||
 		slots > capacity
 	)
-		throw new Error('Available slots must not exceed maximum travellers.');
+		throw new Error(
+			translate ? translate('myPage.validation.slots') : 'Available slots must not exceed maximum travellers.',
+		);
 	const date = new Date(`${values.packageStartDate}:00.000Z`);
 	if (
 		!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(values.packageStartDate) ||
 		!Number.isFinite(date.getTime()) ||
 		date.toISOString().slice(0, 16) !== values.packageStartDate
 	)
-		throw new Error('Choose a valid departure date and time (UTC).');
-	if (!values.packageImages.length) throw new Error('Add at least one package image.');
+		throw new Error(translate ? translate('myPage.validation.date') : 'Choose a valid departure date and time (UTC).');
+	if (!values.packageImages.length)
+		throw new Error(translate ? translate('myPage.validation.images') : 'Add at least one package image.');
 	return {
 		packageTitle: title,
 		packageCountry: country,
@@ -122,6 +148,8 @@ function valuesFromPackage(item: TravelPackage): PackageFormValues {
 }
 
 const AddTravelPackage = () => {
+	const { t } = useTranslation('common');
+	const [confirmStatus, setConfirmStatus] = useState(false);
 	const router = useRouter(),
 		user = useReactiveVar(userVar);
 	const rawId = router.query.id,
@@ -171,7 +199,7 @@ const AddTravelPackage = () => {
 				(file) => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024,
 			)
 		) {
-			setErrorMessage('Upload 1–10 JPEG, PNG, or WebP images, up to 5 MB each.');
+			setErrorMessage(t('myPage.uploadHint'));
 			event.target.value = '';
 			return;
 		}
@@ -181,24 +209,32 @@ const AddTravelPackage = () => {
 			const result = await uploadImages({ variables: { files } });
 			const urls = result.data?.uploadTravelPackageImages as string[] | undefined;
 			if (!urls?.length) throw new Error();
-			setValues((previous) => ({ ...previous, packageImages: Array.from(new Set([...previous.packageImages, ...urls])) }));
+			setValues((previous) => ({
+				...previous,
+				packageImages: Array.from(new Set([...previous.packageImages, ...urls])),
+			}));
 		} catch {
-			setErrorMessage('Image upload failed. Your existing images have been preserved. Please try again.');
+			setErrorMessage(t('myPage.uploadError'));
 		} finally {
 			setBusy(false);
 			if (inputRef.current) inputRef.current.value = '';
 		}
 	};
-	const save = async (event: React.FormEvent) => {
-		event.preventDefault();
+	const save = async (event?: React.FormEvent, confirmed = false) => {
+		event?.preventDefault();
 		if (busy || user.memberType !== MemberType.AGENT || (editing && (!loaded || !original || !id))) return;
 		let input: TravelPackageInput;
 		try {
-			input = validatePackageForm(values);
+			input = validatePackageForm(values, (key) => t(key));
 		} catch (err) {
-			setErrorMessage(err instanceof Error ? err.message : 'Check the package fields.');
+			setErrorMessage(err instanceof Error ? err.message : t('myPage.checkFields'));
 			return;
 		}
+		if (editing && original && values.packageStatus !== original.packageStatus && !confirmed) {
+			setConfirmStatus(true);
+			return;
+		}
+		setConfirmStatus(false);
 		setBusy(true);
 		setErrorMessage('');
 		try {
@@ -218,41 +254,38 @@ const AddTravelPackage = () => {
 				if (values.packageStatus !== original.packageStatus) update.packageStatus = values.packageStatus;
 				if (Object.keys(update).length > 1) await updatePackage({ variables: { input: update } });
 			} else await createPackage({ variables: { input } });
+			toast.success(t('myPage.saved'));
 			await router.push({ pathname: '/mypage', query: { category: 'myTravelPackages' } });
 		} catch {
-			setErrorMessage(
-				'Unable to save this package. Check your agent access, ownership, and network connection, then try again.',
-			);
+			setErrorMessage(t('myPage.actionError'));
 		} finally {
 			setBusy(false);
 		}
 	};
-	if (user.memberType !== MemberType.AGENT)
-		return <Alert severity="info">Only agents can create or edit travel packages.</Alert>;
-	if (editing && (!id || notOwned || error))
-		return <Alert severity="warning">This package is unavailable or is not owned by your account.</Alert>;
+	if (user.memberType !== MemberType.AGENT) return <Alert severity="info">{t('myPage.agentOnly')}</Alert>;
+	if (editing && (!id || notOwned || error)) return <Alert severity="warning">{t('myPage.notOwned')}</Alert>;
 	if (editing && !loaded)
 		return (
 			<Stack role="status">
 				<CircularProgress />
-				<Typography>Loading your package…</Typography>
+				<Typography>{t('myPage.loading')}</Typography>
 			</Stack>
 		);
 	return (
 		<Stack component="form" className="travel-package-form" onSubmit={save}>
 			<Typography component="h1" className="main-title">
-				{editing ? 'Edit Travel Package' : 'Add Travel Package'}
+				{t(editing ? 'myPage.editPackage' : 'myPage.addTravelPackage')}
 			</Typography>
 			{errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 			<Stack className="form-fields">
 				{[
-					['packageTitle', 'Package title'],
-					['packageCountry', 'Country'],
-					['packageCity', 'City'],
+					['packageTitle', 'packageTitle'],
+					['packageCountry', 'country'],
+					['packageCity', 'city'],
 				].map(([field, label]) => (
 					<TextField
 						key={field}
-						label={label}
+						label={t(`myPage.${label}`)}
 						value={values[field as keyof PackageFormValues]}
 						onChange={(e) => change(field as keyof PackageFormValues, e.target.value)}
 						size="small"
@@ -260,20 +293,20 @@ const AddTravelPackage = () => {
 				))}
 				<TextField
 					select
-					label="Package type"
+					label={t('myPage.packageType')}
 					value={values.packageType}
 					onChange={(e) => change('packageType', e.target.value)}
 					size="small"
 				>
 					{Object.values(TravelPackageType).map((type) => (
 						<MenuItem key={type} value={type}>
-							{type}
+							{t(`home.packageTypes.${type}`)}
 						</MenuItem>
 					))}
 				</TextField>
 				<TextField
 					select
-					label="Currency"
+					label={t('myPage.currency')}
 					value={values.packageCurrency}
 					onChange={(e) => change('packageCurrency', e.target.value)}
 					size="small"
@@ -285,14 +318,14 @@ const AddTravelPackage = () => {
 					))}
 				</TextField>
 				{[
-					['packagePrice', 'Price', 0, 'any'],
-					['packageDurationDays', 'Duration (days)', 1, 1],
-					['packageMaxTravellers', 'Maximum travellers', 1, 1],
-					['packageAvailableSlots', 'Available slots', 0, 1],
+					['packagePrice', 'price', 0, 'any'],
+					['packageDurationDays', 'duration', 1, 1],
+					['packageMaxTravellers', 'capacity', 1, 1],
+					['packageAvailableSlots', 'slots', 0, 1],
 				].map(([field, label, min, step]) => (
 					<TextField
 						key={field}
-						label={label}
+						label={t(`myPage.${label}`)}
 						type="number"
 						value={values[field as keyof PackageFormValues]}
 						onChange={(e) => change(field as keyof PackageFormValues, e.target.value)}
@@ -301,7 +334,7 @@ const AddTravelPackage = () => {
 					/>
 				))}
 				<TextField
-					label="Departure date/time (UTC)"
+					label={t('myPage.departure')}
 					type="datetime-local"
 					value={values.packageStartDate}
 					onChange={(e) => change('packageStartDate', e.target.value)}
@@ -311,42 +344,47 @@ const AddTravelPackage = () => {
 				{editing && (
 					<TextField
 						select
-						label="Status"
+						label={t('myPage.status')}
 						value={values.packageStatus}
 						onChange={(e) => change('packageStatus', e.target.value)}
 						size="small"
 					>
-						<MenuItem value={TravelPackageStatus.ACTIVE}>Active</MenuItem>
-						<MenuItem value={TravelPackageStatus.SOLD_OUT}>Sold out</MenuItem>
+						<MenuItem value={TravelPackageStatus.ACTIVE}>{t('myPage.active')}</MenuItem>
+						<MenuItem value={TravelPackageStatus.SOLD_OUT}>{t('myPage.soldOut')}</MenuItem>
 					</TextField>
 				)}
 			</Stack>
 			<TextField
-				label="Package description"
+				label={t('myPage.packageDesc')}
 				multiline
 				minRows={4}
 				value={values.packageDesc}
 				onChange={(e) => change('packageDesc', e.target.value)}
 			/>
-			<Typography component="h2">Package images</Typography>
-			<Typography variant="caption">JPEG, PNG, or WebP · up to 5 MB each · up to 10 files per upload</Typography>
+			<Typography component="h2">{t('myPage.packageImages')}</Typography>
+			<Typography variant="caption">{t('myPage.uploadHint')}</Typography>
 			<input
 				ref={inputRef}
 				type="file"
-				aria-label="Upload package images"
+				aria-label={t('myPage.uploadImage')}
 				accept="image/jpeg,image/png,image/webp"
 				multiple
 				disabled={busy}
 				onChange={upload}
 			/>
 			<Stack className="image-url-row">
-				<TextField label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} size="small" />
+				<TextField
+					label={t('myPage.imageUrl')}
+					value={imageUrl}
+					onChange={(e) => setImageUrl(e.target.value)}
+					size="small"
+				/>
 				<Button
 					type="button"
 					disabled={busy}
 					onClick={() => {
 						if (!/^https?:\/\//i.test(imageUrl.trim())) {
-							setErrorMessage('Enter a valid HTTP or HTTPS image URL.');
+							setErrorMessage(t('myPage.imageUrlError'));
 							return;
 						}
 						setValues({ ...values, packageImages: Array.from(new Set([...values.packageImages, imageUrl.trim()])) });
@@ -354,13 +392,13 @@ const AddTravelPackage = () => {
 						setErrorMessage('');
 					}}
 				>
-					Add image URL
+					{t('myPage.addImageUrl')}
 				</Button>
 			</Stack>
 			<Stack className="gallery-box">
 				{values.packageImages.map((image) => (
 					<Stack key={image} className="image-box">
-						<img src={packageImageUrl(image)} alt="Package preview" />
+						<img src={packageImageUrl(image)} alt={t('myPage.packagePreview')} />
 						<Button
 							type="button"
 							disabled={busy}
@@ -368,14 +406,27 @@ const AddTravelPackage = () => {
 								setValues({ ...values, packageImages: values.packageImages.filter((value) => value !== image) })
 							}
 						>
-							Remove image
+							{t('myPage.removeImage')}
 						</Button>
 					</Stack>
 				))}
 			</Stack>
 			<Button type="submit" variant="contained" disabled={busy}>
-				{busy ? 'Working…' : 'Save package'}
+				{t(busy ? 'myPage.working' : 'myPage.save')}
 			</Button>
+			<Dialog
+				className="mypage-confirm-dialog"
+				open={confirmStatus}
+				onClose={() => setConfirmStatus(false)}
+				aria-labelledby="edit-status-title"
+			>
+				<DialogTitle id="edit-status-title">{t('myPage.confirmTitle')}</DialogTitle>
+				<DialogContent>{t('myPage.statusConfirm')}</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setConfirmStatus(false)}>{t('myPage.cancel')}</Button>
+					<Button onClick={() => void save(undefined, true)}>{t('myPage.confirm')}</Button>
+				</DialogActions>
+			</Dialog>
 		</Stack>
 	);
 };

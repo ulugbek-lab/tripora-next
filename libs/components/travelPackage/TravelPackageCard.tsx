@@ -95,7 +95,13 @@ const LegacyTravelPackageCard = ({
 	);
 };
 
-const MarketplaceCard = ({ travelPackage: item, likePackageHandler, liking }: TravelPackageCardProps) => {
+const MarketplaceCard = ({
+	travelPackage: item,
+	likePackageHandler,
+	liking,
+	isFavorite,
+	hideEngagement,
+}: TravelPackageCardProps) => {
 	const { t, i18n } = useTranslation('common');
 	const [unavailable, setUnavailable] = useState(!item.packageImages?.[0]);
 	useEffect(() => setUnavailable(!item.packageImages?.[0]), [item.packageImages?.[0]]);
@@ -107,7 +113,7 @@ const MarketplaceCard = ({ travelPackage: item, likePackageHandler, liking }: Tr
 		? date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
 		: t('marketplace.card.dateUnavailable');
 	const href = { pathname: '/travel-package/detail', query: { id: item._id } };
-	const liked = Boolean(item.meLiked?.[0]?.myFavorite);
+	const liked = isFavorite ?? Boolean(item.meLiked?.[0]?.myFavorite);
 	return (
 		<Stack component="article" className="marketplace-card">
 			<div className="marketplace-card-media">
@@ -124,17 +130,19 @@ const MarketplaceCard = ({ travelPackage: item, likePackageHandler, liking }: Tr
 				</Link>
 				{unavailable && <span className="photo-unavailable">{t('marketplace.card.photoUnavailable')}</span>}
 				<span className="package-type">{t(`marketplace.packageTypes.${item.packageType}`)}</span>
-				<IconButton
-					className="package-save"
-					aria-label={t(liked ? 'marketplace.card.removeSaved' : 'marketplace.card.addSaved', {
-						title: item.packageTitle,
-					})}
-					aria-pressed={liked}
-					disabled={liking}
-					onClick={() => void likePackageHandler?.(item._id)}
-				>
-					{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-				</IconButton>
+				{!hideEngagement && (
+					<IconButton
+						className="package-save"
+						aria-label={t(liked ? 'marketplace.card.removeSaved' : 'marketplace.card.addSaved', {
+							title: item.packageTitle,
+						})}
+						aria-pressed={liked}
+						disabled={liking}
+						onClick={() => void likePackageHandler?.(item._id)}
+					>
+						{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+					</IconButton>
+				)}
 			</div>
 			<Stack className="marketplace-card-info">
 				<p className="package-destination">

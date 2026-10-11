@@ -1,171 +1,143 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Stack } from '@mui/material';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
+import { Alert, Button, CircularProgress, Stack } from '@mui/material';
+import Link from 'next/link';
+import { useMutation, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import toast from 'react-hot-toast';
 import { getJwtToken } from '../../libs/auth';
+import withLayoutMyPage from '../../libs/components/layout/LayoutMyPage';
 import MyTravelPackages from '../../libs/components/mypage/MyTravelPackages';
 import AddTravelPackage from '../../libs/components/mypage/AddTravelPackage';
 import FavoriteTravelPackages from '../../libs/components/mypage/FavoriteTravelPackages';
 import VisitedTravelPackages from '../../libs/components/mypage/VisitedTravelPackages';
-import MyProperties from '../../libs/components/mypage/MyProperties';
-import MyFavorites from '../../libs/components/mypage/MyFavorites';
-import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
-import AddProperty from '../../libs/components/mypage/AddNewProperty';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyArticles from '../../libs/components/mypage/MyArticles';
-import { useMutation, useReactiveVar } from '@apollo/client';
-import { userVar } from '../../apollo/store';
 import MyMenu from '../../libs/components/mypage/MyMenu';
 import WriteArticle from '../../libs/components/mypage/WriteArticle';
-import MemberFollowers from '../../libs/components/member/MemberFollowers';
-import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import MemberFollowings from '../../libs/components/member/MemberFollowings';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import MemberConnections from '../../libs/components/member/MemberConnections';
+import { userVar } from '../../apollo/store';
 import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
-import { Messages } from '../../libs/config';
+import { Member } from '../../libs/types/member/member';
 
-export const getStaticProps = async ({ locale }: any) => ({
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common'], {
+			...require('../../next-i18next.config'),
+			reloadOnPrerender: process.env.NODE_ENV === 'development',
+		})),
 	},
 });
-
+const aliases: Record<string, string> = {
+	myProperties: 'myTravelPackages',
+	addProperty: 'addTravelPackage',
+	myFavorites: 'favoriteTravelPackages',
+	recentlyVisited: 'visitedTravelPackages',
+};
 const MyPage: NextPage = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const category: any = router.query?.category ?? 'myProfile';
-	const travelCategory = [
+	const raw = typeof router.query.category === 'string' ? router.query.category : 'myProfile';
+	const section = aliases[raw] ?? raw;
+	const category = [
+		'myProfile',
 		'myTravelPackages',
 		'addTravelPackage',
 		'favoriteTravelPackages',
 		'visitedTravelPackages',
-	].includes(category);
-
-	/** APOLLO REQUESTS **/
-	const [subscribe] = useMutation(SUBSCRIBE);
-	const [unsubscribe] = useMutation(UNSUBSCRIBE);
-	const [likeTargetMember] = useMutation(LIKE_TARGET_MEMBER);
-
-	/** LIFECYCLES **/
+		'followers',
+		'followings',
+		'myArticles',
+		'writeArticle',
+	].includes(section)
+		? section
+		: 'myProfile';
+	const [busy, setBusy] = useState(false);
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => { setMounted(true); }, []);
 	useEffect(() => {
-		if (!user._id && !getJwtToken()) router.push('/').then();
-	}, [user]);
-
-	/** HANDLERS **/
-	const subscribeHandler = async (id: string, refetch: any, query: any) => {
+		if (router.isReady && aliases[raw])
+			void router.replace({ pathname: '/mypage', query: { ...router.query, category } }, undefined, { shallow: true });
+	}, [router.isReady, raw]);
+	const [subscribe] = useMutation(SUBSCRIBE, { context: { suppressErrorAlert: true } });
+	const [unsubscribe] = useMutation(UNSUBSCRIBE, { context: { suppressErrorAlert: true } });
+	const [like] = useMutation(LIKE_TARGET_MEMBER, { context: { suppressErrorAlert: true } });
+	const follow = async (member: Member, followed: boolean, refresh: () => Promise<unknown>) => {
+		if (!user._id || busy || member._id === user._id) return;
+		setBusy(true);
 		try {
-			if (!id) throw new Error(Messages.error1);
-			if (!user._id) throw new Error(Messages.error2);
-
-			await subscribe({
-				variables: {
-					input: id,
-				},
-			});
-			await sweetTopSmallSuccessAlert('Subscribed', 800);
-			await refetch({ input: query });
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
+			await (followed ? unsubscribe : subscribe)({ variables: { input: member._id } });
+			await refresh();
+			toast.success(t(followed ? 'agents.unfollowed' : 'agents.followed'));
+		} catch {
+			toast.error(t('myPage.actionError'));
+		} finally {
+			setBusy(false);
 		}
 	};
-
-	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {
+	const likeMember = async (id: string, refresh: () => Promise<unknown>) => {
+		if (!user._id || busy) return;
+		setBusy(true);
 		try {
-			if (!id) throw new Error(Messages.error1);
-			if (!user._id) throw new Error(Messages.error2);
-
-			await unsubscribe({
-				variables: {
-					input: id,
-				},
-			});
-			await sweetTopSmallSuccessAlert('Unsubscribed', 800);
-			await refetch({ input: query });
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
+			await like({ variables: { input: id } });
+			await refresh();
+		} catch {
+			toast.error(t('myPage.actionError'));
+		} finally {
+			setBusy(false);
 		}
 	};
-
-	const likeMemberHandler = async (id: string, refetch: any, query: any) => {
-		try {
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
-
-			await likeTargetMember({ variables: { input: id } });
-			await sweetTopSmallSuccessAlert('Success', 800);
-			await refetch({ input: query });
-		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler', err);
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
-	const redirectToMemberPageHandler = async (memberId: string) => {
-		try {
-			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
-		} catch (error) {
-			await sweetErrorHandling(error);
-		}
-	};
-
-	if (device === 'mobile' && !travelCategory) {
-		return <div>MY PAGE</div>;
-	} else {
+	if (!mounted || !router.isReady || (!user._id && getJwtToken()))
 		return (
-			<div
-				id="my-page"
-				className={travelCategory ? `travel-package-mypage ${device === 'mobile' ? 'mobile' : ''}` : ''}
-				style={{ position: 'relative' }}
-			>
-				<div className="container">
-					<Stack className={'my-page'}>
-						<Stack className={'back-frame'}>
-							<Stack className={'left-config'}>
-								<MyMenu />
-							</Stack>
-							<Stack className="main-config" mb={'76px'}>
-								<Stack className={'list-config'}>
-									{category === 'myTravelPackages' && <MyTravelPackages key={user._id} />}
-									{category === 'addTravelPackage' && (
-										<AddTravelPackage key={`${user._id}:${router.query.id ?? 'new'}`} />
-									)}
-									{category === 'favoriteTravelPackages' && <FavoriteTravelPackages key={user._id} />}
-									{category === 'visitedTravelPackages' && <VisitedTravelPackages key={user._id} />}
-									{category === 'addProperty' && <AddProperty />}
-									{category === 'myProperties' && <MyProperties />}
-									{category === 'myFavorites' && <MyFavorites />}
-									{category === 'recentlyVisited' && <RecentlyVisited />}
-									{category === 'myArticles' && <MyArticles />}
-									{category === 'writeArticle' && <WriteArticle />}
-									{category === 'myProfile' && <MyProfile />}
-									{category === 'followers' && (
-										<MemberFollowers
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											likeMemberHandler={likeMemberHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-									{category === 'followings' && (
-										<MemberFollowings
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											likeMemberHandler={likeMemberHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-								</Stack>
-							</Stack>
-						</Stack>
+			<Stack id="my-page" className="mypage-state" role="status">
+				<CircularProgress size={28} />
+				<p>{t('myPage.loading')}</p>
+			</Stack>
+		);
+	if (!user._id)
+		return (
+			<Stack id="my-page" className="mypage-state">
+				<Alert severity="info">{t('myPage.signIn')}</Alert>
+				<Button component={Link} href="/account/join?referrer=%2Fmypage" variant="contained">
+					{t('authPage.signIn')}
+				</Button>
+			</Stack>
+		);
+	return (
+		<main id="my-page">
+			<div className="mypage-container">
+				<header className="mypage-heading">
+					<p>{t('myPage.eyebrow')}</p>
+					<h1>{t('myPage.title')}</h1>
+				</header>
+				<div className="mypage-layout">
+					<aside>
+						<MyMenu category={category} />
+					</aside>
+					<Stack className="mypage-content" key={`${user._id}:${category}:${router.query.id ?? ''}`}>
+						{category === 'myProfile' && <MyProfile />}
+						{category === 'myTravelPackages' && <MyTravelPackages />}
+						{category === 'addTravelPackage' && <AddTravelPackage />}
+						{category === 'favoriteTravelPackages' && <FavoriteTravelPackages />}
+						{category === 'visitedTravelPackages' && <VisitedTravelPackages />}
+						{category === 'myArticles' && <MyArticles />}
+						{category === 'writeArticle' && <WriteArticle />}
+						{(category === 'followers' || category === 'followings') && (
+							<MemberConnections
+								memberId={user._id}
+								category={category}
+								busy={busy}
+								onFollow={follow}
+								onLike={likeMember}
+							/>
+						)}
 					</Stack>
 				</div>
 			</div>
-		);
-	}
+		</main>
+	);
 };
-
-export default withLayoutBasic(MyPage);
+export default withLayoutMyPage(MyPage);

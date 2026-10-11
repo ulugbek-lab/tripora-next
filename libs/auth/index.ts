@@ -2,7 +2,6 @@ import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
-import { sweetMixinErrorAlert } from '../sweetAlert';
 import { LOGIN, SIGN_UP } from '../../apollo/user/mutation';
 
 export function getJwtToken(): any {
@@ -24,9 +23,8 @@ export const logIn = async (nick: string, password: string): Promise<void> => {
 			updateUserInfo(jwtToken);
 		}
 	} catch (err) {
-		console.warn('login err', err);
-		logOut();
-		// throw new Error('Login Err');
+		void logOut();
+		throw err;
 	}
 };
 
@@ -39,29 +37,15 @@ const requestJwtToken = async ({
 }): Promise<{ jwtToken: string }> => {
 	const apolloClient = await initializeApollo();
 
-	try {
-		const result = await apolloClient.mutate({
-			mutation: LOGIN,
-			variables: { input: { memberNick: nick, memberPassword: password } },
-			fetchPolicy: 'network-only',
-		});
-
-		console.log('---------- login ----------');
-		const { accessToken } = result?.data?.login;
-
-		return { jwtToken: accessToken };
-	} catch (err: any) {
-		console.log('request token err', err.graphQLErrors);
-		switch (err.graphQLErrors[0].message) {
-			case 'Definer: login and password do not match':
-				await sweetMixinErrorAlert('Please check your password again');
-				break;
-			case 'Definer: user has been blocked!':
-				await sweetMixinErrorAlert('User has been blocked!');
-				break;
-		}
-		throw new Error('token error');
-	}
+	const result = await apolloClient.mutate({
+		mutation: LOGIN,
+		variables: { input: { memberNick: nick, memberPassword: password } },
+		fetchPolicy: 'network-only',
+		context: { suppressErrorAlert: true },
+	});
+	const accessToken = result.data?.login?.accessToken;
+	if (!accessToken) throw new Error('Missing access token');
+	return { jwtToken: accessToken };
 };
 
 export const signUp = async (nick: string, password: string, phone: string, type: string): Promise<void> => {
@@ -73,9 +57,8 @@ export const signUp = async (nick: string, password: string, phone: string, type
 			updateUserInfo(jwtToken);
 		}
 	} catch (err) {
-		console.warn('login err', err);
-		logOut();
-		// throw new Error('Login Err');
+		void logOut();
+		throw err;
 	}
 };
 
@@ -92,31 +75,15 @@ const requestSignUpJwtToken = async ({
 }): Promise<{ jwtToken: string }> => {
 	const apolloClient = await initializeApollo();
 
-	try {
-		const result = await apolloClient.mutate({
-			mutation: SIGN_UP,
-			variables: {
-				input: { memberNick: nick, memberPassword: password, memberPhone: phone, memberType: type },
-			},
-			fetchPolicy: 'network-only',
-		});
-
-		console.log('---------- login ----------');
-		const { accessToken } = result?.data?.signup;
-
-		return { jwtToken: accessToken };
-	} catch (err: any) {
-		console.log('request token err', err.graphQLErrors);
-		switch (err.graphQLErrors[0].message) {
-			case 'Definer: login and password do not match':
-				await sweetMixinErrorAlert('Please check your password again');
-				break;
-			case 'Definer: user has been blocked!':
-				await sweetMixinErrorAlert('User has been blocked!');
-				break;
-		}
-		throw new Error('token error');
-	}
+	const result = await apolloClient.mutate({
+		mutation: SIGN_UP,
+		variables: { input: { memberNick: nick, memberPassword: password, memberPhone: phone, memberType: type } },
+		fetchPolicy: 'network-only',
+		context: { suppressErrorAlert: true },
+	});
+	const accessToken = result.data?.signup?.accessToken;
+	if (!accessToken) throw new Error('Missing access token');
+	return { jwtToken: accessToken };
 };
 
 export const updateStorage = ({ jwtToken }: { jwtToken: any }) => {
@@ -142,7 +109,7 @@ export const updateUserInfo = (jwtToken: any) => {
 				: `${claims.memberImage}`,
 		memberAddress: claims.memberAddress ?? '',
 		memberDesc: claims.memberDesc ?? '',
-		memberProperties: claims.memberProperties,
+		memberPackages: claims.memberPackages ?? 0,
 		memberRank: claims.memberRank,
 		memberArticles: claims.memberArticles,
 		memberPoints: claims.memberPoints,
@@ -153,9 +120,21 @@ export const updateUserInfo = (jwtToken: any) => {
 	});
 };
 
-export const logOut = () => {
+export const logOut = async (): Promise<void> => {
 	deleteStorage();
 	deleteUserInfo();
+	try {
+		const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL as string, {
+			method: 'POST',
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/json', 'Apollo-Require-Preflight': 'true' },
+			body: JSON.stringify({ query: 'mutation { logout }' }),
+		});
+		const result = await response.json();
+		if (!response.ok || result.errors?.length) throw new Error('Logout failed');
+	} catch {
+		console.warn('Unable to clear the refresh cookie');
+	}
 };
 
 const deleteStorage = () => {
@@ -175,7 +154,7 @@ const deleteUserInfo = () => {
 		memberImage: '',
 		memberAddress: '',
 		memberDesc: '',
-		memberProperties: 0,
+		memberPackages: 0,
 		memberRank: 0,
 		memberArticles: 0,
 		memberPoints: 0,
