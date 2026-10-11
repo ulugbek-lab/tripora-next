@@ -1,285 +1,249 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import type { NextPage } from 'next';
+import React, { useState } from 'react';
+import {
+	Avatar,
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	Stack,
+	Table,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TableHead,
+	TableRow,
+	TextField,
+} from '@mui/material';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import toast from 'react-hot-toast';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { MemberPanelList } from '../../../libs/components/admin/users/MemberList';
-import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import TablePagination from '@mui/material/TablePagination';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { MembersInquiry } from '../../../libs/types/member/member.input';
-import { Member } from '../../../libs/types/member/member';
-import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
-import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { MemberUpdate } from '../../../libs/types/member/member.update';
-import { useMutation, useQuery } from '@apollo/client';
-import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { AdminPagination, AdminSearch, AdminSelect, AdminState } from '../../../libs/components/admin/AdminControls';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
-import { T } from '../../../libs/types/common';
-
-const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
-	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
-	const [members, setMembers] = useState<Member[]>([]);
-	const [membersTotal, setMembersTotal] = useState<number>(0);
-	const [value, setValue] = useState(
-		membersInquiry?.search?.memberStatus ? membersInquiry?.search?.memberStatus : 'ALL',
-	);
-	const [searchText, setSearchText] = useState('');
-	const [searchType, setSearchType] = useState('ALL');
-
-	/** APOLLO REQUESTS **/
-	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN)
-
-	const {
-		loading: getAllMemberByAdminLoading,
-		data: getAllMemberByAdminData,
-		error: getAllMemberByAdminError,
-		refetch: getAllMemberByAdminRefetch,
-	} = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
-		fetchPolicy: 'network-only',
-		variables: { input:membersInquiry},
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data:T) => {
-			setMembers(data.getAllMembersByAdmin?.list);
-			setMembersTotal(data.getAllMembersByAdmin?.metaCounter[0].total ?? 0);
-		}
-})
-	
-	/** LIFECYCLES **/
-	useEffect(() => {
-		getAllMemberByAdminRefetch({ input: membersInquiry }).then();
-	}, [membersInquiry]);
-
-	/** HANDLERS **/
-	const changePageHandler = async (event: unknown, newPage: number) => {
-		membersInquiry.page = newPage + 1;
-		setMembersInquiry({ ...membersInquiry });
-	};
-
-	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		membersInquiry.limit = parseInt(event.target.value, 10);
-		membersInquiry.page = 1;
-		setMembersInquiry({ ...membersInquiry });
-	};
-
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
-
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
-
-	const tabChangeHandler = async (event: any, newValue: string) => {
-		setValue(newValue);
-		setSearchText('');
-
-		setMembersInquiry({ ...membersInquiry, page: 1, sort: 'createdAt' });
-
-		switch (newValue) {
-			case 'ACTIVE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.ACTIVE } });
-				break;
-			case 'BLOCK':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.BLOCK } });
-				break;
-			case 'DELETE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.DELETE } });
-				break;
-			default:
-				delete membersInquiry?.search?.memberStatus;
-				setMembersInquiry({ ...membersInquiry });
-				break;
-		}
-	};
-
-	const updateMemberHandler = async (updateData: MemberUpdate) => {
-		try {
-			await updateMemberByAdmin({
-				variables: { input: updateData,
-				 },
-			});
-			menuIconCloseHandler();
-
-			await getAllMemberByAdminRefetch({ input: membersInquiry });
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	const textHandler = useCallback((value: string) => {
-		try {
-			setSearchText(value);
-		} catch (err: any) {
-			console.log('textHandler: ', err.message);
-		}
-	}, []);
-
-	const searchTextHandler = () => {
-		try {
-			setMembersInquiry({
-				...membersInquiry,
-				search: {
-					...membersInquiry.search,
-					text: searchText,
-				},
-			});
-		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message);
-		}
-	};
-
-	const searchTypeHandler = async (newValue: string) => {
-		try {
-			setSearchType(newValue);
-
-			if (newValue !== 'ALL') {
-				setMembersInquiry({
-					...membersInquiry,
-					page: 1,
-					sort: 'createdAt',
-					search: {
-						...membersInquiry.search,
-						memberType: newValue as MemberType,
-					},
-				});
-			} else {
-				delete membersInquiry?.search?.memberType;
-				setMembersInquiry({ ...membersInquiry });
-			}
-		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
-		}
-	};
-
-	return (
-		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Member List
-			</Typography>
-			<Box component={'div'} className={'table-wrap'}>
-				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
-					<TabContext value={value}>
-						<Box component={'div'}>
-							<List className={'tab-menu'}>
-								<ListItem
-									onClick={(e:any) => tabChangeHandler(e, 'ALL')}
-									value="ALL"
-									className={value === 'ALL' ? 'li on' : 'li'}
-								>
-									All
-								</ListItem>
-								<ListItem
-									onClick={(e:any) => tabChangeHandler(e, 'ACTIVE')}
-									value="ACTIVE"
-									className={value === 'ACTIVE' ? 'li on' : 'li'}
-								>
-									Active
-								</ListItem>
-								<ListItem
-									onClick={(e:any) => tabChangeHandler(e, 'BLOCK')}
-									value="BLOCK"
-									className={value === 'BLOCK' ? 'li on' : 'li'}
-								>
-									Blocked
-								</ListItem>
-								<ListItem
-									onClick={(e:any) => tabChangeHandler(e, 'DELETE')}
-									value="DELETE"
-									className={value === 'DELETE' ? 'li on' : 'li'}
-								>
-									Deleted
-								</ListItem>
-							</List>
-							<Divider />
-							<Stack className={'search-area'} sx={{ m: '24px' }}>
-								<OutlinedInput
-									value={searchText}
-									onChange={(e: any) => textHandler(e.target.value)}
-									sx={{ width: '100%' }}
-									className={'search'}
-									placeholder="Search user name"
-									onKeyDown={(event) => {
-										if (event.key == 'Enter') searchTextHandler();
-									}}
-									endAdornment={
-										<>
-											{searchText && (
-												<CancelRoundedIcon
-													style={{ cursor: 'pointer' }}
-													onClick={async () => {
-														setSearchText('');
-														setMembersInquiry({
-															...membersInquiry,
-															search: {
-																...membersInquiry.search,
-																text: '',
-															},
-														});
-													}}
-												/>
-											)}
-											<InputAdornment position="end" onClick={() => searchTextHandler()}>
-												<img src="/img/icons/search_icon.png" alt={'searchIcon'} />
-											</InputAdornment>
-										</>
-									}
-								/>
-								<Select sx={{ width: '160px', ml: '20px' }} value={searchType}>
-									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										All
-									</MenuItem>
-									<MenuItem value={'USER'} onClick={() => searchTypeHandler('USER')}>
-										User
-									</MenuItem>
-									<MenuItem value={'AGENT'} onClick={() => searchTypeHandler('AGENT')}>
-										Agent
-									</MenuItem>
-									<MenuItem value={'ADMIN'} onClick={() => searchTypeHandler('ADMIN')}>
-										Admin
-									</MenuItem>
-								</Select>
-							</Stack>
-							<Divider />
-						</Box>
-						<MemberPanelList
-							members={members}
-							anchorEl={anchorEl}
-							menuIconClickHandler={menuIconClickHandler}
-							menuIconCloseHandler={menuIconCloseHandler}
-							updateMemberHandler={updateMemberHandler}
-						/>
-
-						<TablePagination
-							rowsPerPageOptions={[10, 20, 40, 60]}
-							component="div"
-							count={membersTotal}
-							rowsPerPage={membersInquiry?.limit}
-							page={membersInquiry?.page - 1}
-							onPageChange={changePageHandler}
-							onRowsPerPageChange={changeRowsPerPageHandler}
-						/>
-					</TabContext>
-				</Box>
-			</Box>
-		</Box>
-	);
-};
-
-AdminUsers.defaultProps = {
-	initialInquiry: {
+import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { Members, Member } from '../../../libs/types/member/member';
+import { MembersInquiry } from '../../../libs/types/member/member.input';
+import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
+import { Direction } from '../../../libs/enums/common.enum';
+import { userVar } from '../../../apollo/store';
+import { packageImageUrl } from '../../../libs/components/travelPackage/TravelPackageCard';
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'], {
+			...require('../../../next-i18next.config'),
+			reloadOnPrerender: process.env.NODE_ENV === 'development',
+		})),
+	},
+});
+const AdminUsers = () => {
+	const { t } = useTranslation('common');
+	const user = useReactiveVar(userVar);
+	const [inquiry, setInquiry] = useState<MembersInquiry>({
 		page: 1,
 		limit: 10,
 		sort: 'createdAt',
+		direction: Direction.DESC,
 		search: {},
-	},
+	});
+	const [text, setText] = useState('');
+	const [editing, setEditing] = useState<Member | null>(null);
+	const [busy, setBusy] = useState(false);
+	const { data, loading, error, refetch } = useQuery<{ getAllMembersByAdmin: Members }>(GET_ALL_MEMBERS_BY_ADMIN, {
+		variables: { input: inquiry },
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		context: { suppressErrorAlert: true },
+	});
+	const [update] = useMutation(UPDATE_MEMBER_BY_ADMIN, { context: { suppressErrorAlert: true } });
+	const list = data?.getAllMembersByAdmin?.list ?? [];
+	const total = data?.getAllMembersByAdmin?.metaCounter?.[0]?.total ?? 0;
+	const filter = (key: 'memberStatus' | 'memberType' | 'text', value: string) => {
+		const search = { ...inquiry.search };
+		if (!value || value === 'ALL') delete search[key];
+		else Object.assign(search, { [key]: value });
+		setInquiry({ ...inquiry, page: 1, search });
+	};
+	const save = async () => {
+		if (!editing || busy) return;
+		if (editing.memberNick.trim().length < 3 || editing.memberNick.trim().length > 12 || !editing.memberPhone.trim()) { toast.error(t('adminPage.validation')); return; }
+		setBusy(true);
+		try {
+			const result = await update({
+				variables: {
+					input: {
+						_id: editing._id,
+						memberType: editing.memberType,
+						memberStatus: editing.memberStatus,
+						memberNick: editing.memberNick.trim(),
+						memberPhone: editing.memberPhone.trim(),
+					},
+				},
+			});
+			setEditing(null);
+			toast.success(t('adminPage.saved'));
+			if (editing._id === user._id) {
+				userVar({
+					...user,
+					memberType: result.data.updateMemberByAdmin.memberType,
+					memberStatus: result.data.updateMemberByAdmin.memberStatus,
+					memberNick: result.data.updateMemberByAdmin.memberNick,
+					memberPhone: result.data.updateMemberByAdmin.memberPhone,
+				});
+				if (editing.memberType !== MemberType.ADMIN || editing.memberStatus !== MemberStatus.ACTIVE) return;
+			}
+			await refetch();
+		} catch {
+			toast.error(t('adminPage.actionError'));
+		} finally {
+			setBusy(false);
+		}
+	};
+	return (
+		<section className="admin-section">
+			<h2>{t('adminPage.members')}</h2>
+			<Stack className="admin-filters">
+				<AdminSearch
+					disabled={busy}
+					label="searchMembers"
+					value={text}
+					onChange={setText}
+					onApply={() => filter('text', text.trim())}
+					onClear={() => {
+						setText('');
+						filter('text', '');
+					}}
+				/>
+				<AdminSelect
+					disabled={busy}
+					label="status"
+					value={inquiry.search.memberStatus ?? 'ALL'}
+					options={['ALL', ...Object.values(MemberStatus)]}
+					onChange={(value) => filter('memberStatus', value)}
+				/>
+				<AdminSelect
+					disabled={busy}
+					label="type"
+					value={inquiry.search.memberType ?? 'ALL'}
+					options={['ALL', ...Object.values(MemberType)]}
+					onChange={(value) => filter('memberType', value)}
+				/>
+				<AdminSelect
+					disabled={busy}
+					label="sort"
+					value={inquiry.sort ?? 'createdAt'}
+					options={['createdAt', 'updatedAt', 'memberLikes', 'memberViews']}
+					onChange={(sort) => setInquiry({ ...inquiry, page: 1, sort })}
+				/>
+			</Stack>
+			<AdminState
+				loading={loading}
+				error={Boolean(error)}
+				empty={!list.length}
+				retry={() => void refetch().catch(() => toast.error(t('adminPage.loadError')))}
+			/>
+			{!loading && !error && list.length > 0 && (
+				<TableContainer>
+					<Table size="small">
+						<TableHead>
+							<TableRow>
+								{['member', 'phone', 'type', 'status', 'packages', 'created', 'actions'].map((key) => (
+									<TableCell key={key}>{t(`adminPage.${key}`)}</TableCell>
+								))}
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{list.map((member) => (
+								<TableRow key={member._id}>
+									<TableCell>
+										<div className="admin-identity">
+											<Avatar
+												src={member.memberImage ? packageImageUrl(member.memberImage) : undefined}
+												alt={member.memberNick}
+											/>
+											<div>
+												<strong>{member.memberFullName || member.memberNick}</strong>
+												<small>{member.memberNick}</small>
+											</div>
+										</div>
+									</TableCell>
+									<TableCell>{member.memberPhone}</TableCell>
+									<TableCell>{t(`adminPage.values.${member.memberType}`)}</TableCell>
+									<TableCell>
+										<span className={`admin-status status-${member.memberStatus}`}>
+											{t(`adminPage.values.${member.memberStatus}`)}
+										</span>
+									</TableCell>
+									<TableCell>{member.memberPackages ?? 0}</TableCell>
+									<TableCell>{new Date(member.createdAt).toISOString().slice(0, 10)}</TableCell>
+									<TableCell>
+										<Button disabled={busy} onClick={() => setEditing({ ...member })}>
+											{t('adminPage.edit')}
+										</Button>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</TableContainer>
+			)}
+			{!loading && !error && total > 0 && (
+				<AdminPagination
+					disabled={busy}
+					total={total}
+					page={inquiry.page}
+					limit={inquiry.limit}
+					onChange={(page, limit) => setInquiry({ ...inquiry, page, limit })}
+				/>
+			)}
+			<Dialog
+				className="admin-dialog"
+				open={Boolean(editing)}
+				onClose={() => !busy && setEditing(null)}
+				aria-labelledby="member-edit-title"
+			>
+				<DialogTitle id="member-edit-title">{t('adminPage.editMember')}</DialogTitle>
+				<DialogContent>
+					<Stack className="admin-edit-fields">
+						<TextField
+							label={t('authPage.username')}
+							value={editing?.memberNick ?? ''}
+							disabled={busy}
+							onChange={(event) => editing && setEditing({ ...editing, memberNick: event.target.value })}
+						/>
+						<TextField
+							label={t('adminPage.phone')}
+							value={editing?.memberPhone ?? ''}
+							disabled={busy}
+							onChange={(event) => editing && setEditing({ ...editing, memberPhone: event.target.value })}
+						/>
+						<AdminSelect
+							disabled={busy}
+							label="type"
+							value={editing?.memberType ?? 'USER'}
+							options={Object.values(MemberType)}
+							onChange={(value) => editing && setEditing({ ...editing, memberType: value as MemberType })}
+						/>
+						<AdminSelect
+							disabled={busy}
+							label="status"
+							value={editing?.memberStatus ?? 'ACTIVE'}
+							options={Object.values(MemberStatus)}
+							onChange={(value) => editing && setEditing({ ...editing, memberStatus: value as MemberStatus })}
+						/>
+					</Stack>
+				</DialogContent>
+				<DialogActions>
+					<Button disabled={busy} onClick={() => setEditing(null)}>
+						{t('adminPage.cancel')}
+					</Button>
+					<Button disabled={busy} variant="contained" onClick={() => void save()}>
+						{t('adminPage.save')}
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</section>
+	);
 };
-
 export default withAdminLayout(AdminUsers);
