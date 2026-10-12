@@ -102,10 +102,12 @@ const MyProfile = () => {
 					: { memberFullName: undefined }),
 			};
 			const result = await updateMember({ variables: { input } });
-			const token = result.data?.updateMember?.accessToken;
+			const updated = result.data?.updateMember as Member & { accessToken?: string };
+			const token = updated?.accessToken;
 			if (!token) throw new Error();
 			updateStorage({ jwtToken: token });
 			updateUserInfo(token);
+			userVar({ ...userVar(), memberImage: updated.memberImage ?? '' });
 			await refetch();
 			toast.success(t('myPage.saved'));
 		} catch {
@@ -159,6 +161,7 @@ const MyProfile = () => {
 				))}
 			</div>
 			<TextField
+				className="profile-about-field"
 				label={t('myPage.memberDesc')}
 				multiline
 				minRows={3}
@@ -167,8 +170,14 @@ const MyProfile = () => {
 				onChange={(event) => setDraft({ ...draft, memberDesc: event.target.value })}
 			/>
 			<p>
-				{t(member.memberType === 'AGENT' ? 'agents.travelAgent' : member.memberType === 'ADMIN' ? 'agents.admin' : 'agents.member')} ·{' '}
-				{t(`myPage.memberStatuses.${member.memberStatus}`)}
+				{t(
+					member.memberType === 'AGENT'
+						? 'agents.travelAgent'
+						: member.memberType === 'ADMIN'
+						? 'agents.admin'
+						: 'agents.member',
+				)}{' '}
+				· {t(`myPage.memberStatuses.${member.memberStatus}`)}
 			</p>
 			<Stack className="form-actions">
 				<Button type="submit" variant="contained" disabled={busy}>

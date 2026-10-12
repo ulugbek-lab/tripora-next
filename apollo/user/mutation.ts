@@ -119,121 +119,12 @@ export const LIKE_TARGET_MEMBER = gql`
 `;
 
 /**************************
- *        PROPERTY        *
- *************************/
-
-export const CREATE_PROPERTY = gql`
-	mutation CreateProperty($input: PropertyInput!) {
-		createProperty(input: $input) {
-			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
-export const UPDATE_PROPERTY = gql`
-	mutation UpdateProperty($input: PropertyUpdate!) {
-		updateProperty(input: $input) {
-			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
-export const LIKE_TARGET_PROPERTY = gql`
-	mutation LikeTargetProperty($input: String!) {
-		likeTargetProperty(propertyId: $input) {
-			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
-/**************************
  *      BOARD-ARTICLE     *
  *************************/
 
 export const CREATE_BOARD_ARTICLE = gql`
 	mutation CreateBoardArticle($input: BoardArticleInput!) {
 		createBoardArticle(input: $input) {
-			_id
-			articleCategory
-			articleStatus
-			articleTitle
-			articleContent
-			articleImage
-			articleViews
-			articleLikes
-			memberId
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
-export const UPDATE_BOARD_ARTICLE = gql`
-	mutation UpdateBoardArticle($input: BoardArticleUpdate!) {
-		updateBoardArticle(input: $input) {
 			_id
 			articleCategory
 			articleStatus
@@ -389,3 +280,18 @@ export const UPLOAD_TRAVEL_PACKAGE_IMAGES = gql`
 		uploadTravelPackageImages(files: $files)
 	}
 `;
+
+export const GENERATE_TRAVEL_ITINERARY = gql`
+ mutation GenerateTravelItinerary($input: TravelAiInput!) {
+  generateTravelItinerary(input: $input) {
+   title warning
+   days {
+    day activities { title description }
+    mealSuggestions accommodationSuggestions
+    estimatedBudget { amount currency label }
+   }
+   estimatedTotalBudget { amount currency label }
+  }
+ }
+`;
+

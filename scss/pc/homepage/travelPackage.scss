@@ -80,6 +80,13 @@
 			color: #d9511e;
 		}
 	}
+	.home-brand-group { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+	.home-ai-entry.MuiButton-root { border: 1px solid #e8cdbb; border-radius: 999px; background: #fff4eb; color: #984019; padding: 7px 12px; font-size: 12px; font-weight: 700; white-space: nowrap; text-transform: none; min-width: 0; }
+	.home-ai-entry.MuiButton-root:hover { background: #ffe8d8; border-color: #d9511e; }
+	.home-ai-entry.MuiButton-root:focus-visible { outline: 2px solid #984019; outline-offset: 3px; }
+	.home-ai-entry .MuiSvgIcon-root { font-size: 17px; }
+	@media (max-width: 600px) { .home-brand-group { gap: 8px; } .home-ai-entry.MuiButton-root { padding: 6px 9px; font-size: 11px; } }
+
 	.home-nav-links {
 		flex-direction: row;
 		gap: 30px;
@@ -818,7 +825,7 @@
 		position: relative;
 		isolation: isolate;
 		padding-bottom: 58px;
-		background: #183a31 url('/img/travel/coastal-exploration-poster.jpg') center 48% / cover no-repeat;
+		background: #183a31 url('/img/travel/tropical-beach-poster.jpg') center 48% / cover no-repeat;
 		&::after {
 			content: '';
 			position: absolute;
@@ -852,22 +859,6 @@
 		opacity: 0;
 		&.ready {
 			opacity: 1;
-		}
-	}
-	.home-hero-motion-control.MuiButton-root {
-		position: absolute;
-		bottom: 7px;
-		right: max(24px, calc((100vw - 1192px) / 2));
-		font-size: 11px;
-		min-height: 44px;
-		color: #fff;
-		background: rgba(8, 27, 24, 0.6);
-		padding: 4px 10px;
-		svg {
-			font-size: 16px;
-		}
-		&:hover {
-			background: #182e27;
 		}
 	}
 	.home-footer-inner {
@@ -942,13 +933,6 @@
 	@media (max-width: 700px) {
 		.tripora-home-header.home-hero-media {
 			padding-bottom: 56px;
-		}
-		.home-hero-motion-control.MuiButton-root {
-			left: 16px;
-			right: auto;
-			bottom: 4px;
-			font-size: 10px;
-			min-height: 44px;
 		}
 		.home-footer-columns {
 			grid-template-columns: repeat(2, minmax(0, 1fr));

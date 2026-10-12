@@ -88,49 +88,6 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
  *         COMMENT        *
  *************************/
 
-export const GET_COMMENTS = gql`
-	query GetComments($input: CommentsInquiry!) {
-		getComments(input: $input) {
-			list {
-				_id
-				commentStatus
-				commentGroup
-				commentContent
-				commentRefId
-				memberId
-				createdAt
-				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberWarnings
-					memberBlocks
-					memberPackages
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
-				}
-			}
-			metaCounter {
-				total
-			}
-		}
-	}
-`;
-
 /**************************
  *     TRAVEL-PACKAGE     *
  *************************/

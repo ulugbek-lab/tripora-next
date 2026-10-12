@@ -1,41 +1,43 @@
-import { useTranslation } from 'next-i18next';
-import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
-import React, { useEffect, useState } from 'react';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Button, Stack, Typography, Tab, Tabs, IconButton, Backdrop, Pagination } from '@mui/material';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import Moment from 'react-moment';
-import { userVar } from '../../apollo/store';
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ChatIcon from '@mui/icons-material/Chat';
-import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
-import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
-import { Comment } from '../../libs/types/comment/comment';
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
-import { T } from '../../libs/types/common';
-import EditIcon from '@mui/icons-material/Edit';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { BoardArticle } from '../../libs/types/board-article/board-article';
-import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
-import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
-	sweetConfirmAlert,
-	sweetMixinErrorAlert,
-	sweetMixinSuccessAlert,
-	sweetTopSmallSuccessAlert,
-} from '../../libs/sweetAlert';
-import { Messages } from '../../libs/config';
-import { CommentUpdate } from '../../libs/types/comment/comment.update';
+	Alert,
+	Avatar,
+	Button,
+	CircularProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	IconButton,
+	Pagination,
+	TextField,
+} from '@mui/material';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import toast from 'react-hot-toast';
+import { userVar } from '../../apollo/store';
+import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
+import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
+import { BoardArticle } from '../../libs/types/board-article/board-article';
+import { Comment, Comments } from '../../libs/types/comment/comment';
+import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
+import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
+import { Direction } from '../../libs/enums/common.enum';
+import { packageImageUrl } from '../../libs/components/travelPackage/TravelPackageCard';
+import withLayoutCommunityDetail from '../../libs/components/layout/LayoutCommunityDetail';
 
-const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
-export const getStaticProps = async ({ locale }: any) => ({
+const ArticleViewer = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'], {
 			...require('../../next-i18next.config'),
@@ -43,487 +45,364 @@ export const getStaticProps = async ({ locale }: any) => ({
 		})),
 	},
 });
-
-const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
-	const { t } = useTranslation('common');
-	const device = useDeviceDetect();
+const CommunityDetail = () => {
+	const { t, i18n } = useTranslation('common');
 	const router = useRouter();
-	const { query } = router;
-
-	const articleId = query?.id as string;
-	const articleCategory = Object.values(BoardArticleCategory).includes(query.articleCategory as BoardArticleCategory)
-		? (query.articleCategory as BoardArticleCategory)
-		: BoardArticleCategory.TRAVEL_STORY;
-
-	const [comment, setComment] = useState<string>('');
-	const [wordsCnt, setWordsCnt] = useState<number>(0);
-	const [updatedCommentWordsCnt, setUpdatedCommentWordsCnt] = useState<number>(0);
 	const user = useReactiveVar(userVar);
-	const [comments, setComments] = useState<Comment[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const [searchFilter, setSearchFilter] = useState<CommentsInquiry>({
-		...initialInput,
-	});
-	const [memberImage, setMemberImage] = useState<string>('/img/community/articleImg.png');
-	const [anchorEl, setAnchorEl] = useState<any | null>(null);
-	const open = Boolean(anchorEl);
-	const id = open ? 'simple-popover' : undefined;
-	const [openBackdrop, setOpenBackdrop] = useState<boolean>(false);
-	const [updatedComment, setUpdatedComment] = useState<string>('');
-	const [updatedCommentId, setUpdatedCommentId] = useState<string>('');
-	const [likeLoading, setLikeLoading] = useState<boolean>(false);
-	const [boardArticle, setBoardArticle] = useState<BoardArticle>();
-
-	/** APOLLO REQUESTS **/
-
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
-	const [createComment] = useMutation(CREATE_COMMENT);
-	const [updateComment] = useMutation(UPDATE_COMMENT);
-
-	const {
-		loading: boardArticleLoading,
-		data: boardArticleData,
-		error: getBoardArticleError,
-		refetch: boardArticleRefetch,
-	} = useQuery(GET_BOARD_ARTICLE, {
-		fetchPolicy: 'network-only',
-		variables: {
-			input: articleId,
-		},
-		notifyOnNetworkStatusChange: true,
-		onCompleted(data: any) {
-			setBoardArticle(data?.getBoardArticle);
-			if (data?.getBoardArticle?.memberData?.memberImage) {
-				setMemberImage(`${process.env.REACT_APP_API_URL}/${data?.getBoardArticle?.memberData?.memberImage}`);
-			}
-		},
-	});
-
-	const {
-		loading: getCommentsLoading,
-		data: getCommentsData,
-		error: getCommentsError,
-		refetch: getCommentsRefetch,
-	} = useQuery(GET_COMMENTS, {
-		fetchPolicy: 'cache-and-network',
-		variables: { input: searchFilter },
-		notifyOnNetworkStatusChange: true,
-		onCompleted(data: T) {
-			if (data?.getComments?.list) setTotal(data?.getComments?.metaCounter[0]?.total || 0);
-		},
-	});
-
-	/** LIFECYCLES **/
+	const articleId =
+		typeof router.query.id === 'string' && /^[a-f\d]{24}$/i.test(router.query.id) ? router.query.id : '';
+	const [pageState, setPageState] = useState({ id: '', page: 1 });
+	const page = pageState.id === articleId ? pageState.page : 1;
+	const [comment, setComment] = useState('');
+	const [busy, setBusy] = useState(false);
+	const [liking, setLiking] = useState(false);
+	const [editing, setEditing] = useState<Comment | null>(null);
+	const [editText, setEditText] = useState('');
+	const [deleting, setDeleting] = useState<Comment | null>(null);
+	const currentId = useRef(articleId);
+	currentId.current = articleId;
 	useEffect(() => {
-		if (articleId) setSearchFilter({ ...searchFilter, search: { commentRefId: articleId } });
+		setComment('');
+		setEditing(null);
+		setDeleting(null);
 	}, [articleId]);
-
-	/** HANDLERS **/
-	const tabChangeHandler = (event: React.SyntheticEvent, value: string) => {
-		router.replace(
-			{
-				pathname: '/community',
-				query: { articleCategory: value },
-			},
-			'/community',
-			{ shallow: true },
-		);
+	const inquiry = { page, limit: 5, sort: 'createdAt', direction: Direction.DESC, search: { commentRefId: articleId } };
+	const { data, loading, error, refetch } = useQuery<{ getBoardArticle: BoardArticle }>(GET_BOARD_ARTICLE, {
+		variables: { input: articleId },
+		skip: !router.isReady || !articleId,
+		fetchPolicy: 'network-only',
+		context: { suppressErrorAlert: true },
+	});
+	const article = data?.getBoardArticle?._id === articleId ? data.getBoardArticle : undefined;
+	const {
+		data: commentData,
+		loading: commentsLoading,
+		error: commentsError,
+		refetch: refetchComments,
+	} = useQuery<{ getComments: Comments }>(GET_COMMENTS, {
+		variables: { input: inquiry },
+		skip: !article,
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		context: { suppressErrorAlert: true },
+	});
+	const comments = commentData?.getComments.list ?? [];
+	const total = commentData?.getComments.metaCounter?.[0]?.total ?? 0;
+	const [likeArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE, { context: { suppressErrorAlert: true } });
+	const [createComment] = useMutation(CREATE_COMMENT, { context: { suppressErrorAlert: true } });
+	const [updateComment] = useMutation(UPDATE_COMMENT, { context: { suppressErrorAlert: true } });
+	const liked = Boolean(article?.meLiked?.[0]?.myFavorite);
+	const category =
+		article?.articleCategory ??
+		(Object.values(BoardArticleCategory).includes(router.query.articleCategory as BoardArticleCategory)
+			? (router.query.articleCategory as BoardArticleCategory)
+			: BoardArticleCategory.TRAVEL_STORY);
+	const back = { pathname: '/community', query: { articleCategory: category } };
+	const date = (value: Date) =>
+		new Intl.DateTimeFormat(
+			({ en: 'en-US', kr: 'ko-KR', ru: 'ru-RU', ja: 'ja-JP', zh: 'zh-CN' } as Record<string, string>)[i18n.language] ??
+				'en-US',
+			{ dateStyle: 'medium' },
+		).format(new Date(value));
+	const image = (path?: string) => (path ? (path.startsWith('/img/') ? path : packageImageUrl(path)) : undefined);
+	const refreshComments = async () => {
+		const result = await refetchComments();
+		const count = result.data.getComments.metaCounter?.[0]?.total ?? 0;
+		if (page > Math.max(1, Math.ceil(count / 5)))
+			setPageState({ id: articleId, page: Math.max(1, Math.ceil(count / 5)) });
 	};
-
-	const likeBoardArtcileHandler = async (user: any, id: any) => {
+	const like = async () => {
+		if (!user._id) {
+			toast.error(t('communityDetail.signIn'));
+			return;
+		}
+		if (liking || !article) return;
+		setLiking(true);
 		try {
-			if (likeLoading) return;
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
-
-			setLikeLoading(true);
-			await likeTargetBoardArticle({
+			await likeArticle({ variables: { input: articleId } });
+			if (currentId.current === articleId) await refetch();
+		} catch {
+			toast.error(t('communityDetail.actionError'));
+		} finally {
+			setLiking(false);
+		}
+	};
+	const submit = async (event: React.FormEvent) => {
+		event.preventDefault();
+		if (!user._id) {
+			toast.error(t('communityDetail.signIn'));
+			return;
+		}
+		if (busy || !article || !comment.trim() || comment.trim().length > 100) return;
+		setBusy(true);
+		try {
+			await createComment({
 				variables: {
-					input: id,
+					input: { commentGroup: CommentGroup.ARTICLE, commentRefId: articleId, commentContent: comment.trim() },
 				},
 			});
-			await boardArticleRefetch({ input: articleId });
-			await sweetTopSmallSuccessAlert('Success!', 800);
-		} catch (err: any) {
-			console.log('ERROR, likeBoardArtcileHandler', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		} finally {
-			setLikeLoading(false);
-		}
-	};
-
-	const createCommentHandler = async () => {
-		if (!comment) return;
-		try {
-			if (!user._id) throw new Error(Messages.error2);
-			const commentInput: CommentInput = {
-				commentGroup: CommentGroup.ARTICLE,
-				commentRefId: articleId,
-				commentContent: comment,
-			};
-
-			await createComment({ variables: { input: commentInput } });
-			await getCommentsRefetch({ input: searchFilter });
-			await boardArticleRefetch({ input: articleId });
-			setComment('');
-			await sweetMixinSuccessAlert('Successfully commented!');
-		} catch (error: any) {
-			await sweetMixinErrorAlert(error.message);
-		}
-	};
-
-	const updateButtonHandler = async (commentId: string, commentStatus?: CommentStatus.DELETE) => {
-		try {
-			if (!user._id) throw new Error(Messages.error2);
-			if (!commentId) throw new Error('Select a comment to update!');
-			if (updatedComment === comments?.find((comment) => comment?._id === commentId)?.commentContent) return;
-
-			const updateData = {
-				_id: commentId,
-				...(commentStatus && { commentStatus: commentStatus }),
-				...(updateComment && { commentContent: updateComment }),
-			};
-			if (!updateData.commentContent && !updateData?.commentStatus)
-				throw new Error('Provide data to update your comment!');
-
-			if (commentStatus) {
-				if (await sweetConfirmAlert('Do u want to delete the comment?')) {
-					await updateComment({
-						variables: {
-							input: updateData,
-						},
-					});
-					await sweetMixinSuccessAlert('Successfully deleted!');
-				} else return;
-			} else {
-				await updateComment({
-					variables: {
-						input: updateData,
-					},
-				});
-				await sweetMixinSuccessAlert('Successfully updated');
+			if (currentId.current === articleId) {
+				setComment('');
+				setPageState({ id: articleId, page: 1 });
+				await refetchComments({ input: { ...inquiry, page: 1 } });
 			}
-			await getCommentsRefetch({ input: searchFilter });
-		} catch (error: any) {
-			await sweetMixinErrorAlert(error.message);
+			toast.success(t('communityDetail.posted'));
+		} catch {
+			toast.error(t('communityDetail.actionError'));
 		} finally {
-			setOpenBackdrop(false);
-			setUpdatedComment('');
-			setUpdatedCommentWordsCnt(0);
-			setUpdatedCommentId('');
+			setBusy(false);
 		}
 	};
-
-	const getCommentMemberImage = (imageUrl: string | undefined) => {
-		if (imageUrl) return `${process.env.REACT_APP_API_URL}/${imageUrl}`;
-		else return '/img/community/articleImg.png';
+	const changeComment = async (remove: boolean) => {
+		const target = remove ? deleting : editing;
+		if (
+			busy ||
+			!target ||
+			target.memberId !== user._id ||
+			(!remove && (!editText.trim() || editText.trim().length > 100))
+		)
+			return;
+		setBusy(true);
+		try {
+			await updateComment({
+				variables: {
+					input: {
+						_id: target._id,
+						...(remove ? { commentStatus: CommentStatus.DELETE } : { commentContent: editText.trim() }),
+					},
+				},
+			});
+			if (currentId.current === articleId) await refreshComments();
+			setEditing(null);
+			setDeleting(null);
+			toast.success(t(remove ? 'communityDetail.deleted' : 'communityDetail.updated'));
+		} catch {
+			toast.error(t('communityDetail.actionError'));
+		} finally {
+			setBusy(false);
+		}
 	};
-
-	const goMemberPage = (id: any) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
-	};
-
-	const cancelButtonHandler = () => {
-		setOpenBackdrop(false);
-		setUpdatedComment('');
-		setUpdatedCommentWordsCnt(0);
-	};
-
-	const updateCommentInputHandler = (value: string) => {
-		if (value.length > 100) return;
-		setUpdatedCommentWordsCnt(value.length);
-		setUpdatedComment(value);
-	};
-
-	const paginationHandler = (e: T, value: number) => {
-		setSearchFilter({ ...searchFilter, page: value });
-	};
-
-	if (device === 'mobile') {
-		return <div>COMMUNITY DETAIL PAGE MOBILE</div>;
-	} else {
-		return (
-			<div id="community-detail-page">
-				<div className="container">
-					<Stack className="main-box">
-						<Stack className="left-config">
-							<Stack className={'image-info'}>
-								<img src={'/img/logo/logoText.svg'} />
-								<Stack className={'community-name'}>
-									<Typography className={'name'}>Community Board Article</Typography>
-								</Stack>
-							</Stack>
-							<Tabs
-								orientation="vertical"
-								aria-label={t('communityPage.categoriesLabel')}
-								TabIndicatorProps={{
-									style: { display: 'none' },
-								}}
-								onChange={tabChangeHandler}
-								value={articleCategory}
-							>
-								{Object.values(BoardArticleCategory).map((category) => (
-									<Tab
-										key={category}
-										value={category}
-										label={t(`communityPage.categories.${category}`)}
-										className={`tab-button ${articleCategory === category ? 'active' : ''}`}
-									/>
-								))}
-							</Tabs>
-						</Stack>
-						<div className="community-detail-config">
-							<Stack className="title-box">
-								<Stack className="left">
-									<Typography className="title">{t(`communityPage.categories.${articleCategory}`)}</Typography>
-									<Typography className="sub-title">
-										Express your opinions freely here without content restrictions
-									</Typography>
-								</Stack>
-								<Button
-									onClick={() =>
-										router.push({
-											pathname: '/mypage',
-											query: {
-												category: 'writeArticle',
-											},
-										})
-									}
-									className="right"
-								>
-									Write
-								</Button>
-							</Stack>
-							<div className="config">
-								<Stack className="first-box-config">
-									<Stack className="content-and-info">
-										<Stack className="content">
-											<Typography className="content-data">{boardArticle?.articleTitle}</Typography>
-											<Stack className="member-info">
-												<img
-													src={memberImage}
-													alt=""
-													className="member-img"
-													onClick={() => goMemberPage(boardArticle?.memberData?._id)}
-												/>
-												<Typography className="member-nick" onClick={() => goMemberPage(boardArticle?.memberData?._id)}>
-													{boardArticle?.memberData?.memberNick}
-												</Typography>
-												<Stack className="divider"></Stack>
-												<Moment className={'time-added'} format={'DD.MM.YY HH:mm'}>
-													{boardArticle?.createdAt}
-												</Moment>
-											</Stack>
-										</Stack>
-										<Stack className="info">
-											<Stack className="icon-info">
-												{boardArticle?.meLiked ? (
-													<ThumbUpAltIcon onClick={() => likeBoardArtcileHandler(user, boardArticle?._id)} />
-												) : (
-													<ThumbUpOffAltIcon onClick={() => likeBoardArtcileHandler(user, boardArticle?._id)} />
-												)}
-
-												<Typography className="text">{boardArticle?.articleLikes}</Typography>
-											</Stack>
-											<Stack className="divider"></Stack>
-											<Stack className="icon-info">
-												<VisibilityIcon />
-												<Typography className="text">{boardArticle?.articleViews}</Typography>
-											</Stack>
-											<Stack className="divider"></Stack>
-											<Stack className="icon-info">
-												{total > 0 ? <ChatIcon /> : <ChatBubbleOutlineRoundedIcon />}
-
-												<Typography className="text">{total}</Typography>
-											</Stack>
-										</Stack>
-									</Stack>
-									<Stack>
-										<ToastViewerComponent markdown={boardArticle?.articleContent} className={'ytb_play'} />
-									</Stack>
-									<Stack className="like-and-dislike">
-										<Stack className="top">
-											<Button>
-												{boardArticle?.meLiked ? (
-													<ThumbUpAltIcon onClick={() => likeBoardArtcileHandler(user, boardArticle?._id)} />
-												) : (
-													<ThumbUpOffAltIcon onClick={() => likeBoardArtcileHandler(user, boardArticle?._id)} />
-												)}
-												<Typography className="text">{boardArticle?.articleLikes}</Typography>
-											</Button>
-										</Stack>
-									</Stack>
-								</Stack>
-								<Stack
-									className="second-box-config"
-									sx={{ borderBottom: total > 0 ? 'none' : '1px solid #eee', border: '1px solid #eee' }}
-								>
-									<Typography className="title-text">Comments ({total})</Typography>
-									<Stack className="leave-comment">
-										<input
-											type="text"
-											placeholder="Leave a comment"
-											value={comment}
-											onChange={(e) => {
-												if (e.target.value.length > 100) return;
-												setWordsCnt(e.target.value.length);
-												setComment(e.target.value);
-											}}
-										/>
-										<Stack className="button-box">
-											<Typography>{wordsCnt}/100</Typography>
-											<Button onClick={createCommentHandler}>comment</Button>
-										</Stack>
-									</Stack>
-								</Stack>
-								{total > 0 && (
-									<Stack className="comments">
-										<Typography className="comments-title">Comments</Typography>
-									</Stack>
-								)}
-								{comments?.map((commentData, index) => {
-									return (
-										<Stack className="comments-box" key={commentData?._id}>
-											<Stack className="main-comment">
-												<Stack className="member-info">
-													<Stack
-														className="name-date"
-														onClick={() => goMemberPage(commentData?.memberData?._id as string)}
-													>
-														<img src={getCommentMemberImage(commentData?.memberData?.memberImage)} alt="" />
-														<Stack className="name-date-column">
-															<Typography className="name">{commentData?.memberData?.memberNick}</Typography>
-															<Typography className="date">
-																<Moment className={'time-added'} format={'DD.MM.YY HH:mm'}>
-																	{commentData?.createdAt}
-																</Moment>
-															</Typography>
-														</Stack>
-													</Stack>
-													{commentData?.memberId === user?._id && (
-														<Stack className="buttons">
-															<IconButton
-																onClick={() => {
-																	setUpdatedCommentId(commentData?._id);
-																	updateButtonHandler(commentData?._id, CommentStatus.DELETE);
-																}}
-															>
-																<DeleteForeverIcon sx={{ color: '#757575', cursor: 'pointer' }} />
-															</IconButton>
-															<IconButton
-																onClick={(e: any) => {
-																	setUpdatedComment(commentData?.commentContent);
-																	setUpdatedCommentWordsCnt(commentData?.commentContent?.length);
-																	setUpdatedCommentId(commentData?._id);
-																	setOpenBackdrop(true);
-																}}
-															>
-																<EditIcon sx={{ color: '#757575' }} />
-															</IconButton>
-															<Backdrop
-																sx={{
-																	top: '40%',
-																	right: '25%',
-																	left: '25%',
-																	width: '1000px',
-																	height: 'fit-content',
-																	borderRadius: '10px',
-																	color: '#ffffff',
-																	zIndex: 999,
-																}}
-																open={openBackdrop}
-															>
-																<Stack
-																	sx={{
-																		width: '100%',
-																		height: '100%',
-																		background: 'white',
-																		border: '1px solid #b9b9b9',
-																		padding: '15px',
-																		gap: '10px',
-																		borderRadius: '10px',
-																		boxShadow: 'rgba(99, 99, 99, 0.2) 0px 2px 8px 0px',
-																	}}
-																>
-																	<Typography variant="h4" color={'#b9b9b9'}>
-																		Update comment
-																	</Typography>
-																	<Stack gap={'20px'}>
-																		<input
-																			autoFocus
-																			value={updatedComment}
-																			onChange={(e) => updateCommentInputHandler(e.target.value)}
-																			type="text"
-																			style={{
-																				border: '1px solid #b9b9b9',
-																				outline: 'none',
-																				height: '40px',
-																				padding: '0px 10px',
-																				borderRadius: '5px',
-																			}}
-																		/>
-																		<Stack width={'100%'} flexDirection={'row'} justifyContent={'space-between'}>
-																			<Typography variant="subtitle1" color={'#b9b9b9'}>
-																				{updatedCommentWordsCnt}/100
-																			</Typography>
-																			<Stack sx={{ flexDirection: 'row', alignSelf: 'flex-end', gap: '10px' }}>
-																				<Button
-																					variant="outlined"
-																					color="inherit"
-																					onClick={() => cancelButtonHandler()}
-																				>
-																					Cancel
-																				</Button>
-																				<Button
-																					variant="contained"
-																					color="inherit"
-																					onClick={() => updateButtonHandler(updatedCommentId, undefined)}
-																				>
-																					Update
-																				</Button>
-																			</Stack>
-																		</Stack>
-																	</Stack>
-																</Stack>
-															</Backdrop>
-														</Stack>
-													)}
-												</Stack>
-												<Stack className="content">
-													<Typography>{commentData?.commentContent}</Typography>
-												</Stack>
-											</Stack>
-										</Stack>
-									);
-								})}
-								{total > 0 && (
-									<Stack className="pagination-box">
-										<Pagination
-											count={Math.ceil(total / searchFilter.limit) || 1}
-											page={searchFilter.page}
-											shape="circular"
-											color="primary"
-											onChange={paginationHandler}
-										/>
-									</Stack>
-								)}
-							</div>
-						</div>
-					</Stack>
+	const notFound = !articleId || error?.graphQLErrors.some((item) => item.message === 'No data found!');
+	return (
+		<main id="community-detail-page" className="article-detail">
+			<Link href={back} className="article-back">
+				<ArrowBackIcon fontSize="small" />
+				{t('communityDetail.back')}
+			</Link>
+			{!router.isReady || loading ? (
+				<div className="article-state" role="status">
+					<CircularProgress size={28} />
+					<p>{t('communityDetail.loading')}</p>
 				</div>
-			</div>
-		);
-	}
+			) : error || !article ? (
+				<Alert
+					severity={notFound ? 'info' : 'error'}
+					action={
+						!notFound ? (
+							<Button onClick={() => void refetch().catch(() => toast.error(t('communityDetail.loadError')))}>
+								{t('communityDetail.retry')}
+							</Button>
+						) : undefined
+					}
+				>
+					{t(notFound ? 'communityDetail.notFound' : 'communityDetail.loadError')}
+				</Alert>
+			) : (
+				<>
+					<Head>
+						<title>{article.articleTitle} | Tripora</title>
+					</Head>
+					<article className="article-surface">
+						<header>
+							<span className="article-category">{t(`communityPage.categories.${article.articleCategory}`)}</span>
+							<h1>{article.articleTitle}</h1>
+							<div className="article-meta">
+								<Link href={{ pathname: '/member', query: { memberId: article.memberId } }} className="article-author">
+									<Avatar src={image(article.memberData?.memberImage)}>
+										{article.memberData?.memberNick?.charAt(0)}
+									</Avatar>
+									<span>{article.memberData?.memberNick ?? t('communityDetail.member')}</span>
+								</Link>
+								<time dateTime={new Date(article.createdAt).toISOString()}>{date(article.createdAt)}</time>
+							</div>
+							<div className="article-counters">
+								<span>{t('communityDetail.views', { count: article.articleViews })}</span>
+								<span>{t('communityDetail.comments', { count: total })}</span>
+								<Button
+									type="button"
+									onClick={() => void like()}
+									disabled={liking}
+									aria-pressed={liked}
+									startIcon={liked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
+								>
+									{t('communityDetail.likes', { count: article.articleLikes })}
+								</Button>
+							</div>
+						</header>
+						{article.articleImage && (
+							<img
+								className="article-cover"
+								src={image(article.articleImage)}
+								alt={article.articleTitle}
+								onError={(event) => {
+									event.currentTarget.hidden = true;
+								}}
+							/>
+						)}
+						<div className="article-content">
+							<ArticleViewer markdown={article.articleContent} />
+						</div>
+					</article>
+					<section className="article-comments" aria-labelledby="article-comments-heading">
+						<h2 id="article-comments-heading">{t('communityDetail.comments', { count: total })}</h2>
+						<form onSubmit={submit} className="article-comment-form">
+							<TextField
+								fullWidth
+								multiline
+								minRows={3}
+								placeholder={t('communityDetail.leaveComment')}
+								inputProps={{ maxLength: 100, 'aria-label': t('communityDetail.leaveComment') }}
+								value={comment}
+								disabled={busy}
+								onChange={(event) => setComment(event.target.value)}
+							/>
+							<div className="comment-form-actions">
+								<small>{comment.length}/100</small>
+								<Button type="submit" variant="contained" disabled={busy || !comment.trim()}>
+									{t(busy ? 'communityDetail.working' : 'communityDetail.submit')}
+								</Button>
+							</div>
+						</form>
+						{commentsLoading ? (
+							<div className="article-state" role="status">
+								<CircularProgress size={24} />
+								<p>{t('communityDetail.loadingComments')}</p>
+							</div>
+						) : commentsError ? (
+							<Alert
+								severity="error"
+								action={
+									<Button
+										onClick={() => void refetchComments().catch(() => toast.error(t('communityDetail.commentsError')))}
+									>
+										{t('communityDetail.retry')}
+									</Button>
+								}
+							>
+								{t('communityDetail.commentsError')}
+							</Alert>
+						) : !comments.length ? (
+							<p className="comment-empty">{t('communityDetail.noComments')}</p>
+						) : (
+							comments.map((item) => (
+								<article className="article-comment" key={item._id}>
+									<div className="comment-heading">
+										<Link className="article-author" href={{ pathname: '/member', query: { memberId: item.memberId } }}>
+											<Avatar src={image(item.memberData?.memberImage)}>
+												{item.memberData?.memberNick?.charAt(0)}
+											</Avatar>
+											<span>{item.memberData?.memberNick ?? t('communityDetail.member')}</span>
+										</Link>
+										<time dateTime={new Date(item.createdAt).toISOString()}>{date(item.createdAt)}</time>
+										{item.memberId === user._id && (
+											<div className="comment-actions">
+												<IconButton
+													aria-label={t('communityDetail.edit')}
+													disabled={busy}
+													onClick={() => {
+														setEditing(item);
+														setEditText(item.commentContent);
+													}}
+												>
+													<EditOutlinedIcon fontSize="small" />
+												</IconButton>
+												<IconButton
+													aria-label={t('communityDetail.delete')}
+													disabled={busy}
+													onClick={() => setDeleting(item)}
+												>
+													<DeleteOutlineIcon fontSize="small" />
+												</IconButton>
+											</div>
+										)}
+									</div>
+									<p>{item.commentContent}</p>
+								</article>
+							))
+						)}
+						{!commentsLoading && !commentsError && total > 5 && (
+							<Pagination
+								shape="rounded"
+								count={Math.ceil(total / 5)}
+								page={page}
+								onChange={(_, next) => setPageState({ id: articleId, page: next })}
+								getItemAriaLabel={(type, number, selected) =>
+									type === 'page'
+										? t(selected ? 'marketplace.pagination.current' : 'marketplace.pagination.page', { page: number })
+										: t(`marketplace.pagination.${type}`)
+								}
+							/>
+						)}
+					</section>
+				</>
+			)}
+			<Dialog
+				open={Boolean(editing)}
+				onClose={() => {
+					if (!busy) setEditing(null);
+				}}
+				fullWidth
+				maxWidth="sm"
+				PaperProps={{ className: 'article-comment-dialog' }}
+			>
+				<DialogTitle>{t('communityDetail.edit')}</DialogTitle>
+				<DialogContent>
+					<TextField
+						autoFocus
+						fullWidth
+						multiline
+						minRows={3}
+						value={editText}
+						disabled={busy}
+						inputProps={{ maxLength: 100, 'aria-label': t('communityDetail.leaveComment') }}
+						onChange={(event) => setEditText(event.target.value)}
+					/>
+					<small>{editText.length}/100</small>
+				</DialogContent>
+				<DialogActions>
+					<Button disabled={busy} onClick={() => setEditing(null)}>
+						{t('communityDetail.cancel')}
+					</Button>
+					<Button
+						variant="contained"
+						disabled={busy || !editText.trim() || editText.trim() === editing?.commentContent}
+						onClick={() => void changeComment(false)}
+					>
+						{t('communityDetail.save')}
+					</Button>
+				</DialogActions>
+			</Dialog>
+			<Dialog
+				open={Boolean(deleting)}
+				onClose={() => {
+					if (!busy) setDeleting(null);
+				}}
+				fullWidth
+				maxWidth="xs"
+				PaperProps={{ className: 'article-comment-dialog' }}
+			>
+				<DialogTitle>{t('communityDetail.delete')}</DialogTitle>
+				<DialogContent>{t('communityDetail.deleteConfirm')}</DialogContent>
+				<DialogActions>
+					<Button disabled={busy} onClick={() => setDeleting(null)}>
+						{t('communityDetail.cancel')}
+					</Button>
+					<Button variant="contained" disabled={busy} onClick={() => void changeComment(true)}>
+						{t('communityDetail.delete')}
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</main>
+	);
 };
-CommunityDetail.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 5,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: { commentRefId: '' },
-	},
-};
-
-export default withLayoutBasic(CommunityDetail);
+export default withLayoutCommunityDetail(CommunityDetail);

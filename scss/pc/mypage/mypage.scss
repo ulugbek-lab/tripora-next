@@ -747,3 +747,10 @@
 		}
 	}
 }
+
+#pc-wrap.tripora-mypage-shell .mypage-profile-form .profile-about-field {
+ .MuiOutlinedInput-root { height: auto; padding: 16px 14px; align-items: flex-start; }
+ .MuiOutlinedInput-notchedOutline { top: -5px; padding: 0 8px; }
+ textarea.MuiInputBase-input { padding: 0; margin: 0; line-height: 1.5; outline: none; }
+ .MuiInputLabel-root { line-height: 1.5; }
+}

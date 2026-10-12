@@ -45,6 +45,7 @@ const HomeFooter = () => {
 					<Stack component="nav" aria-label={t('home.footer.explore')}>
 						<Typography component="h3">{t('home.footer.explore')}</Typography>
 						<Link href="/travel-package">{t('home.footer.packages')}</Link>
+						<Link href="/trip-planner">{t('tripPlanner.nav')}</Link>
 						<a href="#home-destinations-title">{t('home.footer.destinations')}</a>
 						<Link href="/community?articleCategory=TRAVEL_STORY">{t('home.footer.community')}</Link>
 					</Stack>

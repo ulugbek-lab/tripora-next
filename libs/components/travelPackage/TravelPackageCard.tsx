@@ -20,7 +20,7 @@ interface TravelPackageCardProps {
 }
 
 export function packageImageUrl(path?: string): string {
-	if (!path) return '/img/banner/header1.svg';
+	if (!path) return '/img/travel/package-placeholder.svg';
 	if (/^https?:\/\//i.test(path) || path.startsWith('//')) return path;
 	const base =
 		process.env.REACT_APP_API_URL || process.env.REACT_APP_API_GRAPHQL_URL?.replace(/\/graphql\/?$/, '') || '';

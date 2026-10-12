@@ -10,8 +10,10 @@ import LanguageIcon from '@mui/icons-material/Language';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import toast from 'react-hot-toast';
 import { userVar } from '../../../apollo/store';
+import { packageImageUrl } from '../travelPackage/TravelPackageCard';
 import { logOut } from '../../auth';
 
 const languages = [
@@ -65,12 +67,23 @@ const HomeNavigation = () => {
 	};
 	return (
 		<Stack component="nav" aria-label={t('home.nav.main')} className="home-navigation">
-			<Link href="/" className="home-brand" aria-label={t('home.nav.home')} aria-current="page">
-				<FlightTakeoffIcon />
-				<span>
-					tripora<span className="brand-dot">.</span>
-				</span>
-			</Link>
+			<div className="home-brand-group">
+				<Link href="/" className="home-brand" aria-label={t('home.nav.home')} aria-current="page">
+					<FlightTakeoffIcon />
+					<span>
+						tripora<span className="brand-dot">.</span>
+					</span>
+				</Link>
+				<Button
+					component={Link}
+					href="/trip-planner"
+					className="home-ai-entry"
+					startIcon={<AutoAwesomeIcon />}
+					aria-current={router.pathname === '/trip-planner' ? 'page' : undefined}
+				>
+					{t('tripPlanner.aiEntry')}
+				</Button>
+			</div>
 			<Stack className="home-nav-links">
 				{links.map(([href, key]) => (
 					<Link key={href} href={href} aria-current={router.pathname === href.split('?')[0] ? 'page' : undefined}>
@@ -148,7 +161,21 @@ const HomeNavigation = () => {
 							onClick={(event) => setAccount(event.currentTarget)}
 							aria-haspopup="menu"
 							aria-expanded={Boolean(account)}
-							startIcon={<Avatar sx={{ width: 28, height: 28 }}>{user.memberNick?.charAt(0).toUpperCase()}</Avatar>}
+							startIcon={
+								<Avatar
+									src={
+										user.memberImage
+											? user.memberImage.startsWith('/img/')
+												? user.memberImage
+												: packageImageUrl(user.memberImage)
+											: undefined
+									}
+									alt={user.memberNick}
+									sx={{ width: 28, height: 28 }}
+								>
+									{user.memberNick?.charAt(0).toUpperCase()}
+								</Avatar>
+							}
 						>
 							<span className="home-account-name">{user.memberNick}</span>
 						</Button>

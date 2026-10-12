@@ -6,7 +6,7 @@ import { Member } from '../../types/member/member';
 const TopAgentCard = ({ agent }: { agent: Member }) => {
 	const { t } = useTranslation('common');
 	return (
-		<Link href={{ pathname: '/agent/detail', query: { agentId: agent._id } }} className="home-agent-card">
+		<Link href={{ pathname: '/member', query: { memberId: agent._id } }} className="home-agent-card">
 			<Avatar
 				src={
 					agent.memberImage

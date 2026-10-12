@@ -162,27 +162,6 @@
 		}
 	}
 }
-#pc-wrap .agent-detail-page.travel-package-agent,
-#mobile-wrap .agent-detail-page.travel-package-agent {
-	> .container {
-		width: min(1300px, 100%);
-		padding: 24px;
-		box-sizing: border-box;
-	}
-	.member-travel-packages {
-		margin: 32px 0;
-	}
-	&.mobile {
-		padding: 24px 0;
-		.agent-info {
-			flex-direction: column;
-		}
-		.review-box {
-			width: 100%;
-		}
-	}
-}
-
 #pc-wrap .travel-package-form textarea[aria-hidden="true"],
 #mobile-wrap .travel-package-form textarea[aria-hidden="true"] {
 	visibility: hidden;

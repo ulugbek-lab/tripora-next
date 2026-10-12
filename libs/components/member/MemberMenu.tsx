@@ -8,6 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { useReactiveVar } from '@apollo/client';
 import toast from 'react-hot-toast';
 import { userVar } from '../../../apollo/store';
+import { MemberType } from '../../enums/member.enum';
 import { Member } from '../../types/member/member';
 import { packageImageUrl } from '../travelPackage/TravelPackageCard';
 
@@ -72,36 +73,42 @@ const MemberMenu = ({ member, busy, onFollow }: { member: Member; busy: boolean;
 					</div>
 				)}
 			</div>
-			<Stack className="profile-contact">
-				<h2>{t('agents.contact')}</h2>
-				{member.memberPhone && (
-					<a href={`tel:${member.memberPhone.replace(/[^+\d]/g, '')}`}>
-						<PhoneOutlinedIcon />
-						<span>
-							<small>{t('agents.phone')}</small>
-							{member.memberPhone}
-						</span>
-					</a>
+			<Stack className={member.memberType === MemberType.AGENT ? 'profile-contact' : 'profile-actions'}>
+				{member.memberType === MemberType.AGENT && (
+					<>
+						<h2>{t('agents.contact')}</h2>
+						{member.memberPhone && (
+							<a href={`tel:${member.memberPhone.replace(/[^+\d]/g, '')}`}>
+								<PhoneOutlinedIcon />
+								<span>
+									<small>{t('agents.phone')}</small>
+									{member.memberPhone}
+								</span>
+							</a>
+						)}
+						<a href={`mailto:${TEMP_AGENT_CONTACT.email}`}>
+							<EmailOutlinedIcon />
+							<span>
+								<small>{t('agents.email')}</small>
+								{TEMP_AGENT_CONTACT.email}
+							</span>
+						</a>
+					</>
 				)}
-				<a href={`mailto:${TEMP_AGENT_CONTACT.email}`}>
-					<EmailOutlinedIcon />
-					<span>
-						<small>{t('agents.email')}</small>
-						{TEMP_AGENT_CONTACT.email}
-					</span>
-				</a>
 				{member._id !== user._id && (
 					<Button variant="outlined" disabled={busy} onClick={onFollow}>
 						{t(followed ? 'agents.unfollow' : 'agents.follow')}
 					</Button>
 				)}
-				<Button
-					variant="contained"
-					startIcon={<ChatBubbleOutlineIcon />}
-					onClick={() => toast(t('agents.messagingSoon'))}
-				>
-					{t('agents.message')}
-				</Button>
+				{member.memberType === MemberType.AGENT && (
+					<Button
+						variant="contained"
+						startIcon={<ChatBubbleOutlineIcon />}
+						onClick={() => toast(t('agents.messagingSoon'))}
+					>
+						{t('agents.message')}
+					</Button>
+				)}
 			</Stack>
 		</section>
 	);
