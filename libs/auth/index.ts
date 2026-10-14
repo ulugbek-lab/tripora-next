@@ -1,4 +1,5 @@
 import decodeJWT from 'jwt-decode';
+import posthog from 'posthog-js';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
@@ -21,6 +22,7 @@ export const logIn = async (nick: string, password: string): Promise<void> => {
 		if (jwtToken) {
 			updateStorage({ jwtToken });
 			updateUserInfo(jwtToken);
+			posthog.capture('logged_in');
 		}
 	} catch (err) {
 		void logOut();
@@ -55,6 +57,7 @@ export const signUp = async (nick: string, password: string, phone: string, type
 		if (jwtToken) {
 			updateStorage({ jwtToken });
 			updateUserInfo(jwtToken);
+			posthog.capture('signed_up');
 		}
 	} catch (err) {
 		void logOut();
@@ -118,11 +121,15 @@ export const updateUserInfo = (jwtToken: any) => {
 		memberWarnings: claims.memberWarnings,
 		memberBlocks: claims.memberBlocks,
 	});
+	if (typeof window !== 'undefined' && claims._id) {
+		posthog.identify(claims._id, { memberType: claims.memberType });
+	}
 };
 
 export const logOut = async (): Promise<void> => {
 	deleteStorage();
 	deleteUserInfo();
+	posthog.reset();
 	try {
 		const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL as string, {
 			method: 'POST',
@@ -141,6 +148,7 @@ const deleteStorage = () => {
 	localStorage.removeItem('accessToken');
 	window.localStorage.setItem('logout', Date.now().toString());
 };
+
 
 const deleteUserInfo = () => {
 	userVar({

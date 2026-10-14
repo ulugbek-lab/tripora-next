@@ -31,6 +31,7 @@ import { Direction } from '../../libs/enums/common.enum';
 import { GET_TRAVEL_PACKAGE, GET_TRAVEL_PACKAGE_COMMENTS } from '../../apollo/user/query';
 import { LIKE_TARGET_TRAVEL_PACKAGE, CREATE_COMMENT, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { userVar } from '../../apollo/store';
+import posthog from 'posthog-js';
 
 export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: {
@@ -76,6 +77,12 @@ const TravelPackageDetail: NextPage = () => {
 	});
 	const item = data?.getTravelPackage?._id === packageId ? data.getTravelPackage : null;
 	const available = Boolean(item && item.packageStatus !== TravelPackageStatus.DELETE);
+	const viewedId = useRef('');
+	useEffect(() => {
+		if (!available || viewedId.current === packageId) return;
+		viewedId.current = packageId;
+		posthog.capture('travel_package_viewed');
+	}, [available, packageId]);
 	const active = item?.packageStatus === TravelPackageStatus.ACTIVE;
 	const commentsInquiry: CommentsInquiry = {
 		page: commentPage.id === packageId ? commentPage.page : 1,
@@ -395,9 +402,8 @@ const TravelPackageDetail: NextPage = () => {
 										<Typography className="label">
 											{t(member.memberType === 'AGENT' ? 'detail.travelAgent' : 'detail.member')}
 										</Typography>
-										
-										{member.memberDesc && <Typography className="description">{member.memberDesc}</Typography>}
 
+										{member.memberDesc && <Typography className="description">{member.memberDesc}</Typography>}
 									</>
 								) : (
 									<>
@@ -409,15 +415,24 @@ const TravelPackageDetail: NextPage = () => {
 								<Stack className="agent-contact">
 									<a href={`tel:${TEMP_AGENT_CONTACT.phone.replace(/[^+\d]/g, '')}`}>
 										<PhoneOutlinedIcon aria-hidden="true" />
-										<span><small>{t('detail.phone')}</small>{TEMP_AGENT_CONTACT.phone}</span>
+										<span>
+											<small>{t('detail.phone')}</small>
+											{TEMP_AGENT_CONTACT.phone}
+										</span>
 									</a>
 									<a href={`mailto:${TEMP_AGENT_CONTACT.email}`}>
 										<EmailOutlinedIcon aria-hidden="true" />
-										<span><small>{t('detail.email')}</small>{TEMP_AGENT_CONTACT.email}</span>
+										<span>
+											<small>{t('detail.email')}</small>
+											{TEMP_AGENT_CONTACT.email}
+										</span>
 									</a>
 								</Stack>
 								{member && (
-									<Link className="agent-profile-link" href={member._id === user._id ? '/mypage' : `/member?memberId=${member._id}`}>
+									<Link
+										className="agent-profile-link"
+										href={member._id === user._id ? '/mypage' : `/member?memberId=${member._id}`}
+									>
 										{t('detail.viewProfile')}
 									</Link>
 								)}
@@ -426,7 +441,13 @@ const TravelPackageDetail: NextPage = () => {
 										{t(followed ? 'detail.unfollow' : 'detail.follow')}
 									</Button>
 								)}
-								<Button className="agent-message" variant="contained" type="button" startIcon={<ChatBubbleOutlineIcon />} onClick={() => toast(t('detail.messagingSoon'))}>
+								<Button
+									className="agent-message"
+									variant="contained"
+									type="button"
+									startIcon={<ChatBubbleOutlineIcon />}
+									onClick={() => toast(t('detail.messagingSoon'))}
+								>
 									{t('detail.messageAgent')}
 								</Button>
 							</Stack>

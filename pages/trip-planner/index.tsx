@@ -5,6 +5,7 @@ import { Alert, Button, CircularProgress, MenuItem, Skeleton, TextField } from '
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import toast from 'react-hot-toast';
+import posthog from 'posthog-js';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { GENERATE_TRAVEL_ITINERARY } from '../../apollo/user/mutation';
 import { userVar } from '../../apollo/store';
@@ -108,6 +109,7 @@ const TripPlanner = () => {
 			const { data } = await generate({ variables: { input } });
 			if (!data?.generateTravelItinerary) throw new Error();
 			setResult(data.generateTravelItinerary);
+			posthog.capture('itinerary_generated');
 		} catch {
 			toast.error(t('tripPlanner.error'));
 		} finally {
