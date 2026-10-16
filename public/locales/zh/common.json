@@ -214,6 +214,9 @@
       "empty": "请输入消息",
       "unavailable": "聊天暂不可用，请稍后重试。",
       "user": "用户"
+    },
+    "destinationVideo": {
+      "title": "探索非凡目的地。"
     }
   },
   "marketplace": {

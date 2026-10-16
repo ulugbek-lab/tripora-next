@@ -1,11 +1,5 @@
 #pc-wrap.tripora-marketplace-shell {
-	background: #faf8f5;
-	.home-navigation {
-		background: #fff;
-		max-width: none;
-		padding-inline: max(24px, calc((100vw - 1192px) / 2));
-		border-bottom: 1px solid #e1e6df;
-	}
+	background: $tripora-bg;
 	.home-footer {
 		margin-top: 0;
 	}
@@ -27,7 +21,7 @@
 			margin: 10px 0;
 		}
 		> p:last-child {
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 16px;
 			line-height: 1.6;
 		}
@@ -50,9 +44,9 @@
 		font-weight: 650;
 	}
 	.sort-control {
-		border: 1px solid #d5ddd7;
+		border: 1px solid $tripora-border;
 		background: #fff;
-		color: #182523;
+		color: $tripora-text;
 		padding: 8px 14px;
 	}
 	.active-filters {
@@ -61,7 +55,7 @@
 		gap: 8px;
 		margin-bottom: 22px;
 		.MuiChip-root {
-			background: #fff0e7;
+			background: $tripora-surface-accent;
 			color: #984019;
 			max-width: 100%;
 		}
@@ -93,8 +87,8 @@
 		min-height: 350px;
 		gap: 16px;
 		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
+		border: 1px solid $tripora-border;
+		border-radius: $tripora-card-radius;
 		> svg {
 			font-size: 44px;
 			color: #426457;
@@ -104,7 +98,7 @@
 			font-weight: 700;
 		}
 		p {
-			color: #596660;
+			color: $tripora-muted;
 			line-height: 1.6;
 		}
 	}
@@ -113,33 +107,27 @@
 		gap: 14px;
 		margin-top: 24px;
 		.MuiPaginationItem-root {
-			color: #244a3f;
+			color: $tripora-text;
 		}
 		.Mui-selected {
-			background: #d9511e;
+			background: $tripora-primary;
 			color: #fff;
 			&:hover {
-				background: #b94318;
+				background: $tripora-primary-hover;
 			}
 		}
 	}
 	.marketplace-card {
-		border: 1px solid #e0e5df;
-		border-radius: 16px;
+		@include tripora-card-surface;
+		@include tripora-card-interaction;
 		overflow: hidden;
-		background: #fff;
 		min-width: 0;
 		height: 100%;
-		transition: border-color 0.18s, box-shadow 0.18s;
-		&:hover {
-			border-color: #b5c3b8;
-			box-shadow: 0 6px 20px rgba(24, 37, 35, 0.07);
-		}
 	}
 	.marketplace-card-media {
 		position: relative;
 		aspect-ratio: 4 / 3;
-		background: #edf1e9;
+		background: $tripora-surface-soft;
 		> a {
 			display: block;
 			height: 100%;
@@ -157,7 +145,7 @@
 		top: 12px;
 		padding: 6px 9px;
 		border-radius: 7px;
-		background: #fff0e7;
+		background: $tripora-surface-accent;
 		color: #984019;
 		font-size: 11px;
 		font-weight: 700;
@@ -170,10 +158,10 @@
 		width: 36px;
 		height: 36px;
 		background: #fff;
-		color: #d9511e;
+		color: $tripora-primary;
 		box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
 		&:hover {
-			background: #fff0e8;
+			background: $tripora-surface-accent;
 		}
 		&:disabled {
 			background: #f5f5f1;
@@ -188,12 +176,12 @@
 		right: 12px;
 		bottom: 14px;
 		text-align: center;
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 	}
 	.marketplace-card-info {
-		padding: 17px;
-		gap: 10px;
+		padding: 14px;
+		gap: 8px;
 		flex: 1;
 	}
 	.package-destination {
@@ -214,14 +202,14 @@
 			overflow-wrap: anywhere;
 		}
 		&:hover {
-			color: #d9511e;
+			color: $tripora-primary;
 		}
 	}
 	.package-facts {
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: 8px 12px;
-		color: #596660;
+		color: $tripora-muted;
 		span {
 			display: inline-flex;
 			align-items: center;
@@ -235,7 +223,7 @@
 	}
 	.package-date,
 	.package-availability {
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 		line-height: 1.5;
 	}
@@ -248,17 +236,17 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 10px;
-		border-top: 1px solid #e8ece5;
-		padding-top: 14px;
+		border-top: 1px solid $tripora-border;
+		padding-top: 10px;
 		margin-top: auto;
 		> a {
 			font-size: 12px;
 			font-weight: 700;
-			color: #d9511e;
+			color: $tripora-primary;
 		}
 	}
 	.package-price {
-		color: #b94318;
+		color: $tripora-text;
 		font-size: 21px;
 		font-weight: 750;
 		letter-spacing: -0.6px;
@@ -266,7 +254,7 @@
 			font-size: 11px;
 			font-weight: 600;
 			letter-spacing: 0;
-			color: #596660;
+			color: $tripora-muted;
 		}
 	}
 	@media (max-width: 1180px) {
@@ -312,11 +300,11 @@
 #travel-package-list-page .marketplace-filter,
 .marketplace-filter-drawer .marketplace-filter {
 	padding: 22px 20px;
-	background: #fcf8f2;
-	border: 1px solid #e1e6df;
+	background: $tripora-surface;
+	border: 1px solid $tripora-border;
 	border-radius: 14px;
 	gap: 22px;
-	color: #182523;
+	color: $tripora-text;
 	&,
 	* {
 		box-sizing: border-box;
@@ -338,7 +326,7 @@
 	}
 	.filter-group {
 		border: 0;
-		border-top: 1px solid #e8ece5;
+		border-top: 1px solid $tripora-border;
 		padding: 18px 0 0;
 		margin: 0;
 		min-width: 0;
@@ -371,7 +359,7 @@
 			color: #89988b;
 		}
 		.Mui-checked {
-			color: #d9511e;
+			color: $tripora-primary;
 		}
 	}
 	.MuiOutlinedInput-root {
@@ -396,11 +384,11 @@
 		}
 	}
 	.filter-apply {
-		background: #d9511e;
+		background: $tripora-primary;
 		color: #fff;
 		text-transform: none;
 		box-shadow: none;
-		border-radius: 10px;
+		border-radius: $tripora-control-radius;
 		min-height: 44px;
 		font-weight: 600;
 		&:hover {
@@ -411,7 +399,7 @@
 .marketplace-filter-drawer {
 	width: min(360px, 92vw);
 	padding: 16px;
-	color: #182523;
+	color: $tripora-text;
 	.drawer-heading {
 		flex-direction: row;
 		align-items: center;
@@ -429,8 +417,8 @@
 	.drawer-results {
 		margin: 12px 0;
 		min-height: 44px;
-		color: #244a3f;
-		border-color: #b5c3b8;
+		color: $tripora-text;
+		border-color: $tripora-border-hover;
 		text-transform: none;
 	}
 }
@@ -439,17 +427,17 @@
 #travel-package-list-page .marketplace-filter .destination-search-input,
 .marketplace-filter-drawer .marketplace-filter .destination-search-input {
 	.MuiOutlinedInput-root {
-		background: #fbfcfa;
+		background: $tripora-surface;
 		color: #243a31;
-		border-radius: 10px;
+		border-radius: $tripora-control-radius;
 		.MuiOutlinedInput-notchedOutline {
-			border-color: #dce3db;
+			border-color: $tripora-border;
 		}
 		&:hover .MuiOutlinedInput-notchedOutline {
-			border-color: #a6b7a8;
+			border-color: $tripora-border-hover;
 		}
 		&.Mui-focused .MuiOutlinedInput-notchedOutline {
-			border-color: #d9511e;
+			border-color: $tripora-primary;
 		}
 	}
 	.MuiInputBase-input::placeholder {
@@ -462,10 +450,10 @@
 	.MuiIconButton-root {
 		color: #596b5f;
 		&:hover {
-			background: #eaf0e8;
+			background: $tripora-surface-soft;
 		}
 		&:focus-visible {
-			outline: 2px solid #d9511e;
+			outline: 2px solid $tripora-primary;
 			outline-offset: 2px;
 		}
 	}
@@ -475,21 +463,21 @@
 #travel-package-list-page .marketplace-filter,
 .marketplace-filter-drawer .marketplace-filter {
 	.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-		border-color: #d9511e;
+		border-color: $tripora-primary;
 	}
 	.MuiInputLabel-root.Mui-focused,
 	.filter-title button {
-		color: #b94318;
+		color: $tripora-primary-hover;
 	}
 }
 #pc-wrap.tripora-marketplace-shell #travel-package-list-page {
 	.marketplace-eyebrow {
-		color: #b94318;
+		color: $tripora-primary-hover;
 	}
 	.MuiChip-deleteIcon {
 		color: #984019;
 		&:hover {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 	}
 }

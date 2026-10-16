@@ -8,6 +8,7 @@ import TrendingTravelPackages from '../libs/components/homepage/TrendingTravelPa
 import TopTravelPackages from '../libs/components/homepage/TopTravelPackages';
 import { Stack } from '@mui/material';
 import Advertisement from '../libs/components/homepage/Advertisement';
+import DestinationVideoBanner from '../libs/components/homepage/DestinationVideoBanner';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -23,6 +24,7 @@ const Home: NextPage = () => (
 		<TrendingTravelPackages />
 		<Events />
 		<PopularTravelPackages />
+		<DestinationVideoBanner />
 		<Advertisement />
 		<TopTravelPackages />
 		<TopAgents />

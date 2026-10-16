@@ -104,6 +104,7 @@ const HomeNavigation = () => {
 					{currentLanguage.short}
 				</Button>
 				<Menu
+					className="home-nav-menu"
 					anchorEl={language}
 					open={Boolean(language)}
 					onClose={() => setLanguage(null)}
@@ -179,7 +180,7 @@ const HomeNavigation = () => {
 						>
 							<span className="home-account-name">{user.memberNick}</span>
 						</Button>
-						<Menu anchorEl={account} open={Boolean(account)} onClose={() => setAccount(null)}>
+						<Menu className="home-nav-menu" anchorEl={account} open={Boolean(account)} onClose={() => setAccount(null)}>
 							<MenuItem component={Link} href="/mypage" onClick={() => setAccount(null)}>
 								{t('home.nav.myPage')}
 							</MenuItem>
@@ -218,6 +219,7 @@ const HomeNavigation = () => {
 					<MenuIcon />
 				</IconButton>
 				<Menu
+					className="home-nav-menu"
 					anchorEl={anchor}
 					open={Boolean(anchor)}
 					onClose={() => setAnchor(null)}

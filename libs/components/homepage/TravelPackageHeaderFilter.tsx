@@ -8,6 +8,7 @@ import {
 	DialogContent,
 	DialogActions,
 	IconButton,
+	InputAdornment,
 	MenuItem,
 	Stack,
 	TextField,
@@ -117,6 +118,23 @@ const TravelPackageHeaderFilter = () => {
 		setValues((current) => ({ ...current, [field]: value }));
 		setError('');
 	};
+	const clearAdornment = (field: 'country' | 'city') => (
+		<InputAdornment position="end">
+			<IconButton
+				className="home-search-clear"
+				type="button"
+				size="small"
+				aria-label={t(`marketplace.clearInput.${field}`)}
+				aria-hidden={!values[field]}
+				disabled={searching || !values[field]}
+				tabIndex={values[field] ? 0 : -1}
+				onClick={() => change(field, '')}
+				sx={{ visibility: values[field] ? 'visible' : 'hidden' }}
+			>
+				<CloseIcon fontSize="small" />
+			</IconButton>
+		</InputAdornment>
+	);
 	const validate = () => {
 		try {
 			const inquiry = buildHomepageInquiry(values, (key, options) => t(key, options));
@@ -213,6 +231,7 @@ const TravelPackageHeaderFilter = () => {
 							InputLabelProps={{ shrink: true }}
 							placeholder={t('home.hero.countryExample')}
 							value={values.country}
+							InputProps={{ endAdornment: clearAdornment('country') }}
 							onChange={(e) => change('country', e.target.value)}
 							disabled={searching}
 						/>
@@ -220,6 +239,7 @@ const TravelPackageHeaderFilter = () => {
 							label={t('home.hero.city')}
 							placeholder={t('home.hero.cityExample')}
 							value={values.city}
+							InputProps={{ endAdornment: clearAdornment('city') }}
 							onChange={(e) => change('city', e.target.value)}
 							disabled={searching}
 						/>
@@ -285,6 +305,7 @@ const TravelPackageHeaderFilter = () => {
 						value={values.type}
 						onChange={(e) => change('type', e.target.value)}
 						fullWidth
+						SelectProps={{ MenuProps: { className: 'home-hero-filter-menu' } }}
 					>
 						<MenuItem value="">{t('home.filters.anyType')}</MenuItem>
 						{Object.values(TravelPackageType).map((type) => (

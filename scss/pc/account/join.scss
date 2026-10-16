@@ -1,11 +1,5 @@
 #pc-wrap.tripora-auth-shell {
-	background: #faf8f5;
-	.home-navigation {
-		background: #fff;
-		max-width: none;
-		padding-inline: max(24px, calc((100vw - 1192px) / 2));
-		border-bottom: 1px solid #e1e6df;
-	}
+	background: $tripora-bg;
 	.home-footer {
 		margin-top: 0;
 	}
@@ -15,13 +9,10 @@
 		padding: 48px 24px 64px;
 	}
 	.auth-card {
+		@include tripora-card-surface;
 		width: min(480px, 100%);
-		padding: 34px;
-		gap: 28px;
-		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 18px;
-		box-shadow: 0 5px 22px rgba(24, 37, 35, 0.04);
+		padding: 28px;
+		gap: 24px;
 	}
 	.auth-heading {
 		h1 {
@@ -32,7 +23,7 @@
 			margin: 10px 0;
 		}
 		> p:last-child {
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 14px;
 			line-height: 1.65;
 		}
@@ -41,8 +32,8 @@
 		display: inline-flex;
 		padding: 10px;
 		border-radius: 12px;
-		color: #b94318;
-		background: #fff0e7;
+		color: $tripora-primary-hover;
+		background: $tripora-surface-accent;
 		margin-bottom: 18px;
 	}
 	.auth-eyebrow {
@@ -55,24 +46,24 @@
 	.auth-form {
 		gap: 20px;
 		.MuiOutlinedInput-root {
-			border-radius: 10px;
-			background: #fffcf9;
-			color: #182523;
+			border-radius: $tripora-control-radius;
+			background: $tripora-surface;
+			color: $tripora-text;
 			.MuiOutlinedInput-notchedOutline {
-				border-color: #dce3db;
+				border-color: $tripora-border;
 			}
 			&:hover .MuiOutlinedInput-notchedOutline {
-				border-color: #a6b7a8;
+				border-color: $tripora-border-hover;
 			}
 			&.Mui-focused .MuiOutlinedInput-notchedOutline {
-				border-color: #d9511e;
+				border-color: $tripora-primary;
 			}
 			&.Mui-error .MuiOutlinedInput-notchedOutline {
 				border-color: #b43e12;
 			}
 		}
 		.MuiInputLabel-root.Mui-focused {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 		.MuiInputLabel-root.Mui-error,
 		.MuiFormHelperText-root.Mui-error {
@@ -85,32 +76,32 @@
 		.MuiIconButton-root {
 			color: #718076;
 			&:hover {
-				background: #fff0e7;
+				background: $tripora-surface-accent;
 			}
 		}
 		.MuiFormHelperText-root {
 			line-height: 1.5;
 		}
 		> .MuiButton-contained {
-			min-height: 48px;
+			min-height: 44px;
 			margin-top: 2px;
 		}
 	}
 	.auth-switch {
 		padding-top: 18px;
-		border-top: 1px solid #edf0ea;
+		border-top: 1px solid $tripora-border;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		flex-wrap: wrap;
 		gap: 4px 8px;
 		p {
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 13px;
 			line-height: 1.5;
 		}
 		.MuiButton-text {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			font-size: 13px;
 		}
 	}

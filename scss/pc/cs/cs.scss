@@ -1,11 +1,5 @@
 #pc-wrap.tripora-cs-shell {
-	background: #faf8f5;
-	.home-navigation {
-		background: #fff;
-		max-width: none;
-		padding-inline: max(24px, calc((100vw - 1192px) / 2));
-		border-bottom: 1px solid #e1e6df;
-	}
+	background: $tripora-bg;
 	.home-footer {
 		margin-top: 0;
 	}
@@ -27,7 +21,7 @@
 			margin: 10px 0;
 		}
 		> p:last-child {
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 16px;
 			line-height: 1.65;
 			max-width: 650px;
@@ -36,7 +30,7 @@
 	.cs-eyebrow {
 		font-size: 11px;
 		font-weight: 700;
-		color: #b94318;
+		color: $tripora-primary-hover;
 		letter-spacing: 2px;
 	}
 	.cs-layout {
@@ -46,10 +40,8 @@
 		align-items: start;
 	}
 	.cs-faq {
+		@include tripora-card-surface;
 		padding: 26px;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
-		background: #fff;
 		min-width: 0;
 		> h2 {
 			font-size: 23px;
@@ -61,7 +53,7 @@
 	.faq-content {
 		gap: 22px;
 		.MuiTabs-root {
-			border-bottom: 1px solid #e1e6df;
+			border-bottom: 1px solid $tripora-border;
 		}
 		.MuiTab-root {
 			font-size: 13px;
@@ -69,18 +61,18 @@
 			text-transform: none;
 			padding-inline: 16px;
 			min-width: 0;
-			color: #596660;
+			color: $tripora-muted;
 		}
 		.Mui-selected {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 		.MuiTabs-indicator {
-			background: #d9511e;
+			background: $tripora-primary;
 		}
 	}
 	.cs-faq-list {
 		.MuiAccordion-root {
-			border: 1px solid #e1e6df;
+			border: 1px solid $tripora-border;
 			border-radius: 12px;
 			margin-bottom: 12px;
 			overflow: hidden;
@@ -88,7 +80,7 @@
 				display: none;
 			}
 			&.Mui-expanded {
-				background: #fffcf9;
+				background: $tripora-surface-soft;
 			}
 		}
 		.MuiAccordionSummary-root {
@@ -107,28 +99,26 @@
 			p {
 				font-size: 14px;
 				line-height: 1.8;
-				color: #596660;
+				color: $tripora-muted;
 			}
 		}
 	}
 	.cs-contact {
+		@include tripora-card-surface;
 		padding: 26px;
 		gap: 16px;
-		border: 1px solid #e8e2da;
-		border-radius: 16px;
-		background: #fcf8f2;
 		h2 {
 			font-size: 20px;
 			font-weight: 700;
 			line-height: 1.4;
 		}
 		p {
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 14px;
 			line-height: 1.7;
 		}
 		> a {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			font-size: 14px;
 			font-weight: 600;
 			white-space: normal;
@@ -138,7 +128,7 @@
 			}
 		}
 		.cs-contact-note {
-			border-top: 1px solid #e8e2da;
+			border-top: 1px solid $tripora-border;
 			padding-top: 16px;
 			font-size: 12px;
 		}
@@ -147,8 +137,8 @@
 		align-self: flex-start;
 		display: inline-flex;
 		padding: 10px;
-		border-radius: 10px;
-		background: #fff0e7;
+		border-radius: $tripora-control-radius;
+		background: $tripora-surface-accent;
 		color: #984019;
 	}
 	@media (max-width: 900px) {

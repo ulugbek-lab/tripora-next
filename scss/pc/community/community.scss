@@ -1,11 +1,5 @@
 #pc-wrap.tripora-community-shell {
-	background: #faf8f5;
-	.home-navigation {
-		background: #fff;
-		max-width: none;
-		padding-inline: max(24px, calc((100vw - 1192px) / 2));
-		border-bottom: 1px solid #e1e6df;
-	}
+	background: $tripora-bg;
 	.home-footer {
 		margin-top: 0;
 	}
@@ -31,7 +25,7 @@
 			margin: 10px 0;
 		}
 		p:last-child {
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 16px;
 			line-height: 1.6;
 			max-width: 620px;
@@ -41,7 +35,7 @@
 		}
 	}
 	.community-eyebrow {
-		color: #b94318;
+		color: $tripora-primary-hover;
 		font-size: 11px;
 		font-weight: 700;
 		letter-spacing: 2px;
@@ -50,21 +44,21 @@
 		gap: 22px;
 		margin-bottom: 24px;
 		.MuiTabs-root {
-			border-bottom: 1px solid #e1e6df;
+			border-bottom: 1px solid $tripora-border;
 		}
 		.MuiTab-root {
 			text-transform: none;
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 14px;
 			font-weight: 600;
 			min-width: 0;
 			padding: 12px 20px;
 		}
 		.Mui-selected {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 		.MuiTabs-indicator {
-			background: #d9511e;
+			background: $tripora-primary;
 		}
 	}
 	.community-search {
@@ -77,16 +71,16 @@
 		}
 		.MuiOutlinedInput-root {
 			background: #fff;
-			border-radius: 10px;
+			border-radius: $tripora-control-radius;
 			.MuiOutlinedInput-notchedOutline {
-				border-color: #dce3db;
+				border-color: $tripora-border;
 			}
 			&.Mui-focused .MuiOutlinedInput-notchedOutline {
-				border-color: #d9511e;
+				border-color: $tripora-primary;
 			}
 		}
 		.MuiInputLabel-root.Mui-focused {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 		.MuiInputBase-input::placeholder {
 			color: #758279;
@@ -98,21 +92,21 @@
 		}
 		.MuiIconButton-root {
 			&:hover {
-				background: #eaf0e8;
+				background: $tripora-surface-soft;
 			}
 			&:focus-visible {
-				outline: 2px solid #d9511e;
+				outline: 2px solid $tripora-primary;
 				outline-offset: 2px;
 			}
 		}
 		> button {
-			color: #b94318;
-			border-color: #d9511e;
+			color: $tripora-primary-hover;
+			border-color: $tripora-primary;
 		}
 	}
 	.community-result {
 		font-size: 14px;
-		color: #596660;
+		color: $tripora-muted;
 		margin-bottom: 20px;
 	}
 	.community-grid {
@@ -121,12 +115,10 @@
 		gap: 22px;
 	}
 	.tripora-community-card {
-		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
+		@include tripora-card-surface;
+		@include tripora-card-interaction;
 		overflow: hidden;
 		min-width: 0;
-		box-shadow: 0 3px 14px rgba(24, 37, 35, 0.03);
 	}
 	.community-card-image {
 		height: 190px;
@@ -146,7 +138,7 @@
 	.community-card-category {
 		align-self: flex-start;
 		padding: 5px 9px;
-		background: #fff0e7;
+		background: $tripora-surface-accent;
 		color: #984019;
 		border-radius: 6px;
 		font-size: 11px;
@@ -162,12 +154,12 @@
 			overflow-wrap: anywhere;
 		}
 		&:hover {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 	}
 	.community-card-preview {
 		font-size: 14px;
-		color: #596660;
+		color: $tripora-muted;
 		line-height: 1.65;
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
@@ -182,7 +174,7 @@
 		gap: 12px;
 		margin-top: auto;
 		font-size: 12px;
-		color: #596660;
+		color: $tripora-muted;
 		flex-wrap: wrap;
 		a {
 			color: #426457;
@@ -194,9 +186,9 @@
 		display: flex;
 		align-items: center;
 		gap: 18px;
-		border-top: 1px solid #edf0ea;
+		border-top: 1px solid $tripora-border;
 		padding-top: 12px;
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 		span {
 			display: inline-flex;
@@ -207,7 +199,7 @@
 			font-size: 18px;
 		}
 		.MuiIconButton-root {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			margin-left: auto;
 			gap: 5px;
 			small {
@@ -216,7 +208,7 @@
 		}
 	}
 	.community-card-read {
-		color: #b94318;
+		color: $tripora-primary-hover;
 		font-size: 13px;
 		font-weight: 600;
 		align-self: flex-start;
@@ -228,7 +220,7 @@
 		padding: 54px 24px;
 		border-radius: 14px;
 		background: #fff;
-		color: #596660;
+		color: $tripora-muted;
 		align-items: center;
 		text-align: center;
 		gap: 14px;
@@ -238,10 +230,10 @@
 		margin: 28px auto 0;
 		width: fit-content;
 		.Mui-selected {
-			background: #d9511e;
+			background: $tripora-primary;
 			color: #fff;
 			&:hover {
-				background: #b94318;
+				background: $tripora-primary-hover;
 			}
 		}
 	}

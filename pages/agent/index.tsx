@@ -200,7 +200,7 @@ const AgentList: NextPage = () => {
 					<>
 						<p className="agents-result">{t('agents.results', { count: total })}</p>
 						{agents.length ? (
-							<div className="agents-grid">
+							<div className="agents-grid agents-directory-grid">
 								{agents.map((agent) => (
 									<AgentCard key={agent._id} agent={agent} onLike={likeHandler} liking={Boolean(liking)} />
 								))}

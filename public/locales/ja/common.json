@@ -214,6 +214,9 @@
       "empty": "メッセージを入力してください",
       "unavailable": "現在チャットを利用できません。後でもう一度お試しください。",
       "user": "ユーザー"
+    },
+    "destinationVideo": {
+      "title": "心に残る特別な場所へ。"
     }
   },
   "marketplace": {

@@ -214,6 +214,9 @@
       "empty": "Please type a message",
       "unavailable": "Chat is unavailable. Please try again later.",
       "user": "User"
+    },
+    "destinationVideo": {
+      "title": "Explore somewhere extraordinary."
     }
   },
   "marketplace": {

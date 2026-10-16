@@ -3,3 +3,52 @@
 // @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 $font: var(--font-poppins), sans-serif;
+
+// Shared neutral travel-search surfaces; orange remains the primary action color.
+$tripora-bg: #f6f7f8;
+$tripora-surface-soft: #f2f2f2;
+$tripora-surface-accent: #fff1e8;
+$tripora-border: #e3e5e8;
+$tripora-surface: #fff;
+$tripora-border-hover: #bdbdbd;
+$tripora-primary: #d9511e;
+$tripora-primary-hover: #b94318;
+$tripora-control-radius: 10px;
+$tripora-card-radius: 18px;
+$tripora-card-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+$tripora-card-shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.10);
+$tripora-popup-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+$tripora-shadow: $tripora-card-shadow;
+$tripora-text: #1f1f1f;
+$tripora-muted: #666;
+$tripora-hover: #f2f2f2;
+
+// Reuse only on active card/panel surfaces, never on fieldsets or list rows.
+@mixin tripora-card-surface {
+	background: $tripora-surface;
+	border: 1px solid $tripora-border;
+	border-radius: $tripora-card-radius;
+	box-shadow: $tripora-card-shadow;
+	transition: border-color 160ms ease, box-shadow 160ms ease;
+	@media (prefers-reduced-motion: reduce) { transition: none; }
+}
+
+// Interactive cards only: pointer motion, matching keyboard emphasis, reduced-motion support.
+@mixin tripora-card-interaction {
+	transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+	&:focus-within {
+		border-color: $tripora-primary;
+		box-shadow: $tripora-card-shadow-hover;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			transform: translateY(-4px) scale(1.015);
+			border-color: #d4d6d9;
+			box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		&:hover { transform: none; }
+	}
+}

@@ -9,15 +9,16 @@ export const light = {
 	palette: {
 		type: 'light',
 		background: {
-			default: '#f4f6f8',
+			default: '#f6f7f8',
 			paper: common.white,
 		},
 		primary: {
 			contrastText: '#ffffff',
-			main: '#E92C28',
+			main: '#d9511e',
+			dark: '#b94318',
 		},
 		secondary: {
-			main: '#1646C1',
+			main: '#444444',
 		},
 		text: {
 			primary: '#212121',
@@ -59,7 +60,7 @@ export const light = {
 		MuiDivider: {
 			styleOverrides: {
 				root: {
-					borderColor: '#eee',
+					borderColor: '#e3e5e8',
 				},
 			},
 		},
@@ -95,7 +96,7 @@ export const light = {
 		MuiCssBaseline: {
 			styleOverrides: {
 				html: { height: '100%' },
-				body: { background: '#fff', height: '100%', minHeight: '100%' },
+				body: { background: '#f6f7f8', height: '100%', minHeight: '100%' },
 				p: {
 					margin: '0',
 				},
@@ -115,9 +116,29 @@ export const light = {
 					minWidth: 'auto',
 					lineHeight: '1.2',
 					boxShadow: 'none',
-					ButtonText: {
-						color: '#212121',
-					},
+					borderRadius: '10px',
+					minHeight: '40px',
+					padding: '9px 16px',
+					textTransform: 'none' as const,
+					fontWeight: 600,
+					transition: 'background-color 160ms ease, border-color 160ms ease, color 160ms ease',
+					'&:focus-visible': { outline: '2px solid #b94318', outlineOffset: '3px' },
+				},
+				sizeSmall: { minHeight: '32px', padding: '6px 10px' },
+				sizeLarge: { minHeight: '48px', padding: '12px 20px' },
+				text: { minHeight: '36px', padding: '6px 10px' },
+				containedPrimary: {
+					backgroundColor: '#d9511e', color: '#fff', boxShadow: 'none',
+					'&:hover': { backgroundColor: '#b94318', boxShadow: 'none' },
+					'&.Mui-disabled': { backgroundColor: '#e8e8e8', color: '#666666' },
+				},
+				outlinedPrimary: {
+					backgroundColor: '#fff', borderColor: '#e3e5e8', color: '#1f1f1f',
+					'&:hover': { backgroundColor: '#f2f2f2', borderColor: '#bdbdbd' },
+				},
+				textPrimary: {
+					color: '#1f1f1f',
+					'&:hover': { backgroundColor: '#f2f2f2' },
 				},
 			},
 		},
@@ -174,23 +195,33 @@ export const light = {
 		},
 		MuiInputBase: {
 			styleOverrides: {
-				root: {
-					input: {},
-				},
+				input: { lineHeight: 1.5, '&::placeholder': { color: '#758076', opacity: 1 } },
+			},
+		},
+		MuiInputLabel: {
+			styleOverrides: {
+				root: { color: '#666666', '&.Mui-focused': { color: '#984019' } },
 			},
 		},
 		MuiOutlinedInput: {
 			styleOverrides: {
 				root: {
-					height: '48px',
+					height: '44px',
 					width: '100%',
 					backgroundColor: '#fff',
-					input: {},
+					color: '#1f1f1f',
+					borderRadius: '10px',
+					'&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#bdbdbd' },
+					'&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#d9511e' },
+					'&.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: '#b3261e' },
+					'&.Mui-disabled .MuiOutlinedInput-notchedOutline': { borderColor: '#e3e5e8' },
+					'&.MuiInputBase-multiline': { height: 'auto', alignItems: 'flex-start' },
 				},
 				notchedOutline: {
-					padding: '8px',
-					top: '-9px',
-					border: '1px solid #eee',
+					padding: '0 8px',
+					top: '-5px',
+					borderColor: '#e3e5e8',
+					transition: 'border-color 160ms ease',
 				},
 			},
 		},
@@ -251,7 +282,7 @@ export const light = {
 			styleOverrides: {
 				root: {
 					'&.Mui-checked': {
-						color: 'black',
+						color: '#d9511e',
 					},
 				},
 			},
@@ -278,10 +309,20 @@ export const light = {
 				},
 			},
 		},
+		MuiMenu: {
+			styleOverrides: {
+				paper: { border: '1px solid #e3e5e8', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' },
+				list: { padding: '6px' },
+			},
+		},
 		MuiMenuItem: {
 			styleOverrides: {
 				root: {
-					padding: '6px 8px',
+					minHeight: '36px', padding: '7px 12px', borderRadius: '10px',
+					transition: 'background-color 160ms ease, color 160ms ease',
+					'&:hover, &.Mui-focusVisible': { backgroundColor: '#f2f2f2' },
+					'&.Mui-selected': { backgroundColor: '#fff1e8', color: '#b94318' },
+					'&.Mui-selected:hover': { backgroundColor: '#f2f2f2' },
 				},
 			},
 		},
@@ -295,7 +336,7 @@ export const light = {
 		MuiChip: {
 			styleOverrides: {
 				root: {
-					border: '1px solid #ddd',
+					border: '1px solid #e3e5e8',
 					color: '#212121',
 				},
 			},
@@ -303,4 +344,4 @@ export const light = {
 	},
 	shadow,
 	typography,
-};
+} as const;

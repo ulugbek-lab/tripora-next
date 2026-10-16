@@ -214,6 +214,9 @@
       "empty": "메시지를 입력해 주세요",
       "unavailable": "채팅을 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
       "user": "사용자"
+    },
+    "destinationVideo": {
+      "title": "특별한 여행지를 만나보세요."
     }
   },
   "marketplace": {

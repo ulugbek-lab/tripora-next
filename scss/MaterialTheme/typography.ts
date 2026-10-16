@@ -67,6 +67,6 @@ export default {
 	button: {
 		fontSize: 14,
 		fontWeight: 400,
-		textTransform: 'none',
+		textTransform: 'none' as const,
 	},
 };

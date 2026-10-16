@@ -1,14 +1,14 @@
 #pc-wrap.tripora-admin-shell {
 	min-height: 100vh;
-	background: #faf8f5;
-	color: #182523;
+	background: $tripora-bg;
+	color: $tripora-text;
 	.admin-bar {
 		left: 240px;
 		width: calc(100% - 240px);
 		background: #fff;
-		color: #182523;
+		color: $tripora-text;
 		box-shadow: none;
-		border-bottom: 1px solid #e1e6df;
+		border-bottom: 1px solid $tripora-border;
 		.MuiToolbar-root {
 			min-height: 72px;
 			padding-inline: 24px;
@@ -44,9 +44,10 @@
 		min-width: 0;
 	}
 	.admin-section {
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
+		border: 1px solid $tripora-border;
+		border-radius: 12px;
 		padding: 24px;
 		min-width: 0;
 		> h2 {
@@ -59,9 +60,9 @@
 	.admin-filters {
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: 12px;
+		gap: 10px;
 		align-items: center;
-		margin-bottom: 24px;
+		margin-bottom: 20px;
 		> .MuiTextField-root {
 			min-width: 140px;
 			max-width: 220px;
@@ -81,40 +82,43 @@
 		}
 	}
 	.MuiOutlinedInput-root {
-		border-radius: 9px;
+		height: 36px;
+		border-radius: $tripora-control-radius;
 		font-size: 13px;
 		&.Mui-focused .MuiOutlinedInput-notchedOutline {
-			border-color: #d9511e;
+			border-color: $tripora-primary;
 		}
 	}
 	.MuiInputLabel-root.Mui-focused {
-		color: #b94318;
+		color: $tripora-primary-hover;
 	}
 	.MuiButton-root {
 		text-transform: none;
 		border-radius: 8px;
 		font-weight: 600;
-		color: #b94318;
+		min-height: 32px;
+		padding: 6px 10px;
+		color: $tripora-text;
 	}
 	.MuiButton-outlined {
-		border-color: #dfba9f;
+		border-color: $tripora-border;
 	}
 	.MuiButton-contained {
-		background: #d9511e;
+		background: $tripora-primary;
 		color: #fff;
 		&:hover {
-			background: #b94318;
+			background: $tripora-primary-hover;
 		}
 	}
 	.MuiTableContainer-root {
-		border: 1px solid #e1e6df;
+		border: 1px solid $tripora-border;
 		border-radius: 12px;
 		overflow-x: auto;
 	}
 	.MuiTableHead-root {
-		background: #fcf8f2;
+		background: $tripora-surface-soft;
 		.MuiTableCell-root {
-			color: #596660;
+			color: $tripora-muted;
 			font-weight: 650;
 			font-size: 12px;
 			white-space: nowrap;
@@ -122,7 +126,7 @@
 	}
 	.MuiTableCell-root {
 		padding: 12px;
-		border-bottom-color: #edf0ea;
+		border-bottom-color: $tripora-border;
 		font-size: 13px;
 		line-height: 1.5;
 		strong {
@@ -132,9 +136,13 @@
 		small {
 			display: block;
 			font-size: 11px;
-			color: #596660;
+			color: $tripora-muted;
 			margin-top: 3px;
 		}
+	}
+	.MuiTableBody-root .MuiTableRow-root {
+		transition: background-color 160ms ease;
+		&:hover { background: $tripora-surface-soft; }
 	}
 	.MuiTableRow-root:last-child .MuiTableCell-root {
 		border-bottom: 0;
@@ -171,7 +179,7 @@
 		gap: 4px;
 		min-width: 145px;
 		font-size: 12px;
-		color: #596660;
+		color: $tripora-muted;
 	}
 	.admin-status {
 		display: inline-block;
@@ -186,7 +194,7 @@
 		}
 		&.status-SOLD_OUT,
 		&.status-BLOCK {
-			background: #fff0e7;
+			background: $tripora-surface-accent;
 			color: #984019;
 		}
 		&.status-DELETE {
@@ -201,12 +209,12 @@
 		justify-content: center;
 		text-align: center;
 		gap: 16px;
-		color: #596660;
+		color: $tripora-muted;
 		line-height: 1.6;
 	}
 	a:focus-visible,
 	button:focus-visible {
-		outline: 2px solid #d9511e;
+		outline: 2px solid $tripora-primary;
 		outline-offset: 3px;
 	}
 	@media (max-width: 900px) {
@@ -250,21 +258,21 @@
 	width: 240px;
 	padding: 22px 16px;
 	background: #fff;
-	border-right: 1px solid #e1e6df;
+	border-right: 1px solid $tripora-border;
 	.admin-brand {
 		display: flex;
 		align-items: center;
 		gap: 9px;
-		color: #182523;
+		color: $tripora-text;
 		font-size: 27px;
 		font-weight: 800;
 		padding: 0 10px;
 		svg {
-			color: #d9511e;
+			color: $tripora-primary;
 		}
 	}
 	.admin-label {
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 		margin: 10px 10px 24px;
 	}
@@ -278,16 +286,16 @@
 			gap: 10px;
 			padding: 12px 10px;
 			font-size: 14px;
-			color: #596660;
+			color: $tripora-muted;
 			border-radius: 9px;
 			white-space: normal;
 			&[aria-current='page'],
 			&:hover {
 				color: #984019;
-				background: #fff0e7;
+				background: $tripora-surface-accent;
 			}
 			&:focus-visible {
-				outline: 2px solid #d9511e;
+				outline: 2px solid $tripora-primary;
 				outline-offset: 2px;
 			}
 		}
@@ -295,7 +303,7 @@
 }
 .admin-dialog {
 	.MuiPaper-root {
-		border-radius: 16px;
+		border-radius: $tripora-card-radius;
 		min-width: min(420px, calc(100vw - 64px));
 	}
 	.admin-edit-fields {
@@ -305,15 +313,15 @@
 	.MuiOutlinedInput-root {
 		border-radius: 9px;
 		&.Mui-focused .MuiOutlinedInput-notchedOutline {
-			border-color: #d9511e;
+			border-color: $tripora-primary;
 		}
 	}
 	.MuiButton-root {
-		color: #b94318;
+		color: $tripora-primary-hover;
 		text-transform: none;
 	}
 	.MuiButton-contained {
-		background: #d9511e;
+		background: $tripora-primary;
 		color: #fff;
 	}
 }

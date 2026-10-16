@@ -1,6 +1,6 @@
 #pc-wrap.tripora-planner-shell {
-	background: #faf8f5;
-	color: #182523;
+	background: $tripora-bg;
+	color: $tripora-text;
 	.planner-page {
 		width: min(100% - 40px, 920px);
 		margin: 0 auto;
@@ -31,7 +31,7 @@
 		overflow-wrap: anywhere;
 	}
 	.planner-page header > p:last-child {
-		color: #596660;
+		color: $tripora-muted;
 	}
 	.planner-eyebrow {
 		color: #984019;
@@ -40,10 +40,8 @@
 	}
 	.planner-form,
 	.planner-result {
+		@include tripora-card-surface;
 		padding: 28px;
-		background: #fffdf9;
-		border: 1px solid #e1e6df;
-		border-radius: 18px;
 	}
 	.planner-form > .planner-fields {
 		border: 0;
@@ -64,7 +62,7 @@
 	.planner-form-heading h2 {
 		margin: 0;
 		font-size: 20px;
-		color: #182523;
+		color: $tripora-text;
 	}
 	.planner-eyebrow {
 		display: flex;
@@ -72,10 +70,10 @@
 		gap: 8px;
 	}
 	.planner-form {
-		box-shadow: 0 8px 28px rgba(72, 48, 28, 0.04);
+		box-shadow: $tripora-shadow;
 	}
 	.planner-form .MuiOutlinedInput-input {
-		padding: 16.5px 14px;
+		padding: 12.5px 14px;
 		line-height: 1.5;
 	}
 	.planner-form .MuiInputLabel-root {
@@ -88,9 +86,9 @@
 	.planner-generating {
 		margin-top: 28px;
 		padding: 28px;
-		border-radius: 18px;
-		border: 1px solid #eadbce;
-		background: #fffdf9;
+		border-radius: $tripora-card-radius;
+		border: 1px solid $tripora-border;
+		background: #fff;
 	}
 	.planner-placeholder {
 		display: grid;
@@ -100,7 +98,7 @@
 	.planner-placeholder > div {
 		padding: 18px;
 		border-radius: 12px;
-		background: #faf5ef;
+		background: $tripora-surface-soft;
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.MuiSkeleton-root,
@@ -112,17 +110,17 @@
 		grid-column: 1 / -1;
 	}
 	.planner-form .MuiOutlinedInput-root {
-		height: 56px;
-		border-radius: 12px;
+		height: 48px;
+		border-radius: $tripora-control-radius;
 		background: #fff;
 	}
 	.planner-form .MuiOutlinedInput-notchedOutline {
-		border-color: #d6ded7;
+		border-color: $tripora-border;
 		top: -5px;
 		padding: 0 8px;
 	}
 	.planner-form .Mui-focused .MuiOutlinedInput-notchedOutline {
-		border-color: #d9511e;
+		border-color: $tripora-primary;
 	}
 	.planner-form .MuiInputLabel-root.Mui-focused {
 		color: #984019;
@@ -137,14 +135,14 @@
 		color: #b3261e;
 	}
 	.planner-form .MuiButton-contained {
-		background: #d9511e;
-		border-radius: 12px;
-		padding: 12px 20px;
+		background: $tripora-primary;
+		border-radius: $tripora-control-radius;
+		padding: 10px 18px;
 		box-shadow: none;
 		text-transform: none;
 	}
 	.planner-form .MuiButton-contained:hover {
-		background: #b94318;
+		background: $tripora-primary-hover;
 	}
 	.planner-form .MuiButton-contained.Mui-disabled {
 		background: #e6d9d0;
@@ -157,7 +155,7 @@
 	}
 	.planner-note {
 		font-size: 13px;
-		color: #596660;
+		color: $tripora-muted;
 	}
 	.planner-result {
 		margin-top: 28px;
@@ -171,10 +169,8 @@
 		color: #426457;
 	}
 	.planner-day {
+		@include tripora-card-surface;
 		padding: 24px;
-		border: 1px solid #e1e6df;
-		border-radius: 14px;
-		background: #fff;
 		margin-top: 20px;
 	}
 	.planner-day ul {
@@ -189,7 +185,7 @@
 	.planner-total {
 		margin-top: 24px;
 		padding: 20px;
-		background: #fff0e7;
+		background: $tripora-surface-accent;
 		border-radius: 12px;
 	}
 	.planner-total > strong {

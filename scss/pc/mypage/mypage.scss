@@ -1,11 +1,5 @@
 #pc-wrap.tripora-mypage-shell {
-	background: #faf8f5;
-	.home-navigation {
-		background: #fff;
-		max-width: none;
-		padding-inline: max(24px, calc((100vw - 1192px) / 2));
-		border-bottom: 1px solid #e1e6df;
-	}
+	background: $tripora-bg;
 	.home-footer {
 		margin-top: 0;
 	}
@@ -20,7 +14,7 @@
 	.mypage-heading {
 		margin-bottom: 24px;
 		> p {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			font-size: 11px;
 			font-weight: 700;
 			letter-spacing: 1.5px;
@@ -39,11 +33,9 @@
 		align-items: start;
 	}
 	.mypage-menu {
-		background: #fff;
-		padding: 22px 16px;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
-		gap: 18px;
+		@include tripora-card-surface;
+		padding: 18px 12px;
+		gap: 14px;
 		nav {
 			display: flex;
 			flex-direction: column;
@@ -52,16 +44,24 @@
 				display: flex;
 				gap: 10px;
 				align-items: center;
-				padding: 10px;
+				padding: 9px;
+				border: 1px solid transparent;
+				transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 				white-space: normal;
 				font-size: 13px;
 				line-height: 1.5;
-				color: #596660;
+				color: $tripora-muted;
 				border-radius: 8px;
-				&[aria-current='page'],
-				&:hover {
-					background: #fff0e7;
+				&:hover,
+				&:focus-visible {
+					background: $tripora-surface;
+					border-color: $tripora-border-hover;
 					color: #984019;
+				}
+				&[aria-current='page'] {
+					background: $tripora-surface-accent;
+					border-color: $tripora-border-hover;
+					color: $tripora-primary-hover;
 				}
 				svg {
 					flex-shrink: 0;
@@ -69,8 +69,8 @@
 			}
 		}
 		> button {
-			color: #b94318;
-			border-top: 1px solid #edf0ea;
+			color: $tripora-primary-hover;
+			border-top: 1px solid $tripora-border;
 			border-radius: 0;
 		}
 	}
@@ -112,21 +112,21 @@
 			margin-bottom: 22px;
 		}
 		.MuiButton-outlined {
-			color: #b94318;
-			border-color: #d9511e;
+			color: $tripora-text;
+			border-color: $tripora-border;
 			&:hover {
-				background: #fff0e7;
+				background: $tripora-hover;
 			}
 		}
 		.MuiOutlinedInput-root {
-			border-radius: 10px;
+			border-radius: $tripora-control-radius;
 			background: #fff;
 			&.Mui-focused .MuiOutlinedInput-notchedOutline {
-				border-color: #d9511e;
+				border-color: $tripora-primary;
 			}
 		}
 		.MuiInputLabel-root.Mui-focused {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 		.MuiInputBase-multiline {
 			padding: 16px 14px;
@@ -148,14 +148,14 @@
 			width: fit-content;
 			margin: 24px auto 0;
 			.Mui-selected {
-				background: #d9511e;
+				background: $tripora-primary;
 				color: #fff;
 			}
 		}
 		.pagination-config {
 			align-items: center;
 			gap: 12px;
-			color: #596660;
+			color: $tripora-muted;
 			font-size: 13px;
 		}
 	}
@@ -168,18 +168,16 @@
 		text-align: center;
 		gap: 14px;
 		padding: 48px 24px;
-		color: #596660;
+		color: $tripora-muted;
 		background: #fff;
 		border-radius: 14px;
 		line-height: 1.6;
 	}
 	.mypage-profile-form,
 	.travel-package-form {
+		@include tripora-card-surface;
 		padding: 26px;
 		gap: 22px;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
-		background: #fff;
 		.form-fields {
 			display: grid;
 			grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -198,7 +196,7 @@
 			}
 			small {
 				flex-basis: 100%;
-				color: #596660;
+				color: $tripora-muted;
 				font-size: 12px;
 			}
 		}
@@ -243,24 +241,23 @@
 			flex-direction: row;
 			gap: 10px;
 			.active-tab-name {
-				background: #fff0e7;
+				background: $tripora-surface-accent;
 				color: #984019;
 			}
 		}
 	}
 	.managed-travel-package-card {
+		@include tripora-card-surface;
+		@include tripora-card-interaction;
 		display: grid;
 		grid-template-columns: 180px minmax(0, 1fr);
 		gap: 20px;
-		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
 		padding: 20px;
 		> img {
 			width: 180px;
 			height: 160px;
 			object-fit: cover;
-			border-radius: 10px;
+			border-radius: $tripora-control-radius;
 		}
 		.card-information {
 			gap: 9px;
@@ -275,7 +272,7 @@
 				}
 			}
 			p {
-				color: #596660;
+				color: $tripora-muted;
 				font-size: 13px;
 				line-height: 1.5;
 			}
@@ -285,14 +282,16 @@
 			flex-direction: row;
 			align-items: center;
 			gap: 8px;
-			border-top: 1px solid #edf0ea;
+			border-top: 1px solid $tripora-border;
 			padding-top: 10px;
 			.MuiIconButton-root {
-				color: #b94318;
+				color: $tripora-primary-hover;
 			}
 		}
 	}
 	.mypage-write-article {
+		@include tripora-card-surface;
+		padding: 20px;
 		gap: 20px;
 		.article-form-fields {
 			display: grid;
@@ -356,22 +355,16 @@
 
 #pc-wrap.tripora-mypage-shell .mypage-content {
 	.marketplace-card {
-		border: 1px solid #e0e5df;
-		border-radius: 16px;
+		@include tripora-card-surface;
+		@include tripora-card-interaction;
 		overflow: hidden;
-		background: #fff;
 		min-width: 0;
 		height: 100%;
-		transition: border-color 0.18s, box-shadow 0.18s;
-		&:hover {
-			border-color: #b5c3b8;
-			box-shadow: 0 6px 20px rgba(24, 37, 35, 0.07);
-		}
 	}
 	.marketplace-card-media {
 		position: relative;
 		aspect-ratio: 4 / 3;
-		background: #edf1e9;
+		background: $tripora-surface-soft;
 		> a {
 			display: block;
 			height: 100%;
@@ -389,7 +382,7 @@
 		top: 12px;
 		padding: 6px 9px;
 		border-radius: 7px;
-		background: #fff0e7;
+		background: $tripora-surface-accent;
 		color: #984019;
 		font-size: 11px;
 		font-weight: 700;
@@ -402,10 +395,10 @@
 		width: 36px;
 		height: 36px;
 		background: #fff;
-		color: #d9511e;
+		color: $tripora-primary;
 		box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
 		&:hover {
-			background: #fff0e8;
+			background: $tripora-surface-accent;
 		}
 		&:disabled {
 			background: #f5f5f1;
@@ -420,12 +413,12 @@
 		right: 12px;
 		bottom: 14px;
 		text-align: center;
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 	}
 	.marketplace-card-info {
-		padding: 17px;
-		gap: 10px;
+		padding: 14px;
+		gap: 8px;
 		flex: 1;
 	}
 	.package-destination {
@@ -446,14 +439,14 @@
 			overflow-wrap: anywhere;
 		}
 		&:hover {
-			color: #d9511e;
+			color: $tripora-primary;
 		}
 	}
 	.package-facts {
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: 8px 12px;
-		color: #596660;
+		color: $tripora-muted;
 		span {
 			display: inline-flex;
 			align-items: center;
@@ -467,7 +460,7 @@
 	}
 	.package-date,
 	.package-availability {
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 		line-height: 1.5;
 	}
@@ -480,17 +473,17 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 10px;
-		border-top: 1px solid #e8ece5;
-		padding-top: 14px;
+		border-top: 1px solid $tripora-border;
+		padding-top: 10px;
 		margin-top: auto;
 		> a {
 			font-size: 12px;
 			font-weight: 700;
-			color: #d9511e;
+			color: $tripora-primary;
 		}
 	}
 	.package-price {
-		color: #b94318;
+		color: $tripora-text;
 		font-size: 21px;
 		font-weight: 750;
 		letter-spacing: -0.6px;
@@ -498,19 +491,17 @@
 			font-size: 11px;
 			font-weight: 600;
 			letter-spacing: 0;
-			color: #596660;
+			color: $tripora-muted;
 		}
 	}
 }
 
 #pc-wrap.tripora-mypage-shell .mypage-content {
 	.tripora-community-card {
-		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
+		@include tripora-card-surface;
+		@include tripora-card-interaction;
 		overflow: hidden;
 		min-width: 0;
-		box-shadow: 0 3px 14px rgba(24, 37, 35, 0.03);
 	}
 	.community-card-image {
 		height: 190px;
@@ -530,7 +521,7 @@
 	.community-card-category {
 		align-self: flex-start;
 		padding: 5px 9px;
-		background: #fff0e7;
+		background: $tripora-surface-accent;
 		color: #984019;
 		border-radius: 6px;
 		font-size: 11px;
@@ -546,12 +537,12 @@
 			overflow-wrap: anywhere;
 		}
 		&:hover {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 	}
 	.community-card-preview {
 		font-size: 14px;
-		color: #596660;
+		color: $tripora-muted;
 		line-height: 1.65;
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
@@ -566,7 +557,7 @@
 		gap: 12px;
 		margin-top: auto;
 		font-size: 12px;
-		color: #596660;
+		color: $tripora-muted;
 		flex-wrap: wrap;
 		a {
 			color: #426457;
@@ -578,9 +569,9 @@
 		display: flex;
 		align-items: center;
 		gap: 18px;
-		border-top: 1px solid #edf0ea;
+		border-top: 1px solid $tripora-border;
 		padding-top: 12px;
-		color: #596660;
+		color: $tripora-muted;
 		font-size: 12px;
 		span {
 			display: inline-flex;
@@ -591,7 +582,7 @@
 			font-size: 18px;
 		}
 		.MuiIconButton-root {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			margin-left: auto;
 			gap: 5px;
 			small {
@@ -600,7 +591,7 @@
 		}
 	}
 	.community-card-read {
-		color: #b94318;
+		color: $tripora-primary-hover;
 		font-size: 13px;
 		font-weight: 600;
 		align-self: flex-start;
@@ -612,13 +603,11 @@
 
 #pc-wrap.tripora-mypage-shell .mypage-content {
 	.tripora-agent-card {
+		@include tripora-card-surface;
+		@include tripora-card-interaction;
 		min-width: 0;
 		padding: 24px;
 		gap: 16px;
-		background: #fff;
-		border: 1px solid #e1e6df;
-		border-radius: 16px;
-		box-shadow: 0 3px 12px rgba(24, 37, 35, 0.03);
 	}
 }
 
@@ -639,7 +628,7 @@
 			margin-bottom: 6px;
 		}
 		&:hover h2 {
-			color: #b94318;
+			color: $tripora-primary-hover;
 		}
 	}
 }
@@ -657,7 +646,7 @@
 #pc-wrap.tripora-mypage-shell .mypage-content {
 	.agent-role {
 		color: #984019;
-		background: #fff0e7;
+		background: $tripora-surface-accent;
 		border-radius: 6px;
 		padding: 4px 8px;
 		font-size: 11px;
@@ -668,7 +657,7 @@
 
 #pc-wrap.tripora-mypage-shell .mypage-content {
 	.agent-summary {
-		color: #596660;
+		color: $tripora-muted;
 		line-height: 1.6;
 		font-size: 14px;
 		display: -webkit-box;
@@ -699,7 +688,7 @@
 		flex-wrap: wrap;
 		gap: 8px 18px;
 		font-size: 12px;
-		color: #596660;
+		color: $tripora-muted;
 	}
 }
 
@@ -707,19 +696,19 @@
 	.agent-actions {
 		margin-top: auto;
 		padding-top: 14px;
-		border-top: 1px solid #edf0ea;
+		border-top: 1px solid $tripora-border;
 		flex-direction: row;
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 8px;
 		> a {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			font-size: 13px;
 			font-weight: 650;
 			margin-right: auto;
 		}
 		.MuiIconButton-root {
-			color: #b94318;
+			color: $tripora-primary-hover;
 			svg {
 				font-size: 19px;
 			}
@@ -733,17 +722,17 @@
 
 .mypage-confirm-dialog {
 	.MuiPaper-root {
-		border-radius: 16px;
+		border-radius: $tripora-card-radius;
 	}
 	.MuiButton-root {
 		text-transform: none;
-		color: #b94318;
+		color: $tripora-primary-hover;
 	}
 	.MuiButton-contained {
-		background: #d9511e;
+		background: $tripora-primary;
 		color: #fff;
 		&:hover {
-			background: #b94318;
+			background: $tripora-primary-hover;
 		}
 	}
 }
@@ -753,4 +742,31 @@
  .MuiOutlinedInput-notchedOutline { top: -5px; padding: 0 8px; }
  textarea.MuiInputBase-input { padding: 0; margin: 0; line-height: 1.5; outline: none; }
  .MuiInputLabel-root { line-height: 1.5; }
+}
+
+// Compact only	Saved Packages and Recently Viewed collections.
+#pc-wrap.tripora-mypage-shell .mypage-content .travel-package-collection {
+	.collection-list {
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+		gap: 16px;
+	}
+	.marketplace-card { max-width: 320px; border-radius: $tripora-card-radius; }
+	.marketplace-card-media { aspect-ratio: auto; height: 150px; }
+	.marketplace-card-info { padding: 12px; gap: 7px; }
+	.package-title h2 { font-size: 15px; line-height: 1.4; }
+	.package-destination { font-size: 10px; }
+	.package-facts { gap: 6px 10px; }
+	.package-facts span, .package-date, .package-availability { font-size: 11px; }
+	.package-card-bottom { padding-top: 10px; gap: 8px; }
+	.package-price { font-size: 18px; }
+	.package-type { top: 8px; left: 8px; padding: 4px 7px; font-size: 10px; }
+	.package-save { top: 6px; right: 6px; width: 32px; height: 32px; }
+	.package-save svg { font-size: 18px; }
+	@media (max-width: 600px) {
+		.marketplace-card { max-width: none; }
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#pc-wrap.tripora-mypage-shell .mypage-menu nav a { transition: none; }
 }

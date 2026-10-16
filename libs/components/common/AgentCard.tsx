@@ -4,6 +4,9 @@ import { Avatar, Button, IconButton, Stack } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import EastIcon from '@mui/icons-material/East';
 import { useTranslation } from 'next-i18next';
 import { Member } from '../../types/member/member';
 import { packageImageUrl } from '../travelPackage/TravelPackageCard';
@@ -24,7 +27,7 @@ const AgentCard = ({ agent, onLike, liking, onFollow, following, busy }: AgentCa
 	return (
 		<Stack component="article" className="tripora-agent-card">
 			<Link href={href} className="agent-identity">
-				<Avatar src={agent.memberImage ? packageImageUrl(agent.memberImage) : undefined} alt={name}>
+				<Avatar variant="rounded" src={agent.memberImage ? packageImageUrl(agent.memberImage) : undefined} alt={name}>
 					{name.charAt(0)}
 				</Avatar>
 				<div>
@@ -40,11 +43,22 @@ const AgentCard = ({ agent, onLike, liking, onFollow, following, busy }: AgentCa
 				</p>
 			)}
 			<div className="agent-stats">
-				{agent.memberPackages !== undefined && <span>{t('agents.packageCount', { count: agent.memberPackages })}</span>}
-				<span>{t('agents.viewCount', { count: agent.memberViews ?? 0 })}</span>
+				{agent.memberPackages !== undefined && (
+					<span>
+						<TravelExploreIcon />
+						{t('agents.packageCount', { count: agent.memberPackages })}
+					</span>
+				)}
+				<span>
+					<VisibilityOutlinedIcon />
+					{t('agents.viewCount', { count: agent.memberViews ?? 0 })}
+				</span>
 			</div>
 			<Stack className="agent-actions">
-				<Link href={href}>{t('agents.viewProfile')}</Link>
+				<Link href={href} className="agent-profile-action">
+					{t('agents.viewProfile')}
+					<EastIcon fontSize="small" />
+				</Link>
 				{onFollow && (
 					<Button variant="outlined" disabled={busy} onClick={onFollow}>
 						{t(following ? 'agents.unfollow' : 'agents.follow')}
